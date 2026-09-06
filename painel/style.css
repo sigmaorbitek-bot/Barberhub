@@ -1,0 +1,1515 @@
+/* ==================================================
+   BARBERHUB — PAINEL DA BARBEARIA
+   ================================================== */
+
+/* ==================================================
+   VARIÁVEIS
+   ================================================== */
+
+:root {
+  --bg-dark: #080808;
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1a;
+
+  --blue: #007bff;
+  --red: #c1121f;
+  --gold: #d4af37;
+
+  --white: #ffffff;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #a6a6a6;
+  --text-muted: #707070;
+
+  --border-color: #292929;
+  --border-light: #363636;
+
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--blue) 0%,
+    var(--red) 50%,
+    var(--gold) 100%
+  );
+
+  --gradient-gold: linear-gradient(135deg, #b8860b, #d4af37, #ffd700);
+
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  --shadow-sidebar: 8px 0 30px rgba(0, 0, 0, 0.25);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --sidebar-width: 250px;
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+
+  --font-base:
+    "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ==================================================
+   RESET
+   ================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ==================================================
+   HTML / BODY
+   ================================================== */
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+
+  background: var(--bg-dark);
+
+  color: var(--text-primary);
+
+  font-family: var(--font-base);
+
+  line-height: 1.5;
+}
+
+/* ==================================================
+   BOTÕES / INPUTS
+   ================================================== */
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==================================================
+   PAINEL PRINCIPAL
+   ================================================== */
+
+.painel {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+
+  background: var(--bg-dark);
+}
+
+/* ==================================================
+   MENU LATERAL
+   ================================================== */
+
+.painel-sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: var(--sidebar-width);
+
+  display: flex;
+  flex-direction: column;
+
+  background: linear-gradient(180deg, #101010 0%, #0b0b0b 100%);
+
+  border-right: 1px solid var(--border-color);
+
+  box-shadow: var(--shadow-sidebar);
+
+  z-index: 100;
+}
+
+/* ==================================================
+   TOPO DO SIDEBAR
+   ================================================== */
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 24px 20px;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ==================================================
+   LOGO DO BARBERHUB
+   ================================================== */
+
+.sidebar-logo {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: var(--radius-md);
+
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-light);
+
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.08);
+}
+
+/* ==================================================
+   IMAGEM DA LOGO
+   ================================================== */
+
+.bv-logo {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+/* ==================================================
+   IDENTIDADE
+   ================================================== */
+
+.sidebar-brand {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand strong {
+  color: var(--white);
+
+  font-size: 1rem;
+
+  line-height: 1.2;
+}
+
+.sidebar-brand span {
+  margin-top: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 0.72rem;
+
+  white-space: nowrap;
+}
+
+/* ==================================================
+   MENU
+   ================================================== */
+
+.sidebar-menu {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 18px 12px;
+
+  overflow-y: auto;
+}
+
+/* ==================================================
+   ITEM DO MENU
+   ================================================== */
+
+.menu-item {
+  width: 100%;
+
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 14px;
+
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  color: var(--text-secondary);
+
+  font-family: inherit;
+
+  font-size: 0.86rem;
+
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* ==================================================
+   ÍCONE DO MENU
+   ================================================== */
+
+.menu-icon {
+  width: 24px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.05rem;
+}
+
+/* ==================================================
+   HOVER MENU
+   ================================================== */
+
+.menu-item:hover {
+  color: var(--text-primary);
+
+  background: rgba(255, 255, 255, 0.045);
+
+  transform: translateX(2px);
+}
+
+/* ==================================================
+   MENU ATIVO
+   ================================================== */
+
+.menu-item--ativo {
+  color: var(--white);
+
+  background: linear-gradient(
+    90deg,
+    rgba(0, 123, 255, 0.18),
+    rgba(193, 18, 31, 0.1),
+    rgba(212, 175, 55, 0.08)
+  );
+
+  border-left: 3px solid var(--gold);
+
+  padding-left: 11px;
+}
+
+/* ==================================================
+   MENU ATIVO — HOVER
+   ================================================== */
+
+.menu-item--ativo:hover {
+  transform: none;
+
+  background: linear-gradient(
+    90deg,
+    rgba(0, 123, 255, 0.22),
+    rgba(193, 18, 31, 0.12),
+    rgba(212, 175, 55, 0.1)
+  );
+}
+
+/* ==================================================
+   PARTE INFERIOR
+   ================================================== */
+
+.sidebar-bottom {
+  padding: 12px;
+
+  border-top: 1px solid var(--border-color);
+}
+
+/* ==================================================
+   BOTÃO MINHAS LOJAS
+   ================================================== */
+
+.menu-item--voltar {
+  color: var(--text-muted);
+}
+
+.menu-item--voltar:hover {
+  color: var(--white);
+
+  background: rgba(0, 123, 255, 0.08);
+}
+
+/* ==================================================
+   ÁREA PRINCIPAL
+   ================================================== */
+
+.painel-main {
+  width: calc(100% - var(--sidebar-width));
+
+  min-height: 100vh;
+
+  margin-left: var(--sidebar-width);
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 123, 255, 0.035),
+      transparent 35%
+    ),
+    var(--bg-dark);
+}
+
+/* ==================================================
+   CABEÇALHO
+   ================================================== */
+
+.painel-header {
+  width: 100%;
+
+  min-height: 100px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 22px 34px;
+
+  background: rgba(13, 13, 13, 0.92);
+
+  border-bottom: 1px solid var(--border-color);
+
+  backdrop-filter: blur(10px);
+}
+
+/* ==================================================
+   LOGO DA BARBEARIA
+   ================================================== */
+
+.painel-logo,
+.painel-logo-vazio {
+  width: 64px;
+  height: 64px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  border: 2px solid var(--gold);
+
+  object-fit: cover;
+
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+/* ==================================================
+   LOGO VAZIA
+   ================================================== */
+
+.painel-logo-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--bg-secondary);
+
+  font-size: 25px;
+}
+
+/* ==================================================
+   TÍTULO DO CABEÇALHO
+   ================================================== */
+
+.painel-header h1 {
+  font-size: 1.45rem;
+
+  line-height: 1.2;
+
+  margin-bottom: 4px;
+}
+
+/* ==================================================
+   INFORMAÇÃO DO CABEÇALHO
+   ================================================== */
+
+.painel-header p {
+  color: var(--text-secondary);
+
+  font-size: 0.85rem;
+}
+
+/* ==================================================
+   CONTEÚDOS
+   ================================================== */
+
+.painel-conteudos {
+  width: 100%;
+
+  max-width: 1400px;
+
+  margin: 0 auto;
+
+  padding: 34px;
+
+  flex: 1;
+}
+
+/* ==================================================
+   CONTEÚDO INDIVIDUAL
+   ================================================== */
+
+.painel-conteudo {
+  width: 100%;
+
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-lg);
+
+  padding: 30px;
+
+  min-height: 160px;
+
+  box-shadow: var(--shadow-card);
+
+  animation: aparecerConteudo 0.3s ease;
+}
+
+/* ==================================================
+   TÍTULO DO CONTEÚDO
+   ================================================== */
+
+.conteudo-titulo {
+  margin-bottom: 26px;
+}
+
+.conteudo-titulo h1 {
+  font-size: 1.45rem;
+
+  line-height: 1.2;
+
+  margin-bottom: 7px;
+}
+
+.conteudo-titulo p {
+  color: var(--text-secondary);
+
+  font-size: 0.88rem;
+}
+
+/* ==================================================
+   DASHBOARD
+   ================================================== */
+
+.dashboard-cards {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 28px;
+}
+
+/* ==================================================
+   CARD DO DASHBOARD
+   ================================================== */
+
+.dashboard-card {
+  min-height: 140px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: linear-gradient(145deg, #1c1c1c, #151515);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-md);
+
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.dashboard-card:hover {
+  border-color: var(--border-light);
+
+  transform: translateY(-2px);
+}
+
+.dashboard-card > span {
+  margin-bottom: 8px;
+
+  font-size: 1.3rem;
+}
+
+.dashboard-card strong {
+  color: var(--white);
+
+  font-size: 1.45rem;
+
+  line-height: 1.2;
+}
+
+.dashboard-card p {
+  margin-top: 5px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.78rem;
+}
+
+/* ==================================================
+   SEÇÃO DO DASHBOARD
+   ================================================== */
+
+.dashboard-secao {
+  margin-top: 10px;
+}
+
+.dashboard-secao h2 {
+  margin-bottom: 14px;
+
+  font-size: 1rem;
+}
+
+/* ==================================================
+   MENSAGENS
+   ================================================== */
+
+.em-breve {
+  padding: 20px 0;
+
+  color: var(--text-muted);
+
+  text-align: center;
+
+  font-size: 0.9rem;
+}
+
+.mensagem {
+  min-height: 20px;
+
+  margin-top: -10px;
+
+  margin-bottom: 15px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.85rem;
+
+  text-align: center;
+}
+
+/* ==================================================
+   FORMULÁRIO
+   ================================================== */
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  margin-bottom: 24px;
+
+  padding-bottom: 24px;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ==================================================
+   CAMPOS INLINE
+   ================================================== */
+
+.campo-inline {
+  display: grid;
+
+  grid-template-columns: 2fr 1fr 1fr;
+
+  gap: 12px;
+}
+
+/* ==================================================
+   CAMPO
+   ================================================== */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+/* ==================================================
+   LABEL
+   ================================================== */
+
+.campo label {
+  color: var(--text-secondary);
+
+  font-size: 0.78rem;
+
+  font-weight: 500;
+}
+
+/* ==================================================
+   INPUT
+   ================================================== */
+
+.campo input,
+.campo select {
+  width: 100%;
+
+  height: 44px;
+
+  padding: 0 12px;
+
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-sm);
+
+  color: var(--text-primary);
+
+  font-family: inherit;
+
+  font-size: 0.88rem;
+
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* ==================================================
+   FOCO
+   ================================================== */
+
+.campo input:focus,
+.campo select:focus {
+  border-color: var(--blue);
+
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* ==================================================
+   PLACEHOLDER
+   ================================================== */
+
+.campo input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ==================================================
+   INPUT FILE
+   ================================================== */
+
+.campo input[type="file"] {
+  height: auto;
+
+  min-height: 44px;
+
+  padding: 10px;
+}
+
+/* ==================================================
+   BOTÕES DO FORMULÁRIO
+   ================================================== */
+
+.form-item-botoes {
+  display: flex;
+  gap: 10px;
+}
+
+#form-configuracao-barbearia button[type="submit"],
+#form-configuracao-usuario button[type="submit"] {
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ==================================================
+   BOTÃO PRINCIPAL
+   ================================================== */
+
+.btn-principal {
+  min-height: 44px;
+
+  flex: 1;
+
+  padding: 0 18px;
+
+  border: none;
+
+  border-radius: var(--radius-sm);
+
+  background: var(--gradient-brand);
+
+  color: var(--white);
+
+  font-family: inherit;
+
+  font-size: 0.88rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    filter var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* ==================================================
+   HOVER
+   ================================================== */
+
+.btn-principal:hover {
+  filter: brightness(1.1);
+
+  transform: translateY(-1px);
+}
+
+/* ==================================================
+   ACTIVE
+   ================================================== */
+
+.btn-principal:active {
+  transform: translateY(0);
+}
+
+/* ==================================================
+   BOTÃO SECUNDÁRIO
+   ================================================== */
+
+.btn-voltar {
+  min-height: 44px;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--border-light);
+
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  color: var(--text-secondary);
+
+  font-family: inherit;
+
+  font-size: 0.85rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.btn-voltar:hover {
+  border-color: var(--red);
+
+  color: var(--text-primary);
+}
+
+/* ==================================================
+   PRÉVIA DO PRODUTO
+   ================================================== */
+
+.preview-produto {
+  width: 100%;
+
+  margin-top: 8px;
+
+  padding: 10px;
+
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-md);
+
+  text-align: center;
+}
+
+.preview-produto img {
+  display: block;
+
+  width: 120px;
+  height: 120px;
+
+  margin: 0 auto;
+
+  border-radius: var(--radius-md);
+
+  object-fit: cover;
+
+  border: 1px solid var(--border-light);
+}
+
+/* ==================================================
+   LISTA
+   ================================================== */
+
+.lista-itens {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+/* ==================================================
+   ITEM DA LISTA
+   ================================================== */
+
+.item-lista {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 14px 16px;
+
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-sm);
+
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.item-lista:hover {
+  border-color: var(--border-light);
+
+  transform: translateY(-1px);
+}
+
+/* ==================================================
+   INFORMAÇÕES
+   ================================================== */
+
+.item-info {
+  min-width: 0;
+}
+
+.item-info h3 {
+  margin-bottom: 3px;
+
+  font-size: 0.95rem;
+
+  word-break: break-word;
+}
+
+.item-info p {
+  color: var(--text-secondary);
+
+  font-size: 0.82rem;
+}
+
+/* ==================================================
+   AÇÕES
+   ================================================== */
+
+.item-acoes {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+.item-acoes button {
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid var(--border-light);
+
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  color: var(--text-primary);
+
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+  }
+.item-acoes button:hover {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* ==================================================
+   PRODUTO COM FOTO
+   ================================================== */
+
+.item-info--com-foto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==================================================
+   MINIATURA
+   ================================================== */
+
+.produto-thumb {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-light);
+}
+
+/* ==================================================
+   PRODUTO SEM FOTO
+   ================================================== */
+
+.produto-thumb--vazia {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: var(--bg-secondary);
+
+  font-size: 1.1rem;
+}
+
+/* ==================================================
+   FILTROS DE AGENDAMENTO
+   ================================================== */
+
+.filtros-agendamentos {
+  display: flex;
+
+  gap: 8px;
+
+  margin-bottom: 20px;
+
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filtro-agendamento {
+  min-height: 38px;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--border-light);
+
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  color: var(--text-secondary);
+
+  font-family: inherit;
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.filtro-agendamento:hover {
+  color: var(--text-primary);
+
+  border-color: var(--gold);
+}
+
+.filtro-agendamento.filtro--ativo {
+  color: var(--white);
+
+  border-color: transparent;
+
+  background: var(--gradient-brand);
+}
+
+/* ==================================================
+   STATUS
+   ================================================== */
+
+.select-status {
+  height: 34px;
+
+  padding: 0 10px;
+
+  border-radius: var(--radius-sm);
+
+  border: 1px solid var(--border-light);
+
+  background: var(--bg-secondary);
+
+  color: var(--text-primary);
+
+  font-family: inherit;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  outline: none;
+}
+
+.select-status--pendente {
+  border-color: var(--gold);
+
+  color: var(--gold);
+}
+
+.select-status--confirmado {
+  border-color: var(--blue);
+
+  color: var(--blue);
+}
+
+.select-status--concluido {
+  border-color: #4ade80;
+
+  color: #4ade80;
+}
+
+.select-status--cancelado {
+  border-color: var(--red);
+
+  color: #ff5c67;
+}
+
+/* ==================================================
+   CONFIGURAÇÕES
+   ================================================== */
+
+.configuracao-card {
+  padding: 24px;
+
+  margin-bottom: 18px;
+
+  background: var(--bg-secondary);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-md);
+}
+
+.configuracao-card h2 {
+  margin-bottom: 6px;
+
+  font-size: 1rem;
+}
+
+.configuracao-card > p {
+  margin-bottom: 20px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.82rem;
+}
+
+/* ==================================================
+   CONFIGURAÇÃO — PERIGO
+   ================================================== */
+
+.configuracao-card--perigo {
+  border-color: rgba(193, 18, 31, 0.35);
+
+  background: rgba(193, 18, 31, 0.035);
+}
+
+.configuracao-card--perigo h2 {
+  color: #ff5c67;
+}
+
+/* ==================================================
+   BOTÃO PERIGO
+   ================================================== */
+
+.btn-perigo {
+  min-height: 44px;
+
+  padding: 0 18px;
+
+  border: 1px solid var(--red);
+
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  color: #ff5c67;
+
+  font-family: inherit;
+
+  font-size: 0.88rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.btn-perigo:hover {
+  background: var(--red);
+
+  border-color: var(--red);
+
+  color: var(--white);
+}
+
+/* ==================================================
+   FOCO — ACESSIBILIDADE
+   ================================================== */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--blue);
+
+  outline-offset: 2px;
+}
+
+/* ==================================================
+   ANIMAÇÃO
+   ================================================== */
+
+@keyframes aparecerConteudo {
+  from {
+    opacity: 0;
+
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ==================================================
+   RESPONSIVIDADE — TABLET
+   ================================================== */
+
+@media (max-width: 1000px) {
+  :root {
+    --sidebar-width: 220px;
+  }
+
+  .sidebar-top {
+    padding: 20px 15px;
+  }
+
+  .sidebar-menu {
+    padding: 15px 10px;
+  }
+
+  .menu-item {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .menu-item--ativo {
+    padding-left: 7px;
+  }
+
+  .painel-header {
+    padding: 20px 24px;
+  }
+
+  .painel-conteudos {
+    padding: 24px;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ==================================================
+   RESPONSIVIDADE — CELULAR
+   ================================================== */
+
+@media (max-width: 700px) {
+  .painel {
+    display: block;
+  }
+
+  /* ----------------------------------------------
+     SIDEBAR
+     ---------------------------------------------- */
+
+  .painel-sidebar {
+    position: relative;
+
+    width: 100%;
+
+    height: auto;
+
+    min-height: auto;
+
+    border-right: none;
+
+    border-bottom: 1px solid var(--border-color);
+
+    box-shadow: none;
+  }
+
+  .sidebar-top {
+    padding: 15px 18px;
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+
+    overflow-x: auto;
+
+    overflow-y: hidden;
+
+    padding: 10px;
+
+    gap: 5px;
+  }
+
+  .menu-item {
+    width: auto;
+
+    min-width: max-content;
+
+    min-height: 42px;
+
+    padding: 0 12px;
+
+    border-left: none;
+  }
+
+  .menu-item--ativo {
+    border-left: none;
+
+    border-bottom: 2px solid var(--gold);
+
+    padding-left: 12px;
+  }
+
+  .menu-item--ativo:hover {
+    border-left: none;
+  }
+
+  .sidebar-bottom {
+    padding: 8px 10px;
+  }
+
+  .menu-item--voltar {
+    width: 100%;
+  }
+
+  /* ----------------------------------------------
+     ÁREA PRINCIPAL
+     ---------------------------------------------- */
+
+  .painel-main {
+    width: 100%;
+
+    margin-left: 0;
+
+    min-height: auto;
+  }
+
+  .painel-header {
+    min-height: 85px;
+
+    padding: 16px 18px;
+  }
+
+  .painel-conteudos {
+    padding: 18px;
+  }
+
+  .painel-conteudo {
+    padding: 20px;
+
+    border-radius: var(--radius-md);
+  }
+
+  /* ----------------------------------------------
+     DASHBOARD
+     ---------------------------------------------- */
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+
+  .dashboard-card {
+    min-height: 110px;
+  }
+
+  /* ----------------------------------------------
+     FORMULÁRIOS
+     ---------------------------------------------- */
+
+  .campo-inline {
+    grid-template-columns: 1fr;
+  }
+
+  .form-item-botoes {
+    flex-direction: column;
+  }
+
+  .btn-principal,
+  .btn-voltar {
+    width: 100%;
+  }
+
+  /* ----------------------------------------------
+     LISTAS
+     ---------------------------------------------- */
+
+  .item-lista {
+    align-items: flex-start;
+
+    padding: 12px;
+  }
+
+  .item-acoes {
+    align-self: center;
+  }
+
+  /* ----------------------------------------------
+     FILTROS
+     ---------------------------------------------- */
+
+  .filtros-agendamentos {
+    overflow-x: auto;
+  }
+
+  .filtro-agendamento {
+    flex-shrink: 0;
+  }
+
+  .select-status {
+    max-width: 120px;
+  }
+
+  /* ----------------------------------------------
+     CONFIGURAÇÕES
+     ---------------------------------------------- */
+
+  .configuracao-card {
+    padding: 18px;
+  }
+}
+
+/* ==================================================
+   RESPONSIVIDADE — CELULAR PEQUENO
+   ================================================== */
+
+@media (max-width: 450px) {
+  .sidebar-brand span {
+    display: none;
+  }
+
+  .painel-header {
+    gap: 12px;
+  }
+
+  .painel-logo,
+  .painel-logo-vazio {
+    width: 54px;
+    height: 54px;
+  }
+
+  .painel-header h1 {
+    font-size: 1.15rem;
+  }
+
+  .painel-header p {
+    font-size: 0.78rem;
+  }
+
+  .painel-conteudos {
+    padding: 12px;
+  }
+
+  .painel-conteudo {
+    padding: 16px;
+  }
+
+  .conteudo-titulo h1 {
+    font-size: 1.2rem;
+  }
+
+  .dashboard-card strong {
+    font-size: 1.25rem;
+  }
+
+  .item-lista {
+    flex-direction: column;
+  }
+
+  .item-acoes {
+    width: 100%;
+  }
+
+  .item-acoes button {
+    flex: 1;
+  }
+}

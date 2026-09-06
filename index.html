@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="BarberHub - Encontre as melhores barbearias da sua cidade, veja serviços, preços e agende seu horário." />
+    <meta name="theme-color" content="#D4AF37" />
+    <title>BarberHub</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.svg" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main id="tela-boas-vindas">
+      <section class="tbv-container">
+        <div class="tbv-box">
+          <div class="bv-logo-container">
+            <img
+              src="./assets/barber.png"
+              alt="Logo da BarberHub"
+              class="bv-logo"
+            />
+          </div>
+
+          <!-- TÍTULO -->
+          <h1 id="titulo-principal" class="bv-titulo">Bem-vindo ao BarberHub!</h1>
+
+          <!-- SUBTÍTULO -->
+          <p class="bv-subtitulo">Gestão inteligente para barbearias</p>
+
+          <!-- DIVISOR -->
+          <div class="bv-divisor" aria-hidden="true"></div>
+
+          <!-- DESCRIÇÃO -->
+          <p class="bv-descricao">
+            Organize sua barbearia, gerencie seus clientes e acompanhe seu
+            negócio em um só lugar.
+          </p>
+
+          <!-- DIFERENCIAIS -->
+          <div class="bv-features" aria-label="Diferenciais do BarberHub">
+            <div class="bv-feature">
+              <span class="bv-icon" aria-hidden="true">📅</span>
+              <span>Agendamento online</span>
+            </div>
+
+            <div class="bv-feature">
+              <span class="bv-icon" aria-hidden="true">💈</span>
+              <span>Gestão de barbeiros</span>
+            </div>
+
+            <div class="bv-feature">
+              <span class="bv-icon" aria-hidden="true">👥</span>
+              <span>Gestão de clientes</span>
+            </div>
+          </div>
+
+          <!-- OPÇÕES DE ATENDIMENTO -->
+          <div class="bv-opcoes">
+            <button
+              id="btn-barbearia"
+              class="bv-btn"
+              type="button"
+              onclick="entrar('barbearia')"
+            >
+              💈 Acessar como Barbearia
+            </button>
+
+            <button
+              id="btn-cliente"
+              class="bv-btn"
+              type="button"
+              onclick="entrar('cliente')"
+            >
+              👤 Acessar como Cliente
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    
+  </body>
+</html>

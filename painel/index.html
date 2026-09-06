@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="description"
+    content="Painel de gestão da barbearia - BarberHub"
+  />
+
+  <meta name="theme-color" content="#D4AF37" />
+
+  <title>Painel da Barbearia | BarberHub</title>
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="../assets/favicon.svg"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <main class="painel">
+
+    <!-- ==================================================
+         MENU LATERAL
+         ================================================== -->
+
+    <aside class="painel-sidebar">
+
+      <!-- LOGO / IDENTIDADE -->
+
+      <div class="sidebar-top">
+
+        <div class="sidebar-logo">
+          <img
+              src="../assets/barber.png"
+              alt="Logo da BarberHub"
+              class="bv-logo"
+            />
+        </div>
+
+        <div class="sidebar-brand">
+          <strong>BarberHub</strong>
+          <span>Painel da barbearia</span>
+        </div>
+
+      </div>
+
+
+      <!-- NAVEGAÇÃO -->
+
+      <nav class="sidebar-menu" aria-label="Menu principal">
+
+        <button
+          type="button"
+          class="menu-item menu-item--ativo"
+          data-aba="visao-geral"
+          onclick="mudarAba('visao-geral')"
+        >
+          <span class="menu-icon">📊</span>
+          <span>Visão geral</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="servicos"
+          onclick="mudarAba('servicos')"
+        >
+          <span class="menu-icon">✂️</span>
+          <span>Serviços</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="produtos"
+          onclick="mudarAba('produtos')"
+        >
+          <span class="menu-icon">🛍️</span>
+          <span>Produtos</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="agendamentos"
+          onclick="mudarAba('agendamentos')"
+        >
+          <span class="menu-icon">📅</span>
+          <span>Agendamentos</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="clientes"
+          onclick="mudarAba('clientes')"
+        >
+          <span class="menu-icon">👥</span>
+          <span>Clientes</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="profissionais"
+          onclick="mudarAba('profissionais')"
+        >
+          <span class="menu-icon">💈</span>
+          <span>Profissionais</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="financeiro"
+          onclick="mudarAba('financeiro')"
+        >
+          <span class="menu-icon">💰</span>
+          <span>Financeiro</span>
+        </button>
+
+
+        <button
+          type="button"
+          class="menu-item"
+          data-aba="configuracoes"
+          onclick="mudarAba('configuracoes')"
+        >
+          <span class="menu-icon">⚙️</span>
+          <span>Configurações</span>
+        </button>
+
+      </nav>
+
+
+      <!-- PARTE INFERIOR DO MENU -->
+
+      <div class="sidebar-bottom">
+
+        <button
+          type="button"
+          class="menu-item menu-item--voltar"
+          onclick="voltar()"
+        >
+          <span class="menu-icon">🚪</span>
+          <span> Sair </span>
+        </button>
+
+      </div>
+
+    </aside>
+
+
+    <!-- ==================================================
+         ÁREA PRINCIPAL
+         ================================================== -->
+
+    <section class="painel-main">
+
+      <!-- ==================================================
+           CABEÇALHO DA LOJA
+           ================================================== -->
+
+      <header
+        class="painel-header"
+        id="painel-header"
+      >
+        <!--
+          Preenchido pelo painel.js:
+
+          - Logo
+          - Nome da barbearia
+          - Cidade
+          - Outras informações
+        -->
+      </header>
+
+
+      <!-- ==================================================
+           CONTEÚDO
+           ================================================== -->
+
+      <div class="painel-conteudos">
+
+
+        <!-- ==================================================
+             VISÃO GERAL
+             ================================================== -->
+
+        <section
+          id="conteudo-visao-geral"
+          class="painel-conteudo"
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Visão geral</h1>
+
+            <p>
+              Acompanhe os principais números da sua barbearia.
+            </p>
+
+          </div>
+
+
+          <div class="dashboard-cards">
+
+            <article class="dashboard-card">
+              <span>📅</span>
+              <strong id="total-agendamentos-hoje">0</strong>
+              <p>Agendamentos hoje</p>
+            </article>
+
+
+            <article class="dashboard-card">
+              <span>👥</span>
+              <strong id="total-clientes">0</strong>
+              <p>Clientes</p>
+            </article>
+
+
+            <article class="dashboard-card">
+              <span>💈</span>
+              <strong id="total-profissionais">0</strong>
+              <p>Profissionais</p>
+            </article>
+
+
+            <article class="dashboard-card">
+              <span>💰</span>
+              <strong id="faturamento-hoje">
+                R$ 0,00
+              </strong>
+              <p>Faturamento hoje</p>
+            </article>
+
+          </div>
+
+
+          <div class="dashboard-secao">
+
+            <h2>Próximos agendamentos</h2>
+
+            <div
+              id="lista-proximos-agendamentos"
+              class="lista-itens"
+            >
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             SERVIÇOS
+             ================================================== -->
+
+        <section
+          id="conteudo-servicos"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Serviços</h1>
+
+            <p>
+              Cadastre e gerencie os serviços oferecidos
+              pela barbearia.
+            </p>
+
+          </div>
+
+
+          <form
+            id="form-servico"
+            class="form-item"
+          >
+
+            <input
+              type="hidden"
+              id="servico-id"
+              value=""
+            />
+
+
+            <div class="campo-inline">
+
+              <!-- NOME -->
+
+              <div class="campo">
+
+                <label for="servico-nome">
+                  Nome do serviço
+                </label>
+
+                <input
+                  type="text"
+                  id="servico-nome"
+                  placeholder="Ex: Corte simples"
+                  required
+                />
+
+              </div>
+
+
+              <!-- PREÇO -->
+
+              <div class="campo campo--curto">
+
+                <label for="servico-preco">
+                  Preço (R$)
+                </label>
+
+                <input
+                  type="number"
+                  id="servico-preco"
+                  min="0"
+                  step="0.01"
+                  placeholder="0,00"
+                  required
+                />
+
+              </div>
+
+
+              <!-- DURAÇÃO -->
+
+              <div class="campo campo--curto">
+
+                <label for="servico-duracao">
+                  Duração (min)
+                </label>
+
+                <input
+                  type="number"
+                  id="servico-duracao"
+                  min="5"
+                  step="5"
+                  value="30"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+
+            <div class="form-item-botoes">
+
+              <button
+                type="submit"
+                class="btn-principal"
+                id="btn-salvar-servico"
+              >
+                + Adicionar serviço
+              </button>
+
+
+              <button
+                type="button"
+                class="btn-voltar"
+                id="btn-cancelar-servico"
+                onclick="cancelarEdicaoServico()"
+                hidden
+              >
+                Cancelar edição
+              </button>
+
+            </div>
+
+          </form>
+
+
+          <p
+            id="mensagem-servico"
+            class="mensagem"
+            aria-live="polite"
+          >
+          </p>
+
+
+          <div
+            id="lista-servicos"
+            class="lista-itens"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             PRODUTOS
+             ================================================== -->
+
+        <section
+          id="conteudo-produtos"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Produtos</h1>
+
+            <p>
+              Controle os produtos e o estoque da barbearia.
+            </p>
+
+          </div>
+
+
+          <form
+            id="form-produto"
+            class="form-item"
+          >
+
+            <input
+              type="hidden"
+              id="produto-id"
+              value=""
+            />
+
+            <input
+              type="hidden"
+              id="produto-foto-atual"
+              value=""
+            />
+
+
+            <!-- FOTO -->
+
+            <div class="campo">
+
+              <label for="produto-foto">
+                Foto do produto
+              </label>
+
+              <input
+                type="file"
+                id="produto-foto"
+                accept="image/jpeg,image/png,image/webp"
+              />
+
+
+              <div
+                id="preview-produto"
+                class="preview-produto"
+                hidden
+              >
+
+                <img
+                  id="preview-produto-img"
+                  src=""
+                  alt="Prévia da foto do produto"
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- DADOS -->
+
+            <div class="campo-inline">
+
+              <div class="campo">
+
+                <label for="produto-nome">
+                  Nome do produto
+                </label>
+
+                <input
+                  type="text"
+                  id="produto-nome"
+                  placeholder="Ex: Pomada modeladora"
+                  required
+                />
+
+              </div>
+
+
+              <div class="campo campo--curto">
+
+                <label for="produto-preco">
+                  Preço (R$)
+                </label>
+
+                <input
+                  type="number"
+                  id="produto-preco"
+                  min="0"
+                  step="0.01"
+                  placeholder="0,00"
+                  required
+                />
+
+              </div>
+
+
+              <div class="campo campo--curto">
+
+                <label for="produto-estoque">
+                  Estoque
+                </label>
+
+                <input
+                  type="number"
+                  id="produto-estoque"
+                  min="0"
+                  step="1"
+                  value="0"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+
+            <div class="form-item-botoes">
+
+              <button
+                type="submit"
+                class="btn-principal"
+                id="btn-salvar-produto"
+              >
+                + Adicionar produto
+              </button>
+
+
+              <button
+                type="button"
+                class="btn-voltar"
+                id="btn-cancelar-produto"
+                onclick="cancelarEdicaoProduto()"
+                hidden
+              >
+                Cancelar edição
+              </button>
+
+            </div>
+
+          </form>
+
+
+          <p
+            id="mensagem-produto"
+            class="mensagem"
+            aria-live="polite"
+          >
+          </p>
+
+
+          <div
+            id="lista-produtos"
+            class="lista-itens"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             AGENDAMENTOS
+             ================================================== -->
+
+        <section
+          id="conteudo-agendamentos"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Agendamentos</h1>
+
+            <p>
+              Acompanhe e gerencie os horários marcados.
+            </p>
+
+          </div>
+
+
+          <div class="filtros-agendamentos">
+
+            <button
+              type="button"
+              class="filtro-agendamento filtro--ativo"
+              data-filtro="hoje"
+            >
+              Hoje
+            </button>
+
+
+            <button
+              type="button"
+              class="filtro-agendamento"
+              data-filtro="amanha"
+            >
+              Amanhã
+            </button>
+
+
+            <button
+              type="button"
+              class="filtro-agendamento"
+              data-filtro="todos"
+            >
+              Todos
+            </button>
+
+          </div>
+
+
+          <div
+            id="lista-agendamentos"
+            class="lista-itens"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             CLIENTES
+             ================================================== -->
+
+        <section
+          id="conteudo-clientes"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Clientes</h1>
+
+            <p>
+              Gerencie os clientes e o histórico de atendimentos.
+            </p>
+
+          </div>
+
+
+          <div
+            id="lista-clientes"
+            class="lista-itens"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             PROFISSIONAIS
+             ================================================== -->
+
+        <section
+          id="conteudo-profissionais"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Profissionais</h1>
+
+            <p>
+              Gerencie os barbeiros que trabalham na barbearia.
+            </p>
+
+          </div>
+
+          <form
+            id="form-barbeiro"
+            class="form-item"
+          >
+
+            <input
+              type="hidden"
+              id="barbeiro-id"
+              value=""
+            />
+
+            <input
+              type="hidden"
+              id="barbeiro-foto-atual"
+              value=""
+            />
+
+
+            <!-- FOTO -->
+
+            <div class="campo">
+
+              <label for="barbeiro-foto">
+                Foto do barbeiro
+              </label>
+
+              <input
+                type="file"
+                id="barbeiro-foto"
+                accept="image/jpeg,image/png,image/webp"
+              />
+
+
+              <div
+                id="preview-barbeiro"
+                class="preview-barbeiro"
+                hidden
+              >
+
+                <img
+                  id="preview-barbeiro-img"
+                  src=""
+                  alt="Prévia da foto do barbeiro"
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- DADOS -->
+
+            <div class="campo-inline">
+
+              <div class="campo">
+
+                <label for="barbeiro-nome">
+                  Nome do barbeiro 
+                </label>
+
+                <input
+                  type="text"
+                  id="barbeiro-nome"
+                  placeholder="Ex: João da Silva "
+                  required
+                />
+
+              </div>
+
+
+              <div class="campo campo--curto">
+
+                <label for="barbeiro-tel">
+                  Telefone 
+                </label>
+
+                <input
+                  type="tel"
+                  id="Telefone"        
+                  placeholder="(00) 99999-9999"
+                  
+                />
+
+              </div>
+            </div>
+
+
+            <div class="form-item-botoes">
+
+              <button
+                type="submit"
+                class="btn-principal"
+                id="btn-salvar-barbeiro"
+              >
+                + Adicionar profissional
+              </button>
+
+
+              <button
+                type="button"
+                class="btn-voltar"
+                id="btn-cancelar-produto"
+                onclick="cancelarEdicaoProduto()"
+                hidden
+              >
+                Cancelar edição
+              </button>
+
+            </div>
+
+          </form>
+
+          <p
+            id="mensagem-produto"
+            class="mensagem"
+            aria-live="polite"
+          >
+          </p>
+
+
+          <div
+            id="lista-profissionais"
+            class="lista-itens"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             FINANCEIRO
+             ================================================== -->
+
+        <section
+          id="conteudo-financeiro"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Financeiro</h1>
+
+            <p>
+              Acompanhe entradas, saídas, comissões e lucro.
+            </p>
+
+          </div>
+
+
+          <div class="dashboard-cards">
+
+            <article class="dashboard-card">
+              <span>📈</span>
+              <strong id="financeiro-entradas">
+                R$ 0,00
+              </strong>
+              <p>Entradas</p>
+            </article>
+
+
+            <article class="dashboard-card">
+              <span>📉</span>
+              <strong id="financeiro-saidas">
+                R$ 0,00
+              </strong>
+              <p>Saídas</p>
+            </article>
+
+
+            <article class="dashboard-card">
+              <span>💰</span>
+              <strong id="financeiro-lucro">
+                R$ 0,00
+              </strong>
+              <p>Lucro</p>
+            </article>
+
+          </div>
+
+
+          <div
+            id="lista-financeiro"
+            class="lista-itens"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             CONFIGURAÇÕES
+             ================================================== -->
+
+        <section
+          id="conteudo-configuracoes"
+          class="painel-conteudo"
+          hidden
+        >
+
+          <div class="conteudo-titulo">
+
+            <h1>Configurações</h1>
+
+            <p>
+              Gerencie os dados da conta e da barbearia.
+            </p>
+
+          </div>
+
+
+          <!-- DADOS DA BARBEARIA -->
+
+          <div class="configuracao-card">
+
+            <h2>💈 Dados da barbearia</h2>
+
+            <p>
+              Atualize as informações que aparecem para seus clientes.
+            </p>
+
+
+            <form id="form-configuracao-barbearia">
+
+              <div class="campo">
+
+                <label for="config-nome">
+                  Nome da barbearia
+                </label>
+
+                <input
+                  type="text"
+                  id="config-nome"
+                  required
+                />
+
+              </div>
+
+
+              <div class="campo-inline">
+
+                <div class="campo">
+
+                  <label for="config-telefone">
+                    Telefone
+                  </label>
+
+                  <input
+                    type="tel"
+                    id="config-telefone"
+                  />
+
+                </div>
+
+
+                <div class="campo">
+
+                  <label for="config-cidade">
+                    Cidade
+                  </label>
+
+                  <input
+                    type="text"
+                    id="config-cidade"
+                  />
+
+                </div>
+
+              </div>
+
+
+              <div class="campo">
+
+                <label for="config-endereco">
+                  Endereço
+                </label>
+
+                <input
+                  type="text"
+                  id="config-endereco"
+                />
+
+              </div>
+
+
+              <div class="form-item-botoes">
+
+                <button
+                  type="submit"
+                  class="btn-principal"
+                >
+                  Salvar alterações
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+
+          <!-- CONTA DO USUÁRIO -->
+
+          <div class="configuracao-card">
+
+            <h2>👤 Minha conta</h2>
+
+            <p>
+              Atualize seus dados de acesso e informações pessoais.
+            </p>
+
+
+            <form id="form-configuracao-usuario">
+
+              <div class="campo">
+
+                <label for="config-usuario-nome">
+                  Nome
+                </label>
+
+                <input
+                  type="text"
+                  id="config-usuario-nome"
+                />
+
+              </div>
+
+
+              <div class="campo">
+
+                <label for="config-usuario-telefone">
+                  Telefone
+                </label>
+
+                <input
+                  type="tel"
+                  id="config-usuario-telefone"
+                />
+
+              </div>
+
+
+              <div class="campo">
+
+                <label for="config-usuario-email">
+                  E-mail
+                </label>
+
+                <input
+                  type="email"
+                  id="config-usuario-email"
+                  disabled
+                />
+
+              </div>
+
+
+              <div class="form-item-botoes">
+
+                <button
+                  type="submit"
+                  class="btn-principal"
+                >
+                  Salvar dados
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+
+          <!-- SEGURANÇA -->
+
+          <div class="configuracao-card">
+
+            <h2>🔐 Segurança</h2>
+
+            <p>
+              Altere a senha da sua conta.
+            </p>
+
+
+            <button
+              type="button"
+              class="btn-principal"
+              id="btn-alterar-senha"
+            >
+              Alterar senha
+            </button>
+
+          </div>
+
+
+          <!-- EXCLUSÃO -->
+
+          <div class="configuracao-card configuracao-card--perigo">
+
+            <h2>🗑️ Excluir barbearia</h2>
+
+            <p>
+              A exclusão da barbearia é permanente.
+              Todos os dados relacionados poderão ser removidos.
+            </p>
+
+
+            <button
+              type="button"
+              class="btn-perigo"
+              id="btn-excluir-barbearia"
+            >
+              Excluir esta barbearia
+            </button>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ==================================================
+       SCRIPTS
+       ================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="../config.js"></script>
+
+  <script src="painel.js"></script>
+
+</body>
+
+</html>

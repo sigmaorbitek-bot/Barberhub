@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="BarberHub - Encontre as melhores barbearias da sua cidade, veja serviços, preços e agende seu horário."
+    />
+
+    <meta name="theme-color" content="#D4AF37" />
+
+    <title>BarberHub | Barbearias</title>
+
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main class="barbearias">
+      <section class="container">
+        <!-- ==========================================
+           CABEÇALHO
+           ========================================== -->
+
+        <header class="pagina-header">
+          <h1>Barbearias cadastradas</h1>
+
+          <p>Selecione sua barbearia para continuar.</p>
+        </header>
+
+        <!-- ==========================================
+           BOTÃO CADASTRAR
+           ========================================== -->
+
+        <button class="btn-cadastrar" type="button" onclick="cadastrar()">
+          <span class="icone"> + </span>
+
+          <span> Cadastrar nova barbearia </span>
+        </button>
+
+        <!-- ==========================================
+           LISTA DE BARBEARIAS
+           ========================================== -->
+
+        <div id="lista-barbearias" class="lista-barbearias"></div>
+
+        <!-- ==========================================
+           BOTÃO VOLTAR
+           ========================================== -->
+
+        <div class="bv-opcoes">
+          <button
+            id="btn-barbearia"
+            class="bv-btn"
+            type="button"
+            onclick="voltar()"
+          >
+            💈 Voltar início
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- ==============================================
+       SUPABASE
+       ============================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ==============================================
+       CONFIGURAÇÃO
+       ============================================== -->
+
+    <script src="../config.js"></script>
+
+    <!-- ==============================================
+       JAVASCRIPT DA PÁGINA
+       ============================================== -->
+
+    <script src="home.js"></script>
+  </body>
+</html>

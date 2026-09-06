@@ -1,0 +1,492 @@
+/* 1. RESET E CONFIGURAÇÕES BASE */
+
+:root {
+  /* ========================================
+     CORES PRINCIPAIS
+     ======================================== */
+
+  --bg-dark: #080808;
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1a;
+
+  /* ========================================
+     CORES DA MARCA
+     ======================================== */
+
+  --blue: #007bff;
+  --red: #c1121f;
+  --gold: #d4af37;
+
+  /* ========================================
+     CORES DE TEXTO
+     ======================================== */
+
+  --white: #ffffff;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a6a6a6;
+  --text-muted: #707070;
+
+  /* ========================================
+     BORDAS
+     ======================================== */
+
+  --border-color: #292929;
+  --border-light: #363636;
+
+  /* ========================================
+     GRADIENTES
+     ======================================== */
+
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--blue) 0%,
+    var(--red) 50%,
+    var(--gold) 100%
+  );
+
+
+  --gradient-brand-horizontal: linear-gradient(
+    90deg,
+    var(--blue),
+    var(--red),
+    var(--gold)
+  );
+
+  --gradient-gold: linear-gradient(135deg, #b8860b, #d4af37, #ffd700);
+
+  /* ========================================
+     SOMBRAS
+     ======================================== */
+
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  --shadow-brand: 0 0 30px rgba(212, 175, 55, 0.2);
+
+  /* ========================================
+     BORDAS ARREDONDADAS
+     ======================================== */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* ========================================
+     TRANSIÇÕES
+     ======================================== */
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+
+  /* ========================================
+     TIPOGRAFIA
+     ======================================== */
+
+  --font-base:
+    "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* RESET UNIVERSAL */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+/* BODY */
+
+body {
+  min-height: 100vh;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-base);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  animation: fadeInTela 0.8s ease;
+}
+
+/* 2. TELA DE BOAS-VINDAS, CONTAINER, CAIXA PRINCIPAL */
+
+#tela-boas-vindas {
+  width: 100%;
+}
+
+.tbv-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tbv-box {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 50px 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: 5px solid var(--gold);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  animation: subirCaixa 0.8s ease;
+}
+
+/* 3. LOGO,TÍTULOS,SUBTÍTULO, DIVISOR,DESCRIÇÃO */
+
+.bv-logo-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.bv-logo {
+  display: block;
+  width: 120px;
+  max-width: 40vw;
+  margin: 0 auto 20px;
+  animation: pulsarLogo 2.5s ease-in-out infinite;
+}
+
+.bv-titulo {
+  position: relative;
+  z-index: 1;
+  color: var(--text-primary);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.bv-subtitulo {
+  position: relative;
+  z-index: 1;
+  color: var(--text-secondary);
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.bv-divisor {
+  position: relative;
+  z-index: 1;
+  width: 70px;
+  height: 4px;
+  margin: 0 auto 25px;
+  background: var(--gradient-gold);
+  border-radius: 10px;
+}
+
+.bv-descricao {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  margin: 0 auto 30px;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 4. DIFERENCIAIS */
+
+.bv-features {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.bv-feature {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bv-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.bv-feature span:last-child {
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* 5. BOTÕES DE ATENDIMENTO */
+
+.bv-opcoes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.bv-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 340px;
+  min-height: 54px;
+  padding: 14px 25px;
+  margin-bottom: 14px;
+  background: var(--gradient-gold);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+  overflow: hidden;
+}
+
+/* EFEITO DE BRILHO DO BOTÃO */
+
+.bv-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-brand-horizontal);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+/* HOVER */
+
+.bv-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+  filter: brightness(1.05);
+}
+
+.bv-btn:hover::before {
+  transform: translateX(100%);
+}
+
+/* CLIQUE */
+
+.bv-btn:active {
+  transform: translateY(-1px);
+}
+
+/* BOTÃO DESABILITADO */
+
+.bv-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+  filter: grayscale(0.4);
+}
+
+.bv-btn:disabled::before {
+  display: none;
+}
+
+/* 9. ANIMAÇÕES */
+
+/* ENTRADA DA TELA */
+
+@keyframes fadeInTela {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ENTRADA DA CAIXA */
+
+@keyframes subirCaixa {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* PULSAR LOGO */
+
+@keyframes pulsarLogo {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+/* BRILHO */
+
+@keyframes brilho {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* 10. SAÍDA DA TELA */
+
+.saindo {
+  animation: fadeOutTela 0.5s ease forwards;
+}
+
+@keyframes fadeOutTela {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+  }
+}
+
+/*  11. TABLET*/
+
+@media (max-width: 768px) {
+  .tbv-container {
+    padding: 30px 16px;
+  }
+
+  .tbv-box {
+    padding: 40px 30px;
+  }
+
+  .bv-logo {
+    width: 105px;
+  }
+
+  .bv-features {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .bv-feature {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .bv-feature span:last-child {
+    text-align: left;
+  }
+}
+
+/*  12. CELULARES*/
+
+@media (max-width: 480px) {
+  .tbv-container {
+    padding: 20px 12px;
+  }
+
+  .tbv-box {
+    padding: 32px 20px;
+    border-radius: 16px;
+    border-top-width: 4px;
+  }
+
+  .bv-logo {
+    width: 90px;
+    margin-bottom: 15px;
+  }
+
+  .bv-titulo {
+    font-size: 1.8rem;
+  }
+
+  .bv-subtitulo {
+    margin-bottom: 20px;
+  }
+
+  .bv-descricao {
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+  }
+
+  .bv-features {
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+
+  .bv-icon {
+    font-size: 1.5rem;
+  }
+
+  .bv-feature span:last-child {
+    font-size: 0.8rem;
+  }
+
+   .bv-btn {
+    max-width: none;
+    min-height: 52px;
+    padding: 13px 20px;
+    font-size: 1rem;
+  }
+
+/*  13. CELULARES MUITO PEQUENOS */
+
+  .tbv-box {
+    padding: 28px 16px;
+  }
+
+  .bv-logo {
+    width: 78px;
+  }
+
+  .bv-titulo {
+    font-size: 1.6rem;
+  }
+
+  .bv-descricao {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .bv-btn {
+    font-size: 0.95rem;
+  }
+
+}
+
