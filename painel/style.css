@@ -102,6 +102,111 @@ button:disabled {
 }
 
 /* ==================================================
+   TELA DE CARREGAMENTO
+   ================================================== */
+
+.tela-carregamento {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-dark);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+/* ==================================================
+   TELA DE CARREGAMENTO OCULTA
+   ================================================== */
+
+.tela-carregamento--oculta {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ==================================================
+   CONTEÚDO
+   ================================================== */
+
+.carregamento-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+}
+
+/* ==================================================
+   LOGO
+   ================================================== */
+
+.carregamento-logo {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-card);
+  font-size: 2.2rem;
+  box-shadow: var(--shadow-card);
+}
+
+/* ==================================================
+   TÍTULO
+   ================================================== */
+
+.carregamento-conteudo h2 {
+  margin: 0;
+  color: var(--white);
+  font-size: 1.5rem;
+}
+
+/* ==================================================
+   TEXTO
+   ================================================== */
+
+.carregamento-conteudo p {
+  margin: 8px 0 22px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* ==================================================
+   SPINNER
+   ================================================== */
+
+.carregamento-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: carregarSpinner 0.8s linear infinite;
+}
+
+/* ==================================================
+   ANIMAÇÃO DO SPINNER
+   ================================================== */
+
+@keyframes carregarSpinner {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+/* ==================================================
    PAINEL PRINCIPAL
    ================================================== */
 
@@ -414,15 +519,10 @@ button:disabled {
 .painel-logo-vazio {
   width: 64px;
   height: 64px;
-
   flex-shrink: 0;
-
   border-radius: 50%;
-
   border: 2px solid var(--gold);
-
   object-fit: cover;
-
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
 }
 
@@ -434,9 +534,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: var(--bg-secondary);
-
   font-size: 25px;
 }
 
@@ -446,9 +544,7 @@ button:disabled {
 
 .painel-header h1 {
   font-size: 1.45rem;
-
   line-height: 1.2;
-
   margin-bottom: 4px;
 }
 
@@ -458,7 +554,6 @@ button:disabled {
 
 .painel-header p {
   color: var(--text-secondary);
-
   font-size: 0.85rem;
 }
 
@@ -468,13 +563,9 @@ button:disabled {
 
 .painel-conteudos {
   width: 100%;
-
   max-width: 1400px;
-
   margin: 0 auto;
-
   padding: 34px;
-
   flex: 1;
 }
 
@@ -484,19 +575,12 @@ button:disabled {
 
 .painel-conteudo {
   width: 100%;
-
   background: var(--bg-card);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-lg);
-
   padding: 30px;
-
   min-height: 160px;
-
   box-shadow: var(--shadow-card);
-
   animation: aparecerConteudo 0.3s ease;
 }
 
@@ -510,15 +594,12 @@ button:disabled {
 
 .conteudo-titulo h1 {
   font-size: 1.45rem;
-
   line-height: 1.2;
-
   margin-bottom: 7px;
 }
 
 .conteudo-titulo p {
   color: var(--text-secondary);
-
   font-size: 0.88rem;
 }
 
@@ -528,11 +609,8 @@ button:disabled {
 
 .dashboard-cards {
   display: grid;
-
   grid-template-columns: repeat(4, minmax(0, 1fr));
-
   gap: 14px;
-
   margin-bottom: 28px;
 }
 
@@ -542,19 +620,13 @@ button:disabled {
 
 .dashboard-card {
   min-height: 140px;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
-
   padding: 20px;
-
   background: linear-gradient(145deg, #1c1c1c, #151515);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-md);
-
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast);
@@ -562,29 +634,23 @@ button:disabled {
 
 .dashboard-card:hover {
   border-color: var(--border-light);
-
   transform: translateY(-2px);
 }
 
 .dashboard-card > span {
   margin-bottom: 8px;
-
   font-size: 1.3rem;
 }
 
 .dashboard-card strong {
   color: var(--white);
-
   font-size: 1.45rem;
-
   line-height: 1.2;
 }
 
 .dashboard-card p {
   margin-top: 5px;
-
   color: var(--text-secondary);
-
   font-size: 0.78rem;
 }
 
@@ -598,8 +664,104 @@ button:disabled {
 
 .dashboard-secao h2 {
   margin-bottom: 14px;
-
   font-size: 1rem;
+}
+
+/* ==================================================
+   RELATÓRIOS
+   ================================================== */
+
+.relatorios-tipos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-relatorio {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-relatorio:hover {
+  color: var(--white);
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.06);
+  transform: translateY(-1px);
+}
+
+.btn-relatorio.btn-relatorio--ativo {
+  color: var(--white);
+  border-color: transparent;
+  background: var(--gradient-brand);
+}
+
+/* ==================================================
+   PERÍODO DO RELATÓRIO
+   ================================================== */
+
+.relatorio-periodo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.relatorio-periodo .campo {
+  min-width: 0;
+}
+
+.relatorio-periodo .btn-principal {
+  grid-column: 1 / -1;
+}
+
+/* ==================================================
+   BOTÃO WHATSAPP
+   ================================================== */
+
+.btn-whatsapp {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #25d366;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #25d366;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-whatsapp:hover {
+  background: #25d366;
+  border-color: #25d366;
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.btn-whatsapp:active {
+  transform: translateY(0);
 }
 
 /* ==================================================
@@ -711,6 +873,32 @@ button:disabled {
   transition:
     border-color var(--transition-fast),
     box-shadow var(--transition-fast);
+}
+
+.campo textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  resize: vertical;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.campo textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.campo textarea::placeholder {
+  color: var(--text-muted);
 }
 
 /* ==================================================
@@ -850,17 +1038,11 @@ button:disabled {
 
 .preview-produto {
   width: 100%;
-
   margin-top: 8px;
-
   padding: 10px;
-
   background: var(--bg-secondary);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-md);
-
   text-align: center;
 }
 
@@ -1220,12 +1402,11 @@ button:disabled {
 
 button:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--blue);
-
   outline-offset: 2px;
 }
-
 /* ==================================================
    ANIMAÇÃO
    ================================================== */
@@ -1243,6 +1424,18 @@ select:focus-visible {
     transform: translateY(0);
   }
 }
+
+/* ==================================================
+   NAVEGAÇÃO MOBILE
+   ESCONDIDA NO DESKTOP
+   ================================================== */
+
+.mobile-header,
+.mobile-menu,
+.mobile-bottom-nav {
+  display: none;
+}
+
 
 /* ==================================================
    RESPONSIVIDADE — TABLET
@@ -1288,76 +1481,203 @@ select:focus-visible {
    ================================================== */
 
 @media (max-width: 700px) {
+
+  /* ----------------------------------------------
+     PAINEL
+     ---------------------------------------------- */
+
   .painel {
     display: block;
+    min-height: 100vh;
   }
 
   /* ----------------------------------------------
-     SIDEBAR
+     SIDEBAR DESKTOP
+     No celular usamos outra navegação
      ---------------------------------------------- */
 
   .painel-sidebar {
-    position: relative;
+    display: none;
+  }
 
-    width: 100%;
+  /* ----------------------------------------------
+     CABEÇALHO MOBILE
+     ---------------------------------------------- */
 
-    height: auto;
+  .mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 
-    min-height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    border-right: none;
+    min-height: 64px;
+    padding: 10px 16px;
 
+    background: var(--bg-dark);
     border-bottom: 1px solid var(--border-color);
-
-    box-shadow: none;
   }
 
-  .sidebar-top {
-    padding: 15px 18px;
+  /* ----------------------------------------------
+     IDENTIDADE DO CABEÇALHO MOBILE
+     ---------------------------------------------- */
+
+  .mobile-header-brand {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
   }
 
-  .sidebar-menu {
-    flex-direction: row;
+  /* ----------------------------------------------
+     LOGO MOBILE
+     ---------------------------------------------- */
 
-    overflow-x: auto;
+  .mobile-logo {
+    width: 40px;
+    height: 40px;
 
-    overflow-y: hidden;
+    flex-shrink: 0;
 
-    padding: 10px;
-
-    gap: 5px;
+    object-fit: contain;
   }
 
-  .menu-item {
-    width: auto;
+  /* ----------------------------------------------
+     TEXTO DO CABEÇALHO MOBILE
+     ---------------------------------------------- */
 
-    min-width: max-content;
+  .mobile-header-brand > div {
+    min-width: 0;
 
-    min-height: 42px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-header-brand strong {
+    color: var(--white);
+    font-size: 0.95rem;
+  }
+
+  .mobile-header-brand span {
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+  }
+
+  /* ----------------------------------------------
+     BOTÃO DO MENU MOBILE
+     ---------------------------------------------- */
+
+  .mobile-menu-toggle {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+
+    background: var(--bg-secondary);
+    color: var(--white);
+
+    font-size: 1.3rem;
+
+    cursor: pointer;
+  }
+
+  /* ----------------------------------------------
+     MENU MOBILE
+     ---------------------------------------------- */
+
+  .mobile-menu {
+    position: fixed;
+
+    top: 74px;
+    right: 12px;
+
+    z-index: 1100;
+
+    display: none;
+
+    width: min(260px, calc(100vw - 24px));
+
+    padding: 8px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ----------------------------------------------
+     MENU MOBILE ABERTO
+     ---------------------------------------------- */
+
+  .mobile-menu--aberto {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* ----------------------------------------------
+     ITEM DO MENU MOBILE
+     ---------------------------------------------- */
+
+  .mobile-menu-item {
+    width: 100%;
+    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
 
     padding: 0 12px;
 
-    border-left: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+
+    background: transparent;
+
+    color: var(--text-secondary);
+
+    font: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast);
   }
 
-  .menu-item--ativo {
-    border-left: none;
+  /* ----------------------------------------------
+     HOVER / TOQUE
+     ---------------------------------------------- */
 
-    border-bottom: 2px solid var(--gold);
-
-    padding-left: 12px;
+  .mobile-menu-item:hover,
+  .mobile-menu-item:active {
+    background: var(--bg-secondary);
+    color: var(--white);
   }
 
-  .menu-item--ativo:hover {
-    border-left: none;
-  }
+  /* ----------------------------------------------
+     BOTÃO SAIR
+     ---------------------------------------------- */
 
-  .sidebar-bottom {
-    padding: 8px 10px;
-  }
+  .mobile-menu-item--sair {
+    margin-top: 4px;
 
-  .menu-item--voltar {
-    width: 100%;
+    border-top: 1px solid var(--border-color);
+
+    border-radius: 0;
+
+    color: #ff6b6b;
   }
 
   /* ----------------------------------------------
@@ -1369,14 +1689,23 @@ select:focus-visible {
 
     margin-left: 0;
 
-    min-height: auto;
+    min-height: calc(100vh - 64px);
+
+    padding-bottom: 76px;
   }
+
+  /* ----------------------------------------------
+     CABEÇALHO DA PÁGINA
+     ---------------------------------------------- */
 
   .painel-header {
     min-height: 85px;
-
     padding: 16px 18px;
   }
+
+  /* ----------------------------------------------
+     CONTEÚDOS
+     ---------------------------------------------- */
 
   .painel-conteudos {
     padding: 18px;
@@ -1384,8 +1713,90 @@ select:focus-visible {
 
   .painel-conteudo {
     padding: 20px;
-
     border-radius: var(--radius-md);
+  }
+
+  /* ----------------------------------------------
+     NAVEGAÇÃO INFERIOR
+     ---------------------------------------------- */
+
+  .mobile-bottom-nav {
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 1000;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    min-height: 64px;
+
+    padding: 6px 6px
+      calc(6px + env(safe-area-inset-bottom));
+
+    background: rgba(13, 13, 13, 0.97);
+
+    border-top: 1px solid var(--border-color);
+
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.25);
+
+    backdrop-filter: blur(10px);
+  }
+
+  /* ----------------------------------------------
+     ITEM DA NAVEGAÇÃO INFERIOR
+     ---------------------------------------------- */
+
+  .mobile-bottom-item {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 3px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--text-muted);
+
+    font: inherit;
+
+    cursor: pointer;
+  }
+
+  /* ----------------------------------------------
+     ÍCONE DA NAVEGAÇÃO
+     ---------------------------------------------- */
+
+  .mobile-bottom-item span {
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  /* ----------------------------------------------
+     TEXTO DA NAVEGAÇÃO
+     ---------------------------------------------- */
+
+  .mobile-bottom-item small {
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+
+  /* ----------------------------------------------
+     ITEM ATIVO
+     ---------------------------------------------- */
+
+  .mobile-bottom-item--ativo {
+    color: var(--gold);
   }
 
   /* ----------------------------------------------
@@ -1394,7 +1805,6 @@ select:focus-visible {
 
   .dashboard-cards {
     grid-template-columns: 1fr;
-
     gap: 10px;
   }
 
@@ -1420,12 +1830,31 @@ select:focus-visible {
   }
 
   /* ----------------------------------------------
+     RELATÓRIOS
+     ---------------------------------------------- */
+
+  .relatorios-tipos {
+    grid-template-columns: 1fr;
+  }
+
+  .relatorio-periodo {
+    grid-template-columns: 1fr;
+  }
+
+  .relatorio-periodo .btn-principal {
+    grid-column: auto;
+  }
+
+  .btn-whatsapp {
+    width: 100%;
+  }
+
+  /* ----------------------------------------------
      LISTAS
      ---------------------------------------------- */
 
   .item-lista {
     align-items: flex-start;
-
     padding: 12px;
   }
 
@@ -1463,9 +1892,7 @@ select:focus-visible {
    ================================================== */
 
 @media (max-width: 450px) {
-  .sidebar-brand span {
-    display: none;
-  }
+ 
 
   .painel-header {
     gap: 12px;

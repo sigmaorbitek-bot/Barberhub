@@ -4,6 +4,6 @@ function entrar(tipo) {
   if (tipo === "cliente") {
     window.location.href = "./clientes/index.html";
   } else if (tipo === "barbearia") {
-    window.location.href = "./barbearia/index.html";
+    window.location.href = "./login/index.html";
   }
 }

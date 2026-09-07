@@ -3,7 +3,7 @@
 // ==================================================
 
 function voltar() {
-  window.location.href = "../barbearia/index.html";
+  window.location.href = "../login/index.html";
 }
 
 // ==================================================
