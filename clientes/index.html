@@ -1,62 +1,82 @@
 <!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="BarberHub - Encontre as melhores barbearias da sua cidade, veja serviços, preços e agende seu horário."
+    />
+    <meta name="theme-color" content="#D4AF37" />
+    <title>BarberHub | Cliente</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../barbearia/style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="BarberHub - Encontre as melhores barbearias da sua cidade, veja serviços, preços e agende seu horário." />
-  <meta name="theme-color" content="#D4AF37" />
-  <title>BarberHub | Cliente</title>
-  <link rel="icon" type="image/png" href="../assets/favicon.svg" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="../barbearia/style.css" />
-</head>
+  <body>
+    <!-- TELA DE CARREGAMENTO -->
+    <div class="tela-carregamento" id="tela-carregamento">
+      <div class="carregamento-conteudo">
+        <div class="carregamento-logo">
+          <img src="../assets/barber.png" alt="BarberHub" />
+        </div>
 
-<body>
-  <main class="cliente">
-    <section class="container">
-      <h1> Visualizar as Barbearias</h1>
+        <h2>BarberHub</h2>
 
-      <p>Escolher sua barbearia para continuar.</p>
+        <p>Encontrando as melhores barbearias...</p>
 
-      <!-- BUSCA -->
-
-      <div class="busca">
-        <input type="search" id="busca-input" placeholder="🔍 Sua Barbearia..." autocomplete="off" />
+        <div class="carregamento-spinner"></div>
       </div>
+    </div>
+    <main class="cliente">
+      <section class="container">
+        <h1>Encontre sua barbearia</h1>
+        <p>Escolha uma barbearia para continuar.</p>
 
-      <!-- FILTROS -->
-      <nav class="filtros" aria-label="Categorias do Barbearias">
+        <!-- BUSCA -->
 
-        <button type="button" class="filtro-btn ativo" data-categoria="todos">
-          Todos
-        </button>
+        <div class="busca">
+          <input
+            type="search"
+            id="busca-input"
+            placeholder="🔍 Sua Barbearia..."
+            autocomplete="off"
+          />
+        </div>
 
-        <button type="button" class="filtro-btn" data-categoria="cidade">
-            Cidade
+        <!-- FILTROS -->
+        <nav class="filtros" aria-label="Categorias das barbearias">
+          <button type="button" class="filtro-btn ativo" data-categoria="todos">
+            Todos
           </button>
 
+          <button type="button" class="filtro-btn" data-categoria="cidade">
+            📍 Cidade
+          </button>
+        </nav>
 
+        <div id="lista-barbearias"></div>
+      </section>
+      <div class="bv-opcoes">
+        <button
+          id="btn-barbearia"
+          class="bv-btn"
+          type="button"
+          onclick="voltar()"
+        >
+          💈 Voltar inicio
+        </button>
+      </div>
+    </main>
 
-      </nav>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-      <div id="lista-barbearias"></div>
-    </section>
-    <div class="bv-opcoes">
-      <button id="btn-barbearia" class="bv-btn" type="button" onclick="voltar()">
-        💈 Voltar inicio
-      </button>
-  </main>
+    <!-- Configuração -->
+    <script src="../config.js"></script>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Configuração -->
-  <script src="../config.js"></script>
-
-  <!-- JavaScript desta página -->
-  <script src="cliente.js"></script>
-</body>
-
+    <!-- JavaScript desta página -->
+    <script src="cliente.js"></script>
+  </body>
 </html>

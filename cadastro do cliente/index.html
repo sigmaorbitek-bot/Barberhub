@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Cadastro do clientes no BarberHub" />
+    <meta name="theme-color" content="#D4AF37" />
+    <title>Cadastro | BarberHub</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../cadastro da barbearia/style.css" />
+  </head>
+
+
+   <body>
+    <main class="cadastro-barbearia">
+      <div class="container">
+        <section class="box">
+          <!-- ==========================================
+             CABEÇALHO
+             ========================================== -->
+
+          <header class="box-header">
+            <img src="../assets/barber.png" alt="BarberHub" class="logo" />
+
+            <h1>BarberHub</h1>
+
+            <p class="bv-subtitulo">Cadastro de Cliente</p>
+          </header>
+
+          <!-- ==========================================
+             DESCRIÇÃO
+             ========================================== -->
+
+          <div class="divisor"></div>
+
+          <p class="descricao">
+            Cadastre os dados para começar o Agendamento pelo BarberHub.
+          </p>
+
+          <!-- ==========================================
+             FORMULÁRIO
+             ========================================== -->
+
+          <form id="form-cadastro">
+
+            <h2 class="secao-titulo">Dados do Cliente</h2>
+
+            <p class="secao-descricao">
+              Informe os dados que serão exibidos para seus Barbeiro.
+            </p>
+
+            <!-- NOME -->
+
+            <div class="campo">
+              <label for="nome"> Seu Nome * </label>
+
+              <input
+                type="text"
+                id="nome"
+                name="nome"
+                placeholder="Ex.: João da Silva"
+                autocomplete="organization"
+                required
+              />
+            </div>
+
+            <!-- TELEFONE -->
+
+            <div class="campo">
+              <label for="telefone"> Telefone / WhatsApp </label>
+
+              <input
+                type="tel"
+                id="telefone"
+                name="telefone"
+                placeholder="(81) 99999-9999"
+                autocomplete="tel"
+              />
+            </div>
+
+             <!-- ========================================
+               CONTA DE ACESSO
+               ======================================== -->
+
+            <div class="divisor"></div>
+
+            <h2 class="secao-titulo">Dados da conta</h2>
+
+            <p class="secao-descricao">
+              Esses dados serão usados para acessar o painel de Cliente.
+            </p>
+
+            <!-- EMAIL -->
+
+            <div class="campo">
+              <label for="email"> E-mail * </label>
+
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="cliente@gmail.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <!-- SENHA -->
+
+            <div class="campo">
+              <label for="senha"> Senha * </label>
+
+              <input
+                type="password"
+                id="senha"
+                name="senha"
+                placeholder="Mínimo de 6 caracteres"
+                minlength="6"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+
+            <!-- CONFIRMAR SENHA -->
+
+            <div class="campo">
+              <label for="confirmar-senha"> Confirmar senha * </label>
+
+              <input
+                type="password"
+                id="confirmar-senha"
+                name="confirmar-senha"
+                placeholder="Digite a senha novamente"
+                minlength="6"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+
+            <!-- ========================================
+               MENSAGEM
+               ======================================== -->
+
+            <p id="mensagem" aria-live="polite"></p>
+
+            <!-- ========================================
+               BOTÃO CADASTRAR
+               ======================================== -->
+
+            <button type="submit" class="btn-principal">
+              + Confirmar Cadastro
+            </button>
+
+            <!-- ========================================
+               BOTÃO VOLTAR
+               ======================================== -->
+
+            <button type="button" class="btn-voltar" onclick="voltar()">
+              💈 Voltar
+            </button>
+
+            <!-- ========================================
+               CANCELAR EDIÇÃO
+               ======================================== -->
+
+            <button
+              type="button"
+              id="btn-cancelar-edicao"
+              style="display: none"
+            >
+              Cancelar edição
+            </button>
+
+
+
+          </form>
+          
+        </section>
+      </div>
+    </main>
+     <!-- ==============================================
+       SUPABASE
+       ============================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../config.js"></script>
+
+    <!-- ==============================================
+       JAVASCRIPT DA PÁGINA
+       ============================================== -->
+
+    <script src="Cadastro.js"></script>
+ </body>
+</html>
+
+
+ 

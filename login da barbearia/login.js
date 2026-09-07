@@ -7,7 +7,7 @@ function voltar() {
 }
 
 function irParaCadastro() {
-  window.location.href = "../cadastro/index.html";
+  window.location.href = "../cadastro da barbearia/index.html";
 }
 
 // ==================================================
@@ -66,7 +66,7 @@ formulario.addEventListener("submit", async function (event) {
 
     // Se der erro na busca, manda pra Minhas Lojas mesmo assim —
     // lá tem seu próprio tratamento de erro.
-    window.location.href = "../barbearia/index.html";
+    window.location.href = "./index.html";
     return;
   }
 

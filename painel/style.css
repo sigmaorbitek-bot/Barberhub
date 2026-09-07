@@ -107,103 +107,140 @@ button:disabled {
 
 .tela-carregamento {
   position: fixed;
+
   inset: 0;
+
   z-index: 9999;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   background: var(--bg-dark);
+
   opacity: 1;
+
   visibility: visible;
+
   transition:
     opacity 0.3s ease,
     visibility 0.3s ease;
 }
 
-/* ==================================================
-   TELA DE CARREGAMENTO OCULTA
-   ================================================== */
+/* TELA ESCONDIDA */
 
 .tela-carregamento--oculta {
   opacity: 0;
+
   visibility: hidden;
+
   pointer-events: none;
 }
 
-/* ==================================================
-   CONTEÚDO
-   ================================================== */
+/* ========================================
+   20. CONTEÚDO DO CARREGAMENTO
+   ======================================== */
 
 .carregamento-conteudo {
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
+
   text-align: center;
+
   padding: 30px;
 }
 
-/* ==================================================
-   LOGO
-   ================================================== */
+/* ========================================
+   21. LOGO DO CARREGAMENTO
+   ======================================== */
 
 .carregamento-logo {
-  width: 70px;
-  height: 70px;
+  width: 72px;
+  height: 72px;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   margin-bottom: 18px;
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
+
   background: var(--bg-card);
-  font-size: 2.2rem;
-  box-shadow: var(--shadow-card);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-brand);
+
+  overflow: hidden;
 }
 
-/* ==================================================
-   TÍTULO
-   ================================================== */
+/* IMAGEM */
+
+.carregamento-logo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  padding: 10px;
+}
+
+/* ========================================
+   22. TÍTULO DO CARREGAMENTO
+   ======================================== */
 
 .carregamento-conteudo h2 {
   margin: 0;
+
   color: var(--white);
+
   font-size: 1.5rem;
+
+  font-weight: 700;
 }
 
-/* ==================================================
-   TEXTO
-   ================================================== */
+/* ========================================
+   23. TEXTO DO CARREGAMENTO
+   ======================================== */
 
 .carregamento-conteudo p {
   margin: 8px 0 22px;
+
   color: var(--text-secondary);
+
   font-size: 0.85rem;
 }
 
-/* ==================================================
-   SPINNER
-   ================================================== */
+/* ========================================
+   24. SPINNER
+   ======================================== */
 
 .carregamento-spinner {
   width: 34px;
   height: 34px;
+
   border: 3px solid var(--border-color);
-  border-top-color: var(--blue);
+
+  border-top-color: var(--gold);
+
   border-radius: 50%;
+
   animation: carregarSpinner 0.8s linear infinite;
 }
 
-/* ==================================================
-   ANIMAÇÃO DO SPINNER
-   ================================================== */
+/* ANIMAÇÃO DO SPINNER */
 
 @keyframes carregarSpinner {
-
   to {
     transform: rotate(360deg);
   }
-
 }
 
 /* ==================================================
@@ -943,9 +980,9 @@ button:disabled {
 
 #form-configuracao-barbearia button[type="submit"],
 #form-configuracao-usuario button[type="submit"] {
-    margin-top: 20px;
-    position: relative;
-    z-index: 2;
+  margin-top: 20px;
+  position: relative;
+  z-index: 2;
 }
 
 /* ==================================================
@@ -1160,7 +1197,7 @@ button:disabled {
   transition:
     border-color var(--transition-fast),
     background var(--transition-fast);
-  }
+}
 .item-acoes button:hover {
   border-color: var(--gold);
   background: rgba(212, 175, 55, 0.08);
@@ -1436,7 +1473,6 @@ textarea:focus-visible {
   display: none;
 }
 
-
 /* ==================================================
    RESPONSIVIDADE — TABLET
    ================================================== */
@@ -1481,7 +1517,6 @@ textarea:focus-visible {
    ================================================== */
 
 @media (max-width: 700px) {
-
   /* ----------------------------------------------
      PAINEL
      ---------------------------------------------- */
@@ -1735,8 +1770,7 @@ textarea:focus-visible {
 
     min-height: 64px;
 
-    padding: 6px 6px
-      calc(6px + env(safe-area-inset-bottom));
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
 
     background: rgba(13, 13, 13, 0.97);
 
@@ -1892,8 +1926,6 @@ textarea:focus-visible {
    ================================================== */
 
 @media (max-width: 450px) {
- 
-
   .painel-header {
     gap: 12px;
   }

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Login do cliente no BarberHub" />
+    <meta name="theme-color" content="#D4AF37" />
+    <title>Entrar | BarberHub</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../login da barbearia/style.css" />
+  </head>
+
+  <body>
+    <main id="tela-boas-vindas">
+      <section class="tbv-container">
+        <div class="tbv-box">
+          <!-- ==========================================
+             CABEÇALHO
+             ========================================== -->
+
+          <header class="box-header">
+            <img src="../assets/barber.png" alt="BarberHub" class="bv-logo" />
+
+            <h1 class="bv-titulo">Entrar</h1>
+
+            <p class="bv-subtitulo">
+              Entre na sua conta para agendar seu horário
+            </p>
+          </header>
+
+          <div class="bv-divisor" aria-hidden="true"></div>
+
+          <!-- ==========================================
+             FORMULÁRIO
+             ========================================== -->
+
+          <form id="form-login">
+            <div class="campo">
+              <label for="email"> E-mail </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="seu@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <div class="campo">
+              <label for="senha"> Senha </label>
+              <input
+                type="password"
+                id="senha"
+                name="senha"
+                placeholder="Sua senha"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <!-- MENSAGEM -->
+            <p id="mensagem" aria-live="polite"></p>
+
+            <!-- BOTÃO ENTRAR -->
+            <button type="submit" class="btn-principal"  onclick="entrar()">Entrar</button>
+
+            <!-- BOTÃO CADASTRAR -->
+            <button type="button" class="btn-voltar" onclick="irParaCadastro()">
+              Ainda não tenho conta
+            </button>
+
+            <!-- VOLTAR -->
+            <button type="button" class="btn-voltar" onclick="voltar()">
+              💈 Voltar ao início
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../config.js"></script>
+    <script src="login.js"></script>
+  </body>
+</html>
