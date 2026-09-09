@@ -511,10 +511,7 @@ async function carregarServicos(barbeariaId) {
       .from("servicos")
       .select(
         `
-        id,
-        nome,
-        preco,
-        duracao_minutos
+        id,nome,preco,duracao
       `,
       )
       .eq("barbearia_id", barbeariaId)
@@ -535,7 +532,7 @@ async function carregarServicos(barbeariaId) {
 
       option.value = servico.id;
 
-      const duracao = Number(servico.duracao_minutos) || 30;
+      const duracao = Number(servico.duracao) || 30;
 
       option.textContent = `${servico.nome} — ${formatarPreco(
         servico.preco,
@@ -725,7 +722,7 @@ async function buscarAgendamentosDoDia(barbeariaId, profissionalId, data) {
       servicos (
         id,
         nome,
-        duracao_minutos
+        duracao
       )
     `,
     )
@@ -767,8 +764,7 @@ function slotEstaOcupado(inicioSlot, fimSlot, agendamentosExistentes) {
   return agendamentosExistentes.some((agendamento) => {
     const inicioExistente = new Date(agendamento.data_hora);
 
-    const duracaoExistente =
-      Number(agendamento.servicos?.duracao_minutos) || 30;
+    const duracaoExistente = Number(agendamento.servicos?.duracao) || 30;
 
     const fimExistente = new Date(
       inicioExistente.getTime() + duracaoExistente * 60 * 1000,
@@ -830,7 +826,7 @@ async function carregarHorariosDisponiveis() {
     return;
   }
 
-  const duracao = Number(servico.duracao_minutos) || 30;
+  const duracao = Number(servico.duracao) || 30;
 
   try {
     mostrarCarregandoHorarios();
@@ -965,7 +961,7 @@ async function verificarHorarioDisponivel(
   barbeariaId,
   profissionalId,
   dataHora,
-  duracaoMinutos,
+  duracao,
 ) {
   try {
     const data = `${dataHora.getFullYear()}-${String(
@@ -987,7 +983,7 @@ async function verificarHorarioDisponivel(
 
     const inicioMin = dataHora.getHours() * 60 + dataHora.getMinutes();
 
-    const fimMin = inicioMin + duracaoMinutos;
+    const fimMin = inicioMin + duracao;
 
     const abertura = horaParaMinutos(horario.hora_abertura);
 
@@ -1019,9 +1015,7 @@ async function verificarHorarioDisponivel(
       data,
     );
 
-    const fimDataHora = new Date(
-      dataHora.getTime() + duracaoMinutos * 60 * 1000,
-    );
+    const fimDataHora = new Date(dataHora.getTime() + duracao * 60 * 1000);
 
     const ocupado = slotEstaOcupado(dataHora, fimDataHora, existentes);
 
@@ -1066,7 +1060,7 @@ Tenho um novo agendamento pelo BarberHub.
 💈 Barbearia: ${barbearia.nome}
 ✂️ Serviço: ${servico.nome}
 💰 Valor: ${formatarPreco(servico.preco)}
-⏱️ Duração: ${Number(servico.duracao_minutos) || 30} minutos
+⏱️ Duração: ${Number(servico.duracao) || 30} minutos
 💇 Profissional: ${nomeProfissional}
 📅 Data: ${formatarData(data)}
 🕐 Horário: ${horario}
@@ -1217,7 +1211,7 @@ async function confirmarAgendamento() {
     return;
   }
 
-  const duracao = Number(servico.duracao_minutos) || 30;
+  const duracao = Number(servico.duracao) || 30;
 
   const dataHora = criarDataLocal(data, horario);
 
@@ -1386,7 +1380,7 @@ async function carregarAgendamentos() {
             id,
             nome,
             preco,
-            duracao_minutos
+            duracao
           ),
 
           profissionais (
@@ -1532,7 +1526,7 @@ function renderizarAgendamentos() {
 
               <p>
                 ⏱️
-                ${Number(servico?.duracao_minutos) || 30}
+                ${Number(servico?.duracao) || 30}
                 minutos
               </p>
 
@@ -1990,11 +1984,8 @@ async function selecionarBarbeariaParaAgendamento(barbeariaId) {
   select.value = barbeariaId;
 
   await carregarServicos(barbeariaId);
-
   await carregarProfissionais(barbeariaId);
-
   await carregarHorariosFuncionamento(barbeariaId);
-
   await carregarHorariosDisponiveis();
 }
 
@@ -2293,18 +2284,18 @@ function configurarEventos() {
   // ----------------------------------------------
 
   document.querySelectorAll("[data-filtro]").forEach((botao) => {
-  botao.addEventListener("click", () => {
-    filtroAgendamentosAtual = botao.dataset.filtro;
+    botao.addEventListener("click", () => {
+      filtroAgendamentosAtual = botao.dataset.filtro;
 
-    document.querySelectorAll("[data-filtro]").forEach((item) => {
-      item.classList.remove("ativo");
+      document.querySelectorAll("[data-filtro]").forEach((item) => {
+        item.classList.remove("ativo");
+      });
+
+      botao.classList.add("ativo");
+
+      renderizarAgendamentos();
     });
-
-    botao.classList.add("ativo");
-
-    renderizarAgendamentos();
   });
-});
 
   // ----------------------------------------------
   // PERFIL
