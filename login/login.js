@@ -11,10 +11,50 @@ function irParaCadastro() {
 }
 
 // ==================================================
+// RECUPERAR SENHA
+// ==================================================
+
+async function esqueciSenha() {
+  const email = document.getElementById("email").value.trim();
+
+  if (!email) {
+    mensagem.textContent = "Digite o e-mail da sua barbearia.";
+
+    mensagem.style.color = "#C1121F";
+
+    return;
+  }
+
+  mensagem.style.color = "";
+
+  mensagem.textContent = "Enviando link de recuperação...";
+
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo:
+      window.location.origin + "/login/nova-senha.html?tipo=barbearia",
+  });
+
+  if (error) {
+    console.error("Erro ao enviar recuperação:", error);
+
+    mensagem.textContent = "Não foi possível enviar o link de recuperação.";
+
+    mensagem.style.color = "#C1121F";
+
+    return;
+  }
+
+  mensagem.style.color = "";
+
+  mensagem.textContent = "Enviamos um link de recuperação para seu e-mail.";
+}
+
+// ==================================================
 // FORMULÁRIO
 // ==================================================
 
 const formulario = document.getElementById("form-login");
+
 const mensagem = document.getElementById("mensagem");
 
 // ==================================================
@@ -27,13 +67,16 @@ formulario.addEventListener("submit", async function (event) {
   console.log("Formulário de login enviado!");
 
   const email = document.getElementById("email").value.trim();
+
   const senha = document.getElementById("senha").value;
 
   mensagem.style.color = "";
+
   mensagem.textContent = "Entrando...";
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
+
     password: senha,
   });
 
@@ -45,6 +88,7 @@ formulario.addEventListener("submit", async function (event) {
     console.error("Erro ao entrar:", error);
 
     mensagem.textContent = "E-mail ou senha incorretos.";
+
     mensagem.style.color = "#C1121F";
 
     return;
@@ -57,16 +101,18 @@ formulario.addEventListener("submit", async function (event) {
   // ==================================================
 
   const { data: lojas, error: erroLojas } = await supabaseClient
+
     .from("barbearias")
+
     .select("id")
+
     .eq("dono_id", data.user.id);
 
   if (erroLojas) {
     console.error("Erro ao buscar lojas do dono:", erroLojas);
 
-    // Se der erro na busca, manda pra Minhas Lojas mesmo assim —
-    // lá tem seu próprio tratamento de erro.
     window.location.href = "./index.html";
+
     return;
   }
 
@@ -78,11 +124,12 @@ formulario.addEventListener("submit", async function (event) {
 
   if (lojas.length === 1) {
     window.location.href = `../painel/index.html?id=${lojas[0].id}`;
+
     return;
   }
 
   // ==================================================
-  // NENHUMA OU VÁRIAS → VAI PRA "MINHAS LOJAS" ESCOLHER
+  // NENHUMA OU VÁRIAS → VAI PRA "MINHAS LOJAS"
   // ==================================================
 
   window.location.href = "../barbearia/index.html";

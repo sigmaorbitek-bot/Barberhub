@@ -21,7 +21,7 @@
           <header class="box-header">
             <img src="../assets/barber.png" alt="BarberHub" class="bv-logo" />
 
-            <h1 class="bv-titulo" style="font-size: 1.9rem;">Entrar</h1>
+            <h1 class="bv-titulo" style="font-size: 1.9rem">Entrar</h1>
 
             <p class="bv-subtitulo">Acesse o painel da sua barbearia</p>
           </header>
@@ -46,7 +46,8 @@
             </div>
 
             <div class="campo">
-              <label for="senha"> Senha </label>
+              <label for="senha">Senha</label>
+
               <input
                 type="password"
                 id="senha"
@@ -55,6 +56,14 @@
                 autocomplete="current-password"
                 required
               />
+
+              <button
+                type="button"
+                class="btn-esqueci-senha"
+                onclick="esqueciSenha()"
+              >
+                Esqueci minha senha
+              </button>
             </div>
 
             <!-- MENSAGEM -->

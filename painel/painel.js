@@ -3339,43 +3339,213 @@ async function gerarRelatorio() {
 
   janela.document.close();
 }
-
-// WHATSAPP
+// ==================================================
+// WHATSAPP — ENVIAR RELATÓRIO
+// ==================================================
 
 const btnEnviarWhatsapp = document.getElementById("btn-enviar-whatsapp");
 
 if (btnEnviarWhatsapp) {
-  btnEnviarWhatsapp.addEventListener("click", () => {
+  btnEnviarWhatsapp.addEventListener("click", async () => {
+    // ==================================================
+    // PEGAR DATAS
+    // ==================================================
+
     const dataInicial = document.getElementById(
       "relatorio-data-inicial",
     )?.value;
 
     const dataFinal = document.getElementById("relatorio-data-final")?.value;
 
+    // ==================================================
+    // VALIDAR DATAS
+    // ==================================================
+
     if (!dataInicial || !dataFinal) {
       alert("Informe o período do relatório.");
-
       return;
     }
 
     if (dataInicial > dataFinal) {
       alert("A data inicial não pode ser maior que a data final.");
+      return;
+    }
+
+    // ==================================================
+    // VERIFICAR BARBEARIA
+    // ==================================================
+
+    if (!lojaAtual) {
+      alert("Não foi possível identificar a barbearia.");
+      return;
+    }
+
+    // ==================================================
+    // BUSCAR AGENDAMENTOS
+    // ==================================================
+
+    const { data, error } = await supabaseClient
+      .from("agendamentos")
+      .select(
+        `
+          *,
+          servicos(
+            nome,
+            preco
+          ),
+          profiles(
+            nome
+          )
+        `,
+      )
+      .eq("barbearia_id", lojaId)
+      .gte("data_hora", `${dataInicial}T00:00:00`)
+      .lte("data_hora", `${dataFinal}T23:59:59`)
+      .order("data_hora", {
+        ascending: true,
+      });
+
+    // ==================================================
+    // VERIFICAR ERRO
+    // ==================================================
+
+    if (error) {
+      console.error("Erro ao buscar relatório:", error);
+
+      alert("Não foi possível carregar os dados do relatório.");
 
       return;
     }
 
-    const mensagem = `
-${lojaAtual?.nome || "Barbearia"}
+    // ==================================================
+    // DADOS DO RELATÓRIO
+    // ==================================================
 
-Relatório: ${tipoRelatorioSelecionado}
+    const agendamentos = data || [];
 
-Período:
+    const total = agendamentos.length;
+
+    const concluidos = agendamentos.filter(
+      (item) => item.status === "concluido",
+    );
+
+    const faturamento = concluidos.reduce(
+      (soma, item) => soma + Number(item.servicos?.preco || 0),
+      0,
+    );
+
+    // ==================================================
+    // MONTAR DETALHES
+    // ==================================================
+
+    let detalhes = "";
+
+    if (agendamentos.length > 0) {
+      detalhes = agendamentos
+        .map((item, indice) => {
+          const cliente = item.profiles?.nome || "Cliente";
+
+          const servico = item.servicos?.nome || "Serviço";
+
+          const dataHora = formatarDataHora(item.data_hora);
+
+          const status = STATUS_LABEL[item.status] || "Pendente";
+
+          return (
+            `${indice + 1}. ` +
+            `${cliente} - ` +
+            `${servico}\n` +
+            `📅 ${dataHora}\n` +
+            `📌 ${status}`
+          );
+        })
+        .join("\n\n");
+    } else {
+      detalhes = "Nenhum agendamento encontrado no período.";
+    }
+
+    // ==================================================
+    // NOME DA BARBEARIA
+    // ==================================================
+
+    const nomeBarbearia = lojaAtual.nome || "BarberHub";
+
+    // ==================================================
+    // TIPO DO RELATÓRIO
+    // ==================================================
+
+    const tipoRelatorio = tipoRelatorioSelecionado || "geral";
+
+    // ==================================================
+    // MENSAGEM DO WHATSAPP
+    // ==================================================
+
+    const mensagem = `💈 ${nomeBarbearia}
+
+📊 RELATÓRIO ${tipoRelatorio.toUpperCase()}
+
+📅 Período:
 ${formatarData(dataInicial)} até ${formatarData(dataFinal)}
 
-Relatório gerado pelo BarberHub.
-      `.trim();
+━━━━━━━━━━━━━━━━━━
 
-    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+📌 RESUMO
+
+📅 Agendamentos: ${total}
+
+✅ Concluídos: ${concluidos.length}
+
+💰 Faturamento: ${formatarMoeda(faturamento)}
+
+━━━━━━━━━━━━━━━━━━
+
+📋 AGENDAMENTOS
+
+${detalhes}
+
+━━━━━━━━━━━━━━━━━━
+
+📋 Relatório gerado pelo BarberHub.
+`;
+
+    // ==================================================
+    // PEGAR TELEFONE DA BARBEARIA
+    // ==================================================
+
+    let telefone =
+      lojaAtual.telefone || lojaAtual.whatsapp || lojaAtual.celular || "";
+
+    // ==================================================
+    // REMOVER CARACTERES
+    // ==================================================
+
+    telefone = telefone.replace(/\D/g, "");
+
+    // ==================================================
+    // VERIFICAR TELEFONE
+    // ==================================================
+
+    if (!telefone) {
+      alert("Cadastre o número de WhatsApp da barbearia em Configurações.");
+
+      return;
+    }
+
+    // ==================================================
+    // ADICIONAR CÓDIGO DO BRASIL
+    // ==================================================
+
+    if (!telefone.startsWith("55")) {
+      telefone = "55" + telefone;
+    }
+
+    // ==================================================
+    // ABRIR WHATSAPP
+    // ==================================================
+
+    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(
+      mensagem,
+    )}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
   });

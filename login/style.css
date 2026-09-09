@@ -5,30 +5,39 @@
 :root {
   --bg-dark: #080808;
   --bg-card: #1a1a1a;
-
   --blue: #007bff;
   --red: #c1121f;
   --gold: #d4af37;
-
   --white: #ffffff;
   --text-primary: #f5f5f5;
   --text-secondary: #a6a6a6;
   --text-muted: #707070;
-
   --border-color: #292929;
   --border-light: #363636;
 
-  --gradient-brand: linear-gradient(135deg, var(--blue) 0%, var(--red) 50%, var(--gold) 100%);
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--blue) 0%,
+    var(--red) 50%,
+    var(--gold) 100%
+  );
+
   --gradient-gold: linear-gradient(135deg, #b8860b, #d4af37, #ffd700);
 
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
+
   --radius-md: 12px;
   --radius-lg: 18px;
 
   --transition-fast: 0.2s ease;
 
-  --font-base: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-base:
+    "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+/* ==================================================
+   RESET
+   ================================================== */
 
 * {
   margin: 0;
@@ -36,12 +45,20 @@
   box-sizing: border-box;
 }
 
+/* ==================================================
+   BODY
+   ================================================== */
+
 body {
   min-height: 100vh;
   background: var(--bg-dark);
   color: var(--text-primary);
   font-family: var(--font-base);
 }
+
+/* ==================================================
+   TELA PRINCIPAL
+   ================================================== */
 
 #tela-boas-vindas {
   width: 100%;
@@ -51,6 +68,7 @@ body {
   width: 100%;
   min-height: 100vh;
   padding: 40px 20px;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,14 +77,24 @@ body {
 .tbv-box {
   width: 100%;
   max-width: 420px;
+
   padding: 44px 36px;
+
   background: var(--bg-card);
+
   border: 1px solid var(--border-color);
   border-top: 5px solid var(--gold);
+
   border-radius: var(--radius-lg);
+
   text-align: center;
+
   box-shadow: var(--shadow-card);
 }
+
+/* ==================================================
+   CABEÇALHO
+   ================================================== */
 
 .box-header {
   margin-bottom: 12px;
@@ -75,6 +103,7 @@ body {
 .bv-logo {
   width: 80px;
   margin: 0 auto 16px;
+
   display: block;
 }
 
@@ -88,24 +117,42 @@ body {
   font-size: 0.9rem;
 }
 
+/* ==================================================
+   DIVISOR
+   ================================================== */
+
 .bv-divisor {
   width: 60px;
   height: 4px;
+
   margin: 22px auto;
+
   background: var(--gradient-gold);
+
   border-radius: 10px;
 }
+
+/* ==================================================
+   FORMULÁRIO DE LOGIN
+   ================================================== */
 
 #form-login {
   display: flex;
   flex-direction: column;
+
   gap: 16px;
+
   text-align: left;
 }
+
+/* ==================================================
+   CAMPOS
+   ================================================== */
 
 .campo {
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
 
@@ -116,58 +163,153 @@ body {
 
 .campo input {
   height: 46px;
+
   padding: 0 14px;
+
   background: #141414;
+
   border: 1px solid var(--border-color);
+
   border-radius: var(--radius-md);
+
   color: var(--text-primary);
+
   font-family: inherit;
   font-size: 0.9rem;
+
   outline: none;
 }
 
 .campo input:focus {
   border-color: var(--blue);
+
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
 }
 
+/* ==================================================
+   MENSAGEM
+   ================================================== */
+
 #mensagem {
   min-height: 18px;
+
   font-size: 0.85rem;
+
   text-align: center;
 }
 
+/* ==================================================
+   BOTÃO PRINCIPAL
+   ================================================== */
+
 .btn-principal {
   height: 50px;
+
   border: none;
+
   border-radius: var(--radius-md);
+
   background: var(--gradient-brand);
+
   color: var(--white);
+
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 700;
+
   cursor: pointer;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
+
+  transition:
+    transform var(--transition-fast),
+    filter var(--transition-fast);
 }
 
 .btn-principal:hover {
   transform: translateY(-2px);
+
   filter: brightness(1.08);
 }
 
+/* ==================================================
+   BOTÃO VOLTAR
+   ================================================== */
+
 .btn-voltar {
   height: 44px;
+
   border: 1px solid var(--border-light);
+
   border-radius: var(--radius-md);
+
   background: transparent;
+
   color: var(--text-primary);
+
   font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
+
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .btn-voltar:hover {
   border-color: var(--blue);
+}
+
+/* ==================================================
+   BOTÃO — ESQUECI MINHA SENHA
+   ================================================== */
+
+.btn-esqueci-senha {
+  align-self: flex-end;
+
+  margin-top: -2px;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--gold);
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: color var(--transition-fast);
+}
+
+.btn-esqueci-senha:hover {
+  color: #ffd700;
+
+  text-decoration: underline;
+}
+
+/* ==================================================
+   FORMULÁRIO — NOVA SENHA
+   ================================================== */
+
+#form-nova-senha {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+
+  text-align: left;
+}
+
+/* ==================================================
+   BOTÕES DA NOVA SENHA
+   ================================================== */
+
+#form-nova-senha .btn-principal,
+#form-nova-senha .btn-voltar {
+  width: 100%;
 }

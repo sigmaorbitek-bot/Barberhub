@@ -48,7 +48,8 @@
             </div>
 
             <div class="campo">
-              <label for="senha"> Senha </label>
+              <label for="senha">Senha</label>
+
               <input
                 type="password"
                 id="senha"
@@ -57,13 +58,21 @@
                 autocomplete="current-password"
                 required
               />
+
+              <button
+                type="button"
+                class="btn-esqueci-senha"
+                onclick="esqueciSenha()"
+              >
+                Esqueci minha senha
+              </button>
             </div>
 
             <!-- MENSAGEM -->
             <p id="mensagem" aria-live="polite"></p>
 
             <!-- BOTÃO ENTRAR -->
-            <button type="submit" class="btn-principal" >Entrar</button>
+            <button type="submit" class="btn-principal">Entrar</button>
 
             <!-- BOTÃO CADASTRAR -->
             <button type="button" class="btn-voltar" onclick="irParaCadastro()">

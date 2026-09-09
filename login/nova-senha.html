@@ -1,0 +1,104 @@
+<!doctype html>
+
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="description" content="Redefinição de senha do BarberHub" />
+
+    <meta name="theme-color" content="#D4AF37" />
+
+    <title>Nova senha | BarberHub</title>
+
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main id="tela-boas-vindas">
+      <section class="tbv-container">
+        <div class="tbv-box">
+          <!-- ==========================================
+               CABEÇALHO
+               ========================================== -->
+
+          <header class="box-header">
+            <img src="../assets/barber.png" alt="BarberHub" class="bv-logo" />
+
+            <h1 class="bv-titulo">Nova senha</h1>
+
+            <p class="bv-subtitulo">Crie uma nova senha para sua conta</p>
+          </header>
+
+          <div class="bv-divisor" aria-hidden="true"></div>
+
+          <!-- ==========================================
+               FORMULÁRIO
+               ========================================== -->
+
+          <form id="form-nova-senha">
+            <div class="campo">
+              <label for="nova-senha"> Nova senha </label>
+
+              <input
+                type="password"
+                id="nova-senha"
+                name="nova-senha"
+                placeholder="Digite sua nova senha"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+            </div>
+
+            <div class="campo">
+              <label for="confirmar-senha"> Confirmar nova senha </label>
+
+              <input
+                type="password"
+                id="confirmar-senha"
+                name="confirmar-senha"
+                placeholder="Digite a senha novamente"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+            </div>
+
+            <p id="mensagem" aria-live="polite"></p>
+
+            <!-- BOTÃO -->
+
+            <button type="submit" class="btn-principal">Alterar senha</button>
+
+            <!-- ==========================================
+     VOLTAR PARA O LOGIN
+     ========================================== -->
+
+            <button
+              type="button"
+              class="btn-voltar"
+              id="btn-voltar-login"
+              onclick="voltarLogin()"
+            >
+              ← Voltar para o login
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- ==========================================
+         SUPABASE
+         ========================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../config.js"></script>
+
+    <script src="nova-senha.js"></script>
+  </body>
+</html>
