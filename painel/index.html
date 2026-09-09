@@ -21,28 +21,32 @@
 
   <body>
     <main class="painel">
+      <!-- ==================================================
+           TELA DE CARREGAMENTO
+           ================================================== -->
 
-      <!-- TELA DE CARREGAMENTO -->
-    <div class="tela-carregamento" id="tela-carregamento">
-      <div class="carregamento-conteudo">
-        <div class="carregamento-logo">
-          <img src="../assets/barber.png" alt="BarberHub" />
+      <div class="tela-carregamento" id="tela-carregamento">
+        <div class="carregamento-conteudo">
+          <div class="carregamento-logo">
+            <img src="../assets/barber.png" alt="BarberHub" />
+          </div>
+
+          <h2>BarberHub</h2>
+
+          <p>Carregando seu painel...</p>
+
+          <div class="carregamento-spinner"></div>
         </div>
-
-        <h2>BarberHub</h2>
-
-        <p>Carregando seu painel...</p>
-
-        <div class="carregamento-spinner"></div>
       </div>
-    </div>   
 
+      <!-- ==================================================
+           CABEÇALHO MOBILE
+           ================================================== -->
 
-    <!-- CABEÇALHO MOBILE -->
-
-    <header class="mobile-header">
+      <header class="mobile-header">
         <div class="mobile-header-brand">
           <img src="../assets/barber.png" alt="BarberHub" class="mobile-logo" />
+
           <div>
             <strong>BarberHub</strong>
             <span>Painel da barbearia</span>
@@ -60,11 +64,11 @@
         </button>
       </header>
 
-      <!-- SIDEBAR DESKTOP -->
+      <!-- ==================================================
+           SIDEBAR DESKTOP
+           ================================================== -->
 
       <aside class="painel-sidebar">
-        <!-- LOGO / IDENTIDADE -->
-
         <div class="sidebar-top">
           <div class="sidebar-logo">
             <img
@@ -143,6 +147,18 @@
             <span>Profissionais</span>
           </button>
 
+          <!-- NOVO: HORÁRIOS -->
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="horarios"
+            onclick="mudarAba('horarios')"
+          >
+            <span class="menu-icon">🕐</span>
+            <span>Horários</span>
+          </button>
+
           <button
             type="button"
             class="menu-item"
@@ -164,7 +180,7 @@
           </button>
         </nav>
 
-        <!-- PARTE INFERIOR DO MENU -->
+        <!-- PARTE INFERIOR -->
 
         <div class="sidebar-bottom">
           <button
@@ -173,13 +189,25 @@
             onclick="voltar()"
           >
             <span class="menu-icon">🚪</span>
-            <span> Sair </span>
+            <span>Sair</span>
           </button>
         </div>
       </aside>
 
-      <!-- MENU MOBILE -->
+      <!-- ==================================================
+           MENU MOBILE
+           ================================================== -->
+
       <nav class="mobile-menu" id="menu-mobile">
+        <button
+          type="button"
+          class="mobile-menu-item"
+          onclick="mudarAba('visao-geral')"
+        >
+          <span>📊</span>
+          Visão geral
+        </button>
+
         <button
           type="button"
           class="mobile-menu-item"
@@ -201,10 +229,39 @@
         <button
           type="button"
           class="mobile-menu-item"
+          onclick="mudarAba('agendamentos')"
+        >
+          <span>📅</span>
+          Agendamentos
+        </button>
+
+        <button
+          type="button"
+          class="mobile-menu-item"
+          onclick="mudarAba('clientes')"
+        >
+          <span>👥</span>
+          Clientes
+        </button>
+
+        <button
+          type="button"
+          class="mobile-menu-item"
           onclick="mudarAba('profissionais')"
         >
           <span>💈</span>
           Profissionais
+        </button>
+
+        <!-- NOVO: HORÁRIOS -->
+
+        <button
+          type="button"
+          class="mobile-menu-item"
+          onclick="mudarAba('horarios')"
+        >
+          <span>🕐</span>
+          Horários
         </button>
 
         <button
@@ -235,29 +292,21 @@
         </button>
       </nav>
 
+      <!-- ==================================================
+           ÁREA PRINCIPAL
+           ================================================== -->
+
       <section class="painel-main">
-        <!-- ==================================================
-           CABEÇALHO DA LOJA
-           ================================================== -->
+        <!-- CABEÇALHO DA LOJA -->
 
-        <header class="painel-header" id="painel-header">
-          <!--
-          Preenchido pelo painel.js:
+        <header class="painel-header" id="painel-header"></header>
 
-          - Logo
-          - Nome da barbearia
-          - Cidade
-          - Outras informações
-        --></header>
-
-        <!-- ==================================================
-           CONTEÚDO
-           ================================================== -->
+        <!-- CONTEÚDOS -->
 
         <div class="painel-conteudos">
           <!-- ==================================================
-             VISÃO GERAL
-             ================================================== -->
+               VISÃO GERAL
+               ================================================== -->
 
           <section id="conteudo-visao-geral" class="painel-conteudo">
             <div class="conteudo-titulo">
@@ -269,25 +318,33 @@
             <div class="dashboard-cards">
               <article class="dashboard-card">
                 <span>📅</span>
-                <strong id="total-agendamentos-hoje">0</strong>
+
+                <strong id="total-agendamentos-hoje"> 0 </strong>
+
                 <p>Agendamentos hoje</p>
               </article>
 
               <article class="dashboard-card">
                 <span>👥</span>
-                <strong id="total-clientes">0</strong>
+
+                <strong id="total-clientes"> 0 </strong>
+
                 <p>Clientes</p>
               </article>
 
               <article class="dashboard-card">
                 <span>💈</span>
-                <strong id="total-profissionais">0</strong>
+
+                <strong id="total-profissionais"> 0 </strong>
+
                 <p>Profissionais</p>
               </article>
 
               <article class="dashboard-card">
                 <span>💰</span>
+
                 <strong id="faturamento-hoje"> R$ 0,00 </strong>
+
                 <p>Faturamento hoje</p>
               </article>
             </div>
@@ -303,12 +360,10 @@
 
               <p>Gere relatórios da sua barbearia por período.</p>
 
-              <!-- TIPOS DE RELATÓRIO -->
-
               <div class="relatorios-tipos">
                 <button
                   type="button"
-                  class="btn-relatorio"
+                  class="btn-relatorio btn-relatorio--ativo"
                   data-relatorio="geral"
                 >
                   📊 Relatório geral
@@ -355,8 +410,6 @@
                 </button>
               </div>
 
-              <!-- PERÍODO DO RELATÓRIO -->
-
               <div class="relatorio-periodo">
                 <div class="campo">
                   <label for="relatorio-data-inicial"> Data inicial </label>
@@ -390,8 +443,8 @@
           </section>
 
           <!-- ==================================================
-             SERVIÇOS
-             ================================================== -->
+               SERVIÇOS
+               ================================================== -->
 
           <section id="conteudo-servicos" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
@@ -401,11 +454,9 @@
             </div>
 
             <form id="form-servico" class="form-item">
-              <input type="hidden" id="servico-id" value="" />
+              <input type="hidden" id="servico-id" />
 
               <div class="campo-inline">
-                <!-- NOME -->
-
                 <div class="campo">
                   <label for="servico-nome"> Nome do serviço </label>
 
@@ -416,8 +467,6 @@
                     required
                   />
                 </div>
-
-                <!-- PREÇO -->
 
                 <div class="campo campo--curto">
                   <label for="servico-preco"> Preço (R$) </label>
@@ -431,8 +480,6 @@
                     required
                   />
                 </div>
-
-                <!-- DURAÇÃO -->
 
                 <div class="campo campo--curto">
                   <label for="servico-duracao"> Duração (min) </label>
@@ -475,8 +522,8 @@
           </section>
 
           <!-- ==================================================
-             PRODUTOS
-             ================================================== -->
+               PRODUTOS
+               ================================================== -->
 
           <section id="conteudo-produtos" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
@@ -486,11 +533,9 @@
             </div>
 
             <form id="form-produto" class="form-item">
-              <input type="hidden" id="produto-id" value="" />
+              <input type="hidden" id="produto-id" />
 
-              <input type="hidden" id="produto-foto-atual" value="" />
-
-              <!-- FOTO -->
+              <input type="hidden" id="produto-foto-atual" />
 
               <div class="campo">
                 <label for="produto-foto"> Foto do produto </label>
@@ -509,8 +554,6 @@
                   />
                 </div>
               </div>
-
-              <!-- DADOS -->
 
               <div class="campo-inline">
                 <div class="campo">
@@ -578,8 +621,8 @@
           </section>
 
           <!-- ==================================================
-             AGENDAMENTOS
-             ================================================== -->
+               AGENDAMENTOS
+               ================================================== -->
 
           <section id="conteudo-agendamentos" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
@@ -618,8 +661,8 @@
           </section>
 
           <!-- ==================================================
-             CLIENTES
-             ================================================== -->
+               CLIENTES
+               ================================================== -->
 
           <section id="conteudo-clientes" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
@@ -632,25 +675,23 @@
           </section>
 
           <!-- ==================================================
-             PROFISSIONAIS
-             ================================================== -->
+               PROFISSIONAIS
+               ================================================== -->
 
           <section id="conteudo-profissionais" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
               <h1>Profissionais</h1>
 
-              <p>Gerencie os barbeiros que trabalham na barbearia.</p>
+              <p>Gerencie os profissionais que trabalham na barbearia.</p>
             </div>
 
             <form id="form-barbeiro" class="form-item">
-              <input type="hidden" id="barbeiro-id" value="" />
+              <input type="hidden" id="barbeiro-id" />
 
-              <input type="hidden" id="barbeiro-foto-atual" value="" />
-
-              <!-- FOTO -->
+              <input type="hidden" id="barbeiro-foto-atual" />
 
               <div class="campo">
-                <label for="barbeiro-foto"> Foto do barbeiro </label>
+                <label for="barbeiro-foto"> Foto do profissional </label>
 
                 <input
                   type="file"
@@ -662,21 +703,19 @@
                   <img
                     id="preview-barbeiro-img"
                     src=""
-                    alt="Prévia da foto do barbeiro"
+                    alt="Prévia da foto do profissional"
                   />
                 </div>
               </div>
 
-              <!-- DADOS -->
-
               <div class="campo-inline">
                 <div class="campo">
-                  <label for="barbeiro-nome"> Nome do barbeiro </label>
+                  <label for="barbeiro-nome"> Nome do profissional </label>
 
                   <input
                     type="text"
                     id="barbeiro-nome"
-                    placeholder="Ex: João da Silva "
+                    placeholder="Ex: João da Silva"
                     required
                   />
                 </div>
@@ -719,8 +758,38 @@
           </section>
 
           <!-- ==================================================
-             FINANCEIRO
-             ================================================== -->
+     HORÁRIOS
+     ================================================== -->
+
+          <section id="conteudo-horarios" class="painel-conteudo" hidden>
+            <div class="conteudo-titulo">
+              <h1>Horários de funcionamento</h1>
+              <p>
+                Defina os dias e horários em que sua barbearia estará disponível
+                para atendimento.
+              </p>
+            </div>
+
+            <form id="form-horarios" class="form-item">
+              <div id="lista-horarios" class="lista-horarios"></div>
+
+              <div class="form-item-botoes">
+                <button
+                  type="submit"
+                  class="btn-principal"
+                  id="btn-salvar-horarios"
+                >
+                  💾 Salvar horários
+                </button>
+              </div>
+            </form>
+
+            <p id="mensagem-horarios" class="mensagem" aria-live="polite"></p>
+          </section>
+
+          <!-- ==================================================
+               FINANCEIRO
+               ================================================== -->
 
           <section id="conteudo-financeiro" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
@@ -732,24 +801,28 @@
             <div class="dashboard-cards">
               <article class="dashboard-card">
                 <span>📈</span>
+
                 <strong id="financeiro-entradas"> R$ 0,00 </strong>
+
                 <p>Entradas</p>
               </article>
 
               <article class="dashboard-card">
                 <span>📉</span>
+
                 <strong id="financeiro-saidas"> R$ 0,00 </strong>
+
                 <p>Saídas</p>
               </article>
 
               <article class="dashboard-card">
                 <span>💰</span>
+
                 <strong id="financeiro-lucro"> R$ 0,00 </strong>
+
                 <p>Lucro</p>
               </article>
             </div>
-
-            <!-- DESCRIÇÃO -->
 
             <form id="form-gasto" class="form-item">
               <div class="campo">
@@ -763,25 +836,29 @@
                 />
               </div>
 
-              <!-- CATEGORIA -->
-
               <div class="campo">
                 <label for="gasto-categoria"> Categoria </label>
 
                 <select id="gasto-categoria" required>
                   <option value="">Selecione</option>
+
                   <option value="aluguel">Aluguel</option>
+
                   <option value="energia">Energia</option>
+
                   <option value="agua">Água</option>
+
                   <option value="internet">Internet</option>
+
                   <option value="produtos">Produtos</option>
+
                   <option value="salarios">Salários</option>
+
                   <option value="manutencao">Manutenção</option>
+
                   <option value="outros">Outros</option>
                 </select>
               </div>
-
-              <!-- VALOR -->
 
               <div class="campo campo--curto">
                 <label for="gasto-valor"> Valor (R$) </label>
@@ -796,15 +873,11 @@
                 />
               </div>
 
-              <!-- DATA -->
-
               <div class="campo campo--curto">
                 <label for="gasto-data"> Data </label>
 
                 <input type="date" id="gasto-data" required />
               </div>
-
-              <!-- FORMA DE PAGAMENTO -->
 
               <div class="campo">
                 <label for="gasto-pagamento"> Forma de pagamento </label>
@@ -824,8 +897,6 @@
                 </select>
               </div>
 
-              <!-- OBSERVAÇÃO -->
-
               <div class="campo">
                 <label for="gasto-observacao"> Observação </label>
 
@@ -834,8 +905,6 @@
                   placeholder="Ex: Pagamento referente ao mês de setembro"
                 ></textarea>
               </div>
-
-              <!-- BOTÃO -->
 
               <div class="form-item-botoes">
                 <button
@@ -854,8 +923,8 @@
           </section>
 
           <!-- ==================================================
-             CONFIGURAÇÕES
-             ================================================== -->
+               CONFIGURAÇÕES
+               ================================================== -->
 
           <section id="conteudo-configuracoes" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
@@ -906,7 +975,7 @@
               </form>
             </div>
 
-            <!-- CONTA DO USUÁRIO -->
+            <!-- CONTA -->
 
             <div class="configuracao-card">
               <h2>👤 Minha conta</h2>
@@ -978,7 +1047,10 @@
         </div>
       </section>
 
-      <!-- NAVEGAÇÃO INFERIOR MOBILE -->
+      <!-- ==================================================
+           NAVEGAÇÃO INFERIOR MOBILE
+           ================================================== -->
+
       <nav class="mobile-bottom-nav">
         <button
           type="button"
@@ -1020,8 +1092,8 @@
     </main>
 
     <!-- ==================================================
-       SCRIPTS
-       ================================================== -->
+         SCRIPTS
+         ================================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

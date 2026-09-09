@@ -3,80 +3,732 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="BarberHub - Encontre as melhores barbearias da sua cidade, veja serviços, preços e agende seu horário."
-    />
+
+    <meta name="description" content="Painel do cliente - BarberHub" />
+
     <meta name="theme-color" content="#D4AF37" />
-    <title>BarberHub | Cliente</title>
-    <link rel="icon" type="image/png" href="../assets/favicon.svg" />
+
+    <title>Painel do Cliente | BarberHub</title>
+
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="../barbearia/style.css" />
   </head>
 
   <body>
-    <!-- TELA DE CARREGAMENTO -->
-    <div class="tela-carregamento" id="tela-carregamento">
-      <div class="carregamento-conteudo">
-        <div class="carregamento-logo">
-          <img src="../assets/barber.png" alt="BarberHub" />
+    <main class="painel">
+      <!-- ==================================================
+           TELA DE CARREGAMENTO
+      ================================================== -->
+
+      <div class="tela-carregamento" id="tela-carregamento">
+        <div class="carregamento-conteudo">
+          <div class="carregamento-logo">
+            <img src="../assets/barber.png" alt="BarberHub" />
+          </div>
+
+          <h2>BarberHub</h2>
+
+          <p>Carregando seu painel...</p>
+
+          <div class="carregamento-spinner"></div>
         </div>
-
-        <h2>BarberHub</h2>
-
-        <p>Encontrando as melhores barbearias...</p>
-
-        <div class="carregamento-spinner"></div>
       </div>
-    </div>
-    <main class="cliente">
-      <section class="container">
-        <h1>Encontre sua barbearia</h1>
-        <p>Escolha uma barbearia para continuar.</p>
 
-        <!-- BUSCA -->
+      <!-- ==================================================
+           CABEÇALHO MOBILE
+      ================================================== -->
 
-        <div class="busca">
-          <input
-            type="search"
-            id="busca-input"
-            placeholder="🔍 Sua Barbearia..."
-            autocomplete="off"
-          />
+      <header class="mobile-header">
+        <div class="mobile-header-brand">
+          <img src="../assets/barber.png" alt="BarberHub" class="mobile-logo" />
+
+          <div class="mobile-brand-text">
+            <strong>BarberHub</strong>
+            <span>Painel do cliente</span>
+          </div>
         </div>
 
-        <!-- FILTROS -->
-        <nav class="filtros" aria-label="Categorias das barbearias">
-          <button type="button" class="filtro-btn ativo" data-categoria="todos">
-            Todos
+        <button
+          type="button"
+          class="mobile-menu-toggle"
+          id="btn-menu-mobile"
+          aria-label="Abrir menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+      </header>
+
+      <!-- ==================================================
+           SIDEBAR DESKTOP
+      ================================================== -->
+
+      <aside class="painel-sidebar">
+        <div class="sidebar-top">
+          <div class="sidebar-logo">
+            <img src="../assets/barber.png" alt="Logo da BarberHub" />
+          </div>
+
+          <div class="sidebar-brand">
+            <strong>BarberHub</strong>
+            <span>Painel do cliente</span>
+          </div>
+        </div>
+
+        <!-- MENU -->
+
+        <nav class="sidebar-menu" aria-label="Menu principal">
+          <button
+            type="button"
+            class="menu-item ativo"
+            data-aba="inicio"
+            onclick="mudarAba('inicio')"
+          >
+            <span class="menu-icon">🏠</span>
+            <span>Início</span>
           </button>
 
-          <button type="button" class="filtro-btn" data-categoria="cidade">
-            📍 Cidade
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="agendamento"
+            onclick="mudarAba('agendamento')"
+          >
+            <span class="menu-icon">📅</span>
+            <span>Agendar horário</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="agendamentos"
+            onclick="mudarAba('agendamentos')"
+          >
+            <span class="menu-icon">🗓️</span>
+            <span>Meus agendamentos</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="favoritos"
+            onclick="mudarAba('favoritos')"
+          >
+            <span class="menu-icon">❤️</span>
+            <span>Favoritos</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="perfil"
+            onclick="mudarAba('perfil')"
+          >
+            <span class="menu-icon">👤</span>
+            <span>Meu perfil</span>
           </button>
         </nav>
 
-        <div id="lista-barbearias"></div>
+        <!-- SAIR -->
+
+        <div class="sidebar-bottom">
+          <button type="button" class="menu-item sair" onclick="sair()">
+            <span class="menu-icon">🚪</span>
+            <span>Sair</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ==================================================
+           MENU MOBILE
+      ================================================== -->
+
+      <nav class="mobile-menu" id="menu-mobile" aria-label="Menu mobile">
+        <div class="mobile-menu-conteudo">
+          <div class="mobile-menu-topo">
+            <div>
+              <strong>BarberHub</strong>
+              <span>Painel do cliente</span>
+            </div>
+
+            <button
+              type="button"
+              class="mobile-menu-fechar"
+              id="btn-fechar-menu"
+              aria-label="Fechar menu"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="mobile-menu-lista">
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="inicio"
+              onclick="mudarAba('inicio')"
+            >
+              <span>🏠</span>
+              <span>Início</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="agendamento"
+              onclick="mudarAba('agendamento')"
+            >
+              <span>📅</span>
+              <span>Agendar horário</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="agendamentos"
+              onclick="mudarAba('agendamentos')"
+            >
+              <span>🗓️</span>
+              <span>Meus agendamentos</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="favoritos"
+              onclick="mudarAba('favoritos')"
+            >
+              <span>❤️</span>
+              <span>Favoritos</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="perfil"
+              onclick="mudarAba('perfil')"
+            >
+              <span>👤</span>
+              <span>Meu perfil</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item mobile-menu-item--sair"
+              onclick="sair()"
+            >
+              <span>🚪</span>
+              <span>Sair</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- ==================================================
+           CONTEÚDO PRINCIPAL
+      ================================================== -->
+
+      <section class="painel-main">
+        <!-- CABEÇALHO -->
+
+        <header class="painel-header" id="painel-header">
+          <div>
+            <span class="painel-header-label"> BARBERHUB </span>
+
+            <h1 id="titulo-painel">Início</h1>
+
+            <p id="descricao-painel">
+              Acompanhe sua conta e seus próximos horários.
+            </p>
+          </div>
+        </header>
+
+        <!-- ==================================================
+             CONTEÚDOS
+        ================================================== -->
+
+        <div class="painel-conteudos">
+          <!-- ==================================================
+               INÍCIO
+          ================================================== -->
+
+          <section id="conteudo-inicio" class="painel-conteudo">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow"> ÁREA DO CLIENTE </span>
+
+              <p class="cliente-saudacao">Bem-vindo 👋</p>
+
+              <h1 id="nome-cliente">Cliente</h1>
+
+              <p>O que você deseja fazer hoje?</p>
+            </div>
+
+            <!-- CARDS -->
+
+            <div class="cards-dashboard">
+              <article class="card-dashboard">
+                <div class="card-dashboard-topo">
+                  <div class="card-dashboard-icone">📅</div>
+
+                  <span class="card-dashboard-indicador"> Próximo </span>
+                </div>
+
+                <div>
+                  <strong id="proximo-agendamento" class="valor">
+                    Nenhum
+                  </strong>
+
+                  <p>Próximo agendamento</p>
+                </div>
+              </article>
+
+              <article class="card-dashboard">
+                <div class="card-dashboard-topo">
+                  <div class="card-dashboard-icone">🗓️</div>
+
+                  <span class="card-dashboard-indicador"> Total </span>
+                </div>
+
+                <div>
+                  <strong id="total-agendamentos" class="valor"> 0 </strong>
+
+                  <p>Agendamentos</p>
+                </div>
+              </article>
+
+              <article class="card-dashboard">
+                <div class="card-dashboard-topo">
+                  <div class="card-dashboard-icone">❤️</div>
+
+                  <span class="card-dashboard-indicador"> Salvos </span>
+                </div>
+
+                <div>
+                  <strong id="total-favoritos" class="valor"> 0 </strong>
+
+                  <p>Favoritos</p>
+                </div>
+              </article>
+
+              <article
+                class="card-dashboard card-dashboard--perfil"
+                onclick="mudarAba('perfil')"
+              >
+                <div class="card-dashboard-topo">
+                  <div class="card-dashboard-icone">👤</div>
+
+                  <span class="card-dashboard-indicador"> Conta </span>
+                </div>
+
+                <div>
+                  <strong class="valor"> Perfil </strong>
+
+                  <p>Meus dados</p>
+                </div>
+              </article>
+            </div>
+
+            <!-- PRÓXIMO AGENDAMENTO -->
+
+            <div class="dashboard-secao">
+              <div class="secao-titulo">
+                <div>
+                  <span class="secao-eyebrow"> SUA AGENDA </span>
+
+                  <h2>Próximo agendamento</h2>
+
+                  <p>Confira seu próximo horário marcado.</p>
+                </div>
+              </div>
+
+              <div id="card-proximo-agendamento" class="lista-itens"></div>
+            </div>
+
+            <!-- AÇÕES RÁPIDAS -->
+
+            <div class="acoes-rapidas">
+              <div class="secao-titulo">
+                <div>
+                  <span class="secao-eyebrow"> ATALHOS </span>
+
+                  <h2>Ações rápidas</h2>
+
+                  <p>Acesse rapidamente as principais funções.</p>
+                </div>
+              </div>
+
+              <div class="acoes-rapidas-grid">
+                <button
+                  type="button"
+                  class="acao-rapida"
+                  onclick="mudarAba('agendamento')"
+                >
+                  <span class="acao-rapida-icone"> 📅 </span>
+
+                  <strong> Agendar horário </strong>
+
+                  <small> Marque seu próximo atendimento </small>
+                </button>
+
+                <button
+                  type="button"
+                  class="acao-rapida"
+                  onclick="mudarAba('agendamentos')"
+                >
+                  <span class="acao-rapida-icone"> 🗓️ </span>
+
+                  <strong> Meus agendamentos </strong>
+
+                  <small> Consulte seus horários </small>
+                </button>
+
+                <button
+                  type="button"
+                  class="acao-rapida"
+                  onclick="mudarAba('favoritos')"
+                >
+                  <span class="acao-rapida-icone"> ❤️ </span>
+
+                  <strong> Minhas barbearias </strong>
+
+                  <small> Acesse seus favoritos </small>
+                </button>
+
+                <button
+                  type="button"
+                  class="acao-rapida"
+                  onclick="mudarAba('perfil')"
+                >
+                  <span class="acao-rapida-icone"> 👤 </span>
+
+                  <strong> Meu perfil </strong>
+
+                  <small> Gerencie seus dados </small>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================================================
+               AGENDAMENTO
+          ================================================== -->
+
+          <section id="conteudo-agendamento" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow"> NOVO HORÁRIO </span>
+
+              <h1>Agendar horário</h1>
+
+              <p>Escolha a barbearia, serviço, profissional e horário.</p>
+            </div>
+
+            <div class="formulario-painel">
+              <div class="formulario-cabecalho">
+                <div>
+                  <span class="secao-eyebrow"> AGENDAMENTO </span>
+
+                  <h2>Escolha seu atendimento</h2>
+
+                  <p>
+                    Preencha os dados abaixo para encontrar um horário
+                    disponível.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <!-- BARBEARIA -->
+
+                <div class="form-campo">
+                  <label for="agendamento-barbearia"> Barbearia </label>
+
+                  <select id="agendamento-barbearia" required>
+                    <option value="">Selecione uma barbearia</option>
+                  </select>
+                </div>
+
+                <!-- SERVIÇO -->
+
+                <div class="form-campo">
+                  <label for="agendamento-servico"> Serviço </label>
+
+                  <select id="agendamento-servico" required disabled>
+                    <option value="">Selecione um serviço</option>
+                  </select>
+                </div>
+
+                <!-- PROFISSIONAL -->
+
+                <div class="form-campo">
+                  <label for="agendamento-profissional"> Profissional </label>
+
+                  <select id="agendamento-profissional" disabled>
+                    <option value="">Qualquer profissional</option>
+                  </select>
+
+                  <small class="campo-ajuda">
+                    Escolha um profissional ou deixe automático.
+                  </small>
+                </div>
+
+                <!-- DATA -->
+
+                <div class="form-campo">
+                  <label for="agendamento-data"> Data </label>
+
+                  <input type="date" id="agendamento-data" required />
+                </div>
+
+                <!-- HORÁRIO -->
+
+                <div class="form-campo form-campo--horario">
+                  <label for="agendamento-horario"> Horário </label>
+
+                  <select id="agendamento-horario" required disabled>
+                    <option value="">Selecione um horário</option>
+                  </select>
+
+                  <small class="campo-ajuda">
+                    Os horários ocupados não aparecem.
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-item-botoes">
+                <button
+                  type="button"
+                  class="btn-principal"
+                  id="btn-confirmar-agendamento"
+                >
+                  <span>📅</span>
+                  Confirmar agendamento
+                </button>
+              </div>
+            </div>
+
+            <p
+              id="mensagem-agendamento"
+              class="mensagem"
+              aria-live="polite"
+            ></p>
+          </section>
+
+          <!-- ==================================================
+               MEUS AGENDAMENTOS
+          ================================================== -->
+
+          <section id="conteudo-agendamentos" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow"> MINHA AGENDA </span>
+
+              <h1>Meus agendamentos</h1>
+
+              <p>Consulte seus horários marcados no BarberHub.</p>
+            </div>
+
+            <div class="filtros-painel">
+              <button type="button" class="filtro ativo" data-filtro="proximos">
+                Próximos
+              </button>
+
+              <button type="button" class="filtro" data-filtro="todos">
+                Todos
+              </button>
+
+              <button type="button" class="filtro" data-filtro="cancelados">
+                Cancelados
+              </button>
+            </div>
+
+            <div id="lista-meus-agendamentos" class="lista-itens"></div>
+          </section>
+
+          <!-- ==================================================
+               FAVORITOS
+          ================================================== -->
+
+          <section id="conteudo-favoritos" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow"> SEUS FAVORITOS </span>
+
+              <h1>Favoritos</h1>
+
+              <p>Encontre rapidamente suas barbearias favoritas.</p>
+            </div>
+
+            <div class="busca-painel">
+              <div class="busca-icone">🔎</div>
+
+              <input
+                type="search"
+                id="busca-barbearia"
+                placeholder="Digite o nome ou cidade..."
+                autocomplete="off"
+              />
+            </div>
+
+            <div id="lista-favoritos" class="lista-barbearias"></div>
+          </section>
+
+          <!-- ==================================================
+               PERFIL
+          ================================================== -->
+
+          <section id="conteudo-perfil" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow"> MINHA CONTA </span>
+
+              <h1>Meu perfil</h1>
+
+              <p>Consulte e altere seus dados pessoais.</p>
+            </div>
+
+            <!-- DADOS PESSOAIS -->
+
+            <div class="configuracao-card">
+              <div class="configuracao-cabecalho">
+                <div class="configuracao-icone">👤</div>
+
+                <div>
+                  <h2>Dados pessoais</h2>
+
+                  <p>Mantenha seus dados atualizados.</p>
+                </div>
+              </div>
+
+              <form id="form-perfil">
+                <div class="form-grid">
+                  <!-- NOME -->
+
+                  <div class="form-campo">
+                    <label for="perfil-nome"> Nome </label>
+
+                    <input
+                      type="text"
+                      id="perfil-nome"
+                      placeholder="Seu nome"
+                      required
+                    />
+                  </div>
+
+                  <!-- TELEFONE -->
+
+                  <div class="form-campo">
+                    <label for="perfil-telefone"> Telefone </label>
+
+                    <input
+                      type="tel"
+                      id="perfil-telefone"
+                      placeholder="(00) 99999-9999"
+                    />
+                  </div>
+
+                  <!-- EMAIL -->
+
+                  <div class="form-campo form-campo--full">
+                    <label for="perfil-email"> E-mail </label>
+
+                    <input type="email" id="perfil-email" disabled />
+
+                    <small class="campo-ajuda">
+                      O e-mail da conta não pode ser alterado por aqui.
+                    </small>
+                  </div>
+                </div>
+
+                <div class="form-item-botoes">
+                  <button
+                    type="submit"
+                    class="btn-principal"
+                    id="btn-salvar-perfil"
+                  >
+                    Salvar dados
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- SEGURANÇA -->
+
+            <div class="configuracao-card">
+              <div class="configuracao-cabecalho">
+                <div class="configuracao-icone">🔐</div>
+
+                <div>
+                  <h2>Segurança</h2>
+
+                  <p>Proteja sua conta alterando sua senha.</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn-secundario"
+                id="btn-alterar-senha"
+              >
+                Alterar senha
+              </button>
+            </div>
+
+            <p id="mensagem-perfil" class="mensagem" aria-live="polite"></p>
+          </section>
+        </div>
       </section>
-      <div class="bv-opcoes">
+
+      <!-- ==================================================
+           NAVEGAÇÃO INFERIOR MOBILE
+      ================================================== -->
+
+      <nav class="mobile-bottom-nav">
         <button
-          id="btn-barbearia"
-          class="bv-btn"
           type="button"
-          onclick="voltar()"
+          class="mobile-bottom-item ativo"
+          data-aba="inicio"
+          onclick="mudarAba('inicio')"
         >
-          💈 Voltar inicio
+          <span>🏠</span>
+          <small>Início</small>
         </button>
-      </div>
+
+        <button
+          type="button"
+          class="mobile-bottom-item"
+          data-aba="agendamento"
+          onclick="mudarAba('agendamento')"
+        >
+          <span>📅</span>
+          <small>Agendar</small>
+        </button>
+
+        <button
+          type="button"
+          class="mobile-bottom-item"
+          data-aba="agendamentos"
+          onclick="mudarAba('agendamentos')"
+        >
+          <span>🗓️</span>
+          <small>Agenda</small>
+        </button>
+
+        <button
+          type="button"
+          class="mobile-bottom-item"
+          id="btn-menu-bottom"
+          aria-label="Abrir menu"
+        >
+          <span>☰</span>
+          <small>Menu</small>
+        </button>
+      </nav>
     </main>
 
-    <!-- Supabase -->
+    <!-- ==================================================
+         SCRIPTS
+    ================================================== -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Configuração -->
     <script src="../config.js"></script>
-
-    <!-- JavaScript desta página -->
     <script src="cliente.js"></script>
   </body>
 </html>

@@ -7,7 +7,7 @@ function voltar() {
 }
 
 function irParaCadastro() {
-  window.location.href = "../cadastro da barbearia/index.html";
+  window.location.href = "../cadastro/index.html";
 }
 
 // ==================================================
