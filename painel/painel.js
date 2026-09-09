@@ -1,13 +1,12 @@
-// BARBERHUB - PAINEL DA BARBEARIA
-// VARIÁVEIS GLOBAIS
+// BARBERHUB — PAINEL DA BARBEARIA
+
+// IDENTIFICAÇÃO DA BARBEARIA
 
 const parametros = new URLSearchParams(window.location.search);
 const lojaId = parametros.get("id");
 
 let sessaoAtual = null;
 let lojaAtual = null;
-
-// ELEMENTOS PRINCIPAIS
 
 const telaCarregamento = document.getElementById("tela-carregamento");
 const painelHeader = document.getElementById("painel-header");
@@ -16,8 +15,6 @@ const btnMenuMobile = document.getElementById("btn-menu-mobile");
 const btnMenuBottom = document.getElementById("btn-menu-bottom");
 const menuMobile = document.getElementById("menu-mobile");
 
-// CACHE DOS DADOS
-
 let servicosCache = [];
 let produtosCache = [];
 let agendamentosCache = [];
@@ -25,10 +22,7 @@ let profissionaisCache = [];
 let gastosCache = [];
 let horariosCache = [];
 
-// Filtro atual dos agendamentos
 let filtroAgendamentoAtual = "hoje";
-
-// Tipo de relatório
 let tipoRelatorioSelecionado = "geral";
 
 // STATUS DOS AGENDAMENTOS
@@ -51,22 +45,18 @@ function formatarMoeda(valor) {
 
 function formatarData(data) {
   if (!data) {
-    return "-";
+    return "";
   }
 
-  // Evita problemas de fuso horário com YYYY-MM-DD
-  if (typeof data === "string" && data.length === 10) {
-    const partes = data.split("-");
-
-    if (partes.length === 3) {
-      return `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
+  if (typeof data === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data)) {
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}/${ano}`;
   }
 
   const dataObj = new Date(data);
 
   if (Number.isNaN(dataObj.getTime())) {
-    return "-";
+    return "";
   }
 
   return dataObj.toLocaleDateString("pt-BR");
@@ -74,13 +64,13 @@ function formatarData(data) {
 
 function formatarDataHora(data) {
   if (!data) {
-    return "-";
+    return "";
   }
 
   const dataObj = new Date(data);
 
   if (Number.isNaN(dataObj.getTime())) {
-    return "-";
+    return "";
   }
 
   return dataObj.toLocaleString("pt-BR", {
@@ -99,22 +89,22 @@ function obterDataLocalISO(data = new Date()) {
 
 function obterInicioDoDia(data = new Date()) {
   const inicio = new Date(data);
+
   inicio.setHours(0, 0, 0, 0);
+
   return inicio;
 }
 
 function obterFimDoDia(data = new Date()) {
   const fim = new Date(data);
+
   fim.setHours(23, 59, 59, 999);
+
   return fim;
 }
 
 function escaparHtml(valor) {
-  if (valor === null || valor === undefined) {
-    return "";
-  }
-
-  return String(valor)
+  return String(valor ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -122,8 +112,8 @@ function escaparHtml(valor) {
     .replace(/'/g, "&#039;");
 }
 
-function mostrarMensagem(elementoId, mensagem, tipo = "erro") {
-  const elemento = document.getElementById(elementoId);
+function mostrarMensagem(id, mensagem, tipo = "sucesso") {
+  const elemento = document.getElementById(id);
 
   if (!elemento) {
     return;
@@ -132,18 +122,41 @@ function mostrarMensagem(elementoId, mensagem, tipo = "erro") {
   elemento.textContent = mensagem;
   elemento.className = `mensagem mensagem--${tipo}`;
   elemento.hidden = false;
+
+  setTimeout(() => {
+    elemento.hidden = true;
+  }, 4000);
 }
 
 // NAVEGAÇÃO
 
-async function voltar() {
+// Sair completamente da conta
+async function sair() {
   try {
-    await supabaseClient.auth.signOut();
+    if (supabaseClient) {
+      await supabaseClient.auth.signOut();
+    }
   } catch (erro) {
     console.error("Erro ao sair:", erro);
   }
 
-  window.location.href = "../barbearia/index.html";
+  window.location.href = "../login/index.html";
+}
+
+// Trocar somente de barbearia
+function trocarBarbearia() {
+  window.location.href = "../barbearias/index.html";
+}
+
+// Adicionar nova barbearia
+function adicionarBarbearia() {
+  window.location.href = "../cadastro/index.html";
+}
+
+// Mantém compatibilidade com o HTML antigo,
+// caso ainda exista onclick="voltar()".
+async function voltar() {
+  await sair();
 }
 
 // MENU MOBILE
@@ -153,11 +166,7 @@ function alternarMenuMobile() {
     return;
   }
 
-  const aberto = menuMobile.classList.toggle("mobile-menu--aberto");
-
-  if (btnMenuMobile) {
-    btnMenuMobile.setAttribute("aria-expanded", aberto ? "true" : "false");
-  }
+  menuMobile.classList.toggle("mobile-menu--aberto");
 }
 
 function fecharMenuMobile() {
@@ -166,10 +175,6 @@ function fecharMenuMobile() {
   }
 
   menuMobile.classList.remove("mobile-menu--aberto");
-
-  if (btnMenuMobile) {
-    btnMenuMobile.setAttribute("aria-expanded", "false");
-  }
 }
 
 if (btnMenuMobile) {
@@ -180,27 +185,25 @@ if (btnMenuBottom) {
   btnMenuBottom.addEventListener("click", alternarMenuMobile);
 }
 
-// MUDAR ABA
+// TROCA DE ABA
 
 function mudarAba(aba) {
-  document.querySelectorAll(".menu-item").forEach((item) => {
-    item.classList.toggle("menu-item--ativo", item.dataset.aba === aba);
+  const botoes = document.querySelectorAll(".menu-item");
+  const conteudos = document.querySelectorAll(".painel-conteudo");
+
+  botoes.forEach((botao) => {
+    botao.classList.toggle("menu-item--ativo", botao.dataset.aba === aba);
   });
 
-  document.querySelectorAll(".painel-conteudo").forEach((secao) => {
-    secao.hidden = secao.id !== `conteudo-${aba}`;
+  conteudos.forEach((conteudo) => {
+    conteudo.hidden = conteudo.id !== `conteudo-${aba}`;
   });
 
-  document.querySelectorAll(".mobile-bottom-item").forEach((item) => {
-    const acao = item.getAttribute("onclick");
-
-    if (!acao) {
-      return;
-    }
-
-    item.classList.toggle(
+  // Botões da navegação inferior
+  document.querySelectorAll(".mobile-bottom-item").forEach((botao) => {
+    botao.classList.toggle(
       "mobile-bottom-item--ativo",
-      acao.includes(`'${aba}'`),
+      botao.dataset.aba === aba,
     );
   });
 
@@ -212,6 +215,13 @@ function mudarAba(aba) {
   });
 
   // Carregamentos específicos
+  if (aba === "visao-geral") {
+    carregarDashboard();
+  }
+
+  if (aba === "agendamentos") {
+    carregarAgendamentos();
+  }
 
   if (aba === "clientes") {
     carregarClientes();
@@ -221,24 +231,40 @@ function mudarAba(aba) {
     carregarProfissionais();
   }
 
-  if (aba === "financeiro") {
-    carregarFinanceiro();
-  }
-
   if (aba === "horarios") {
     carregarHorarios();
+  }
+
+  if (aba === "financeiro") {
+    carregarFinanceiro();
   }
 
   if (aba === "configuracoes") {
     carregarConfiguracoes();
   }
-
-  if (aba === "visao-geral") {
-    carregarDashboard();
-  }
 }
 
-// TELA DE CARREGAMENTO
+document.querySelectorAll(".menu-item").forEach((botao) => {
+  botao.addEventListener("click", () => {
+    const aba = botao.dataset.aba;
+
+    if (aba) {
+      mudarAba(aba);
+    }
+  });
+});
+
+document.querySelectorAll(".mobile-bottom-item").forEach((botao) => {
+  botao.addEventListener("click", () => {
+    const aba = botao.dataset.aba;
+
+    if (aba) {
+      mudarAba(aba);
+    }
+  });
+});
+
+// LOADING
 
 function esconderTelaCarregamento() {
   if (!telaCarregamento) {
@@ -248,48 +274,37 @@ function esconderTelaCarregamento() {
   telaCarregamento.classList.add("tela-carregamento--oculta");
 }
 
-// ERRO NO CARREGAMENTO
-
 function mostrarErroCarregamento(mensagem) {
   if (!telaCarregamento) {
     return;
   }
 
-  telaCarregamento.classList.remove("tela-carregamento--oculta");
-
   telaCarregamento.innerHTML = `
     <div class="carregamento-conteudo">
+      <img
+        src="../assets/barber.png"
+        alt="BarberHub"
+        class="carregamento-logo"
+      >
 
-      <div class="carregamento-logo">
-        ⚠️
-      </div>
+      <h2>BarberHub</h2>
 
-      <h2>
-        Não foi possível carregar
-      </h2>
-
-      <p>
-        ${escaparHtml(mensagem)}
-      </p>
+      <p>${escaparHtml(mensagem)}</p>
 
       <button
         type="button"
-        class="btn-principal"
         onclick="window.location.reload()"
       >
         Tentar novamente
       </button>
-
     </div>
   `;
 }
 
-// CARREGAR LOJA
+// CARREGAR BARBEARIA
 
 async function carregarLoja() {
   if (!lojaId) {
-    console.error("Nenhum ID de loja foi encontrado na URL.");
-
     mostrarErroCarregamento("Nenhuma barbearia foi identificada.");
 
     return false;
@@ -297,11 +312,11 @@ async function carregarLoja() {
 
   const {
     data: { session },
-    error: erroSessao,
+    error: sessionError,
   } = await supabaseClient.auth.getSession();
 
-  if (erroSessao) {
-    console.error("Erro ao verificar sessão:", erroSessao);
+  if (sessionError) {
+    console.error("Erro ao verificar sessão:", sessionError);
 
     mostrarErroCarregamento("Não foi possível verificar sua sessão.");
 
@@ -323,10 +338,10 @@ async function carregarLoja() {
     .single();
 
   if (error || !loja) {
-    console.error("Erro ao carregar loja:", error);
+    console.error("Erro ao carregar barbearia:", error);
 
     mostrarErroCarregamento(
-      "A loja não foi encontrada ou você não tem acesso a ela.",
+      "Você não tem acesso a esta barbearia ou ela não existe.",
     );
 
     return false;
@@ -334,39 +349,64 @@ async function carregarLoja() {
 
   lojaAtual = loja;
 
-  const logo = loja.logo_url;
+  atualizarCabecalhoLoja();
 
-  if (painelHeader) {
-    painelHeader.innerHTML = `
-      ${
-        logo
-          ? `
-            <img
-              src="${escaparHtml(logo)}"
-              alt="Logo ${escaparHtml(loja.nome || "Barbearia")}"
-              class="painel-logo"
-            >
-          `
-          : `
-            <div class="painel-logo-vazio">
-              💈
-            </div>
-          `
-      }
+  return true;
+}
+
+// CABEÇALHO DA BARBEARIA
+
+function atualizarCabecalhoLoja() {
+  if (!painelHeader || !lojaAtual) {
+    return;
+  }
+
+  const logo = lojaAtual.logo_url || lojaAtual.foto_url;
+
+  painelHeader.innerHTML = `
+    <div class="painel-header-info">
+
+      <div class="painel-header-logo">
+        ${
+          logo
+            ? `
+              <img
+                src="${escaparHtml(logo)}"
+                alt="${escaparHtml(lojaAtual.nome || "Barbearia")}"
+              >
+            `
+            : `
+              <div class="painel-header-logo-vazio">
+                💈
+              </div>
+            `
+        }
+      </div>
 
       <div>
         <h1>
-          ${escaparHtml(loja.nome || "Barbearia")}
+          ${escaparHtml(lojaAtual.nome || "Minha barbearia")}
         </h1>
 
         <p>
-          📍 ${escaparHtml(loja.cidade || "Cidade não informada")}
+          ${escaparHtml(lojaAtual.cidade || "Painel de gestão")}
         </p>
       </div>
-    `;
-  }
 
-  return true;
+    </div>
+
+    <div class="painel-header-acoes">
+
+      <button
+        type="button"
+        class="btn-header"
+        onclick="trocarBarbearia()"
+      >
+        🔄 Trocar barbearia
+      </button>
+
+    </div>
+  `;
 }
 
 // SERVIÇOS
@@ -376,10 +416,8 @@ const listaServicosEl = document.getElementById("lista-servicos");
 const btnSalvarServico = document.getElementById("btn-salvar-servico");
 const btnCancelarServico = document.getElementById("btn-cancelar-servico");
 
-// CARREGAR SERVIÇOS
-
 async function carregarServicos() {
-  if (!listaServicosEl) {
+  if (!listaServicosEl || !lojaId) {
     return false;
   }
 
@@ -392,7 +430,7 @@ async function carregarServicos() {
     });
 
   if (error) {
-    console.error("Erro ao buscar serviços:", error);
+    console.error("Erro ao carregar serviços:", error);
 
     listaServicosEl.innerHTML = `
       <p class="em-breve">
@@ -410,8 +448,6 @@ async function carregarServicos() {
   return true;
 }
 
-// RENDERIZAR SERVIÇOS
-
 function renderizarServicos(servicos) {
   if (!listaServicosEl) {
     return;
@@ -422,7 +458,7 @@ function renderizarServicos(servicos) {
   if (!servicos.length) {
     listaServicosEl.innerHTML = `
       <p class="em-breve">
-        Nenhum serviço cadastrado ainda.
+        Nenhum serviço cadastrado.
       </p>
     `;
 
@@ -438,13 +474,13 @@ function renderizarServicos(servicos) {
       <div class="item-info">
 
         <h3>
-          ${escaparHtml(servico.nome)}
+          ${escaparHtml(servico.nome || "Serviço")}
         </h3>
 
         <p>
           ${formatarMoeda(servico.preco)}
           ·
-          ${servico.duracao_minutos || 0} min
+          ${Number(servico.duracao || 0)} min
         </p>
 
       </div>
@@ -474,8 +510,6 @@ function renderizarServicos(servicos) {
   });
 }
 
-// SALVAR SERVIÇO
-
 if (formServico) {
   formServico.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -491,14 +525,25 @@ if (formServico) {
       10,
     );
 
-    if (!nome || Number.isNaN(preco) || Number.isNaN(duracao)) {
-      alert("Preencha todos os campos corretamente.");
+    if (
+      !nome ||
+      Number.isNaN(preco) ||
+      preco < 0 ||
+      Number.isNaN(duracao) ||
+      duracao <= 0
+    ) {
+      mostrarMensagem(
+        "mensagem-servico",
+        "Preencha os dados do serviço corretamente.",
+        "erro",
+      );
+
       return;
     }
 
-    if (preco < 0 || duracao <= 0) {
-      alert("Informe um preço e uma duração válidos.");
-      return;
+    if (btnSalvarServico) {
+      btnSalvarServico.disabled = true;
+      btnSalvarServico.textContent = "Salvando...";
     }
 
     let erro = null;
@@ -509,7 +554,7 @@ if (formServico) {
         .update({
           nome,
           preco,
-          duracao_minutos: duracao,
+          duracao,
         })
         .eq("id", id)
         .eq("barbearia_id", lojaId);
@@ -520,7 +565,7 @@ if (formServico) {
         barbearia_id: lojaId,
         nome,
         preco,
-        duracao_minutos: duracao,
+        duracao,
       });
 
       erro = resposta.error;
@@ -529,7 +574,18 @@ if (formServico) {
     if (erro) {
       console.error("Erro ao salvar serviço:", erro);
 
-      alert("Não foi possível salvar o serviço.");
+      mostrarMensagem(
+        "mensagem-servico",
+        "Não foi possível salvar o serviço.",
+        "erro",
+      );
+
+      if (btnSalvarServico) {
+        btnSalvarServico.disabled = false;
+        btnSalvarServico.textContent = id
+          ? "Salvar edição"
+          : "+ Adicionar serviço";
+      }
 
       return;
     }
@@ -537,10 +593,15 @@ if (formServico) {
     cancelarEdicaoServico();
 
     await carregarServicos();
+    await carregarDashboard();
+
+    mostrarMensagem(
+      "mensagem-servico",
+      "Serviço salvo com sucesso!",
+      "sucesso",
+    );
   });
 }
-
-// EDITAR SERVIÇO
 
 function editarServico(id) {
   const servico = servicosCache.find((item) => String(item.id) === String(id));
@@ -551,24 +612,22 @@ function editarServico(id) {
   }
 
   document.getElementById("servico-id").value = servico.id;
-
   document.getElementById("servico-nome").value = servico.nome || "";
+  document.getElementById("servico-preco").value = servico.preco ?? "";
+  document.getElementById("servico-duracao").value = servico.duracao ?? "";
 
-  document.getElementById("servico-preco").value = servico.preco || 0;
+  if (btnSalvarServico) {
+    btnSalvarServico.textContent = "Salvar edição";
+  }
 
-  document.getElementById("servico-duracao").value =
-    servico.duracao_minutos || 30;
+  if (btnCancelarServico) {
+    btnCancelarServico.hidden = false;
+  }
 
-  btnSalvarServico.textContent = "Salvar edição";
-
-  btnCancelarServico.hidden = false;
-
-  formServico.scrollIntoView({
+  formServico?.scrollIntoView({
     behavior: "smooth",
   });
 }
-
-// CANCELAR EDIÇÃO DE SERVIÇO
 
 function cancelarEdicaoServico() {
   if (!formServico) {
@@ -577,19 +636,28 @@ function cancelarEdicaoServico() {
 
   formServico.reset();
 
-  document.getElementById("servico-id").value = "";
+  const campoId = document.getElementById("servico-id");
 
-  document.getElementById("servico-duracao").value = 30;
+  if (campoId) {
+    campoId.value = "";
+  }
 
-  btnSalvarServico.textContent = "+ Adicionar serviço";
+  if (btnSalvarServico) {
+    btnSalvarServico.textContent = "+ Adicionar serviço";
+    btnSalvarServico.disabled = false;
+  }
 
-  btnCancelarServico.hidden = true;
+  if (btnCancelarServico) {
+    btnCancelarServico.hidden = true;
+  }
 }
 
-// EXCLUIR SERVIÇO
+if (btnCancelarServico) {
+  btnCancelarServico.addEventListener("click", cancelarEdicaoServico);
+}
 
 async function excluirServico(id) {
-  if (!confirm("Remover esse serviço?")) {
+  if (!confirm("Remover este serviço?")) {
     return;
   }
 
@@ -608,21 +676,57 @@ async function excluirServico(id) {
   }
 
   await carregarServicos();
+  await carregarDashboard();
+}
+
+// STORAGE
+
+async function enviarArquivoStorage(arquivo, pasta) {
+  if (!arquivo || !sessaoAtual?.user?.id) {
+    return null;
+  }
+
+  const extensao = arquivo.name.split(".").pop()?.toLowerCase() || "jpg";
+
+  const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}.${extensao}`;
+
+  const caminho = `${sessaoAtual.user.id}/${pasta}/${nomeArquivo}`;
+
+  const { error } = await supabaseClient.storage
+    .from("barbearias")
+    .upload(caminho, arquivo, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    console.error("Erro ao enviar arquivo:", error);
+
+    alert("Não foi possível enviar a imagem.");
+
+    return null;
+  }
+
+  const { data } = supabaseClient.storage
+    .from("barbearias")
+    .getPublicUrl(caminho);
+
+  return data?.publicUrl || null;
 }
 
 // PRODUTOS
 
 const formProduto = document.getElementById("form-produto");
 const listaProdutosEl = document.getElementById("lista-produtos");
-
 const btnSalvarProduto = document.getElementById("btn-salvar-produto");
-
 const btnCancelarProduto = document.getElementById("btn-cancelar-produto");
 
-// CARREGAR PRODUTOS
+const inputFotoProduto = document.getElementById("produto-foto");
+const previewProduto = document.getElementById("preview-produto");
+const previewProdutoImg = document.getElementById("preview-produto-img");
 
 async function carregarProdutos() {
-  if (!listaProdutosEl) {
+  if (!listaProdutosEl || !lojaId) {
     return false;
   }
 
@@ -635,7 +739,7 @@ async function carregarProdutos() {
     });
 
   if (error) {
-    console.error("Erro ao buscar produtos:", error);
+    console.error("Erro ao carregar produtos:", error);
 
     listaProdutosEl.innerHTML = `
       <p class="em-breve">
@@ -653,8 +757,6 @@ async function carregarProdutos() {
   return true;
 }
 
-// RENDERIZAR PRODUTOS
-
 function renderizarProdutos(produtos) {
   if (!listaProdutosEl) {
     return;
@@ -665,7 +767,7 @@ function renderizarProdutos(produtos) {
   if (!produtos.length) {
     listaProdutosEl.innerHTML = `
       <p class="em-breve">
-        Nenhum produto cadastrado ainda.
+        Nenhum produto cadastrado.
       </p>
     `;
 
@@ -691,7 +793,7 @@ function renderizarProdutos(produtos) {
             `
             : `
               <div class="produto-thumb produto-thumb--vazia">
-                🛍️
+                🧴
               </div>
             `
         }
@@ -699,13 +801,13 @@ function renderizarProdutos(produtos) {
         <div>
 
           <h3>
-            ${escaparHtml(produto.nome)}
+            ${escaparHtml(produto.nome || "Produto")}
           </h3>
 
           <p>
             ${formatarMoeda(produto.preco)}
             ·
-            ${produto.estoque || 0} em estoque
+            Estoque: ${Number(produto.estoque || 0)}
           </p>
 
         </div>
@@ -737,46 +839,6 @@ function renderizarProdutos(produtos) {
   });
 }
 
-// UPLOAD STORAGE
-
-async function enviarArquivoStorage(arquivo, pasta) {
-  if (!arquivo || !sessaoAtual) {
-    return null;
-  }
-
-  const extensao = arquivo.name.split(".").pop().toLowerCase();
-
-  const nomeArquivo = `${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2, 8)}.${extensao}`;
-
-  const caminhoArquivo = `${sessaoAtual.user.id}/${pasta}/${nomeArquivo}`;
-
-  const { error: erroUpload } = await supabaseClient.storage
-    .from("barbearias")
-    .upload(caminhoArquivo, arquivo);
-
-  if (erroUpload) {
-    console.error("Erro no upload:", erroUpload);
-
-    return null;
-  }
-
-  const { data: urlPublica } = supabaseClient.storage
-    .from("barbearias")
-    .getPublicUrl(caminhoArquivo);
-
-  return urlPublica?.publicUrl || null;
-}
-
-// PREVIEW PRODUTO
-
-const inputFotoProduto = document.getElementById("produto-foto");
-
-const previewProduto = document.getElementById("preview-produto");
-
-const previewProdutoImg = document.getElementById("preview-produto-img");
-
 if (inputFotoProduto) {
   inputFotoProduto.addEventListener("change", () => {
     const arquivo = inputFotoProduto.files?.[0];
@@ -789,10 +851,8 @@ if (inputFotoProduto) {
       return;
     }
 
-    const url = URL.createObjectURL(arquivo);
-
     if (previewProdutoImg) {
-      previewProdutoImg.src = url;
+      previewProdutoImg.src = URL.createObjectURL(arquivo);
     }
 
     if (previewProduto) {
@@ -800,8 +860,6 @@ if (inputFotoProduto) {
     }
   });
 }
-
-// SALVAR PRODUTO
 
 if (formProduto) {
   formProduto.addEventListener("submit", async (event) => {
@@ -822,16 +880,25 @@ if (formProduto) {
 
     const fotoAtual = document.getElementById("produto-foto-atual")?.value;
 
-    if (!nome || Number.isNaN(preco) || Number.isNaN(estoque)) {
-      alert("Preencha os dados do produto corretamente.");
+    if (
+      !nome ||
+      Number.isNaN(preco) ||
+      preco < 0 ||
+      Number.isNaN(estoque) ||
+      estoque < 0
+    ) {
+      mostrarMensagem(
+        "mensagem-produto",
+        "Preencha os dados do produto corretamente.",
+        "erro",
+      );
 
       return;
     }
 
-    if (preco < 0 || estoque < 0) {
-      alert("Preço e estoque não podem ser negativos.");
-
-      return;
+    if (btnSalvarProduto) {
+      btnSalvarProduto.disabled = true;
+      btnSalvarProduto.textContent = "Salvando...";
     }
 
     let fotoUrl = fotoAtual || null;
@@ -874,7 +941,18 @@ if (formProduto) {
     if (erro) {
       console.error("Erro ao salvar produto:", erro);
 
-      alert("Não foi possível salvar o produto.");
+      mostrarMensagem(
+        "mensagem-produto",
+        "Não foi possível salvar o produto.",
+        "erro",
+      );
+
+      if (btnSalvarProduto) {
+        btnSalvarProduto.disabled = false;
+        btnSalvarProduto.textContent = id
+          ? "Salvar edição"
+          : "+ Adicionar produto";
+      }
 
       return;
     }
@@ -882,10 +960,14 @@ if (formProduto) {
     cancelarEdicaoProduto();
 
     await carregarProdutos();
+
+    mostrarMensagem(
+      "mensagem-produto",
+      "Produto salvo com sucesso!",
+      "sucesso",
+    );
   });
 }
-
-// EDITAR PRODUTO
 
 function editarProduto(id) {
   const produto = produtosCache.find((item) => String(item.id) === String(id));
@@ -899,24 +981,34 @@ function editarProduto(id) {
 
   document.getElementById("produto-nome").value = produto.nome || "";
 
-  document.getElementById("produto-preco").value = produto.preco || 0;
+  document.getElementById("produto-preco").value = produto.preco ?? "";
 
-  document.getElementById("produto-estoque").value = produto.estoque || 0;
+  document.getElementById("produto-estoque").value = produto.estoque ?? 0;
 
   document.getElementById("produto-foto-atual").value = produto.foto_url || "";
 
   document.getElementById("produto-foto").value = "";
 
-  btnSalvarProduto.textContent = "Salvar edição";
+  if (produto.foto_url && previewProdutoImg) {
+    previewProdutoImg.src = produto.foto_url;
 
-  btnCancelarProduto.hidden = false;
+    if (previewProduto) {
+      previewProduto.hidden = false;
+    }
+  }
 
-  formProduto.scrollIntoView({
+  if (btnSalvarProduto) {
+    btnSalvarProduto.textContent = "Salvar edição";
+  }
+
+  if (btnCancelarProduto) {
+    btnCancelarProduto.hidden = false;
+  }
+
+  formProduto?.scrollIntoView({
     behavior: "smooth",
   });
 }
-
-// CANCELAR PRODUTO
 
 function cancelarEdicaoProduto() {
   if (!formProduto) {
@@ -925,25 +1017,42 @@ function cancelarEdicaoProduto() {
 
   formProduto.reset();
 
-  document.getElementById("produto-id").value = "";
+  const campoId = document.getElementById("produto-id");
 
-  document.getElementById("produto-foto-atual").value = "";
+  const campoFotoAtual = document.getElementById("produto-foto-atual");
 
-  document.getElementById("produto-estoque").value = 0;
+  if (campoId) {
+    campoId.value = "";
+  }
+
+  if (campoFotoAtual) {
+    campoFotoAtual.value = "";
+  }
 
   if (previewProduto) {
     previewProduto.hidden = true;
   }
 
-  btnSalvarProduto.textContent = "+ Adicionar produto";
+  if (previewProdutoImg) {
+    previewProdutoImg.src = "";
+  }
 
-  btnCancelarProduto.hidden = true;
+  if (btnSalvarProduto) {
+    btnSalvarProduto.textContent = "+ Adicionar produto";
+    btnSalvarProduto.disabled = false;
+  }
+
+  if (btnCancelarProduto) {
+    btnCancelarProduto.hidden = true;
+  }
 }
 
-// EXCLUIR PRODUTO
+if (btnCancelarProduto) {
+  btnCancelarProduto.addEventListener("click", cancelarEdicaoProduto);
+}
 
 async function excluirProduto(id) {
-  if (!confirm("Remover esse produto?")) {
+  if (!confirm("Remover este produto?")) {
     return;
   }
 
@@ -968,10 +1077,8 @@ async function excluirProduto(id) {
 
 const listaAgendamentosEl = document.getElementById("lista-agendamentos");
 
-// CARREGAR AGENDAMENTOS
-
 async function carregarAgendamentos() {
-  if (!listaAgendamentosEl) {
+  if (!listaAgendamentosEl || !lojaId) {
     return false;
   }
 
@@ -979,17 +1086,17 @@ async function carregarAgendamentos() {
     .from("agendamentos")
     .select(
       `
-        *,
-        servicos(
-          nome,
-          preco
-        ),
-        profiles(
-          id,
-          nome,
-          telefone
-        )
-      `,
+      *,
+      servicos(
+        nome,
+        preco
+      ),
+      profiles(
+        id,
+        nome,
+        telefone
+      )
+    `,
     )
     .eq("barbearia_id", lojaId)
     .order("data_hora", {
@@ -997,7 +1104,7 @@ async function carregarAgendamentos() {
     });
 
   if (error) {
-    console.error("Erro ao buscar agendamentos:", error);
+    console.error("Erro ao carregar agendamentos:", error);
 
     listaAgendamentosEl.innerHTML = `
       <p class="em-breve">
@@ -1027,7 +1134,6 @@ function filtrarAgendamentos(agendamentos, filtro) {
   const hoje = obterDataLocalISO();
 
   const amanhaData = new Date();
-
   amanhaData.setDate(amanhaData.getDate() + 1);
 
   const amanha = obterDataLocalISO(amanhaData);
@@ -1157,7 +1263,7 @@ async function atualizarStatusAgendamento(id, novoStatus) {
   await carregarDashboard();
 }
 
-// FILTROS
+// FILTROS DA AGENDA
 
 document.querySelectorAll(".filtro-agendamento").forEach((botao) => {
   botao.addEventListener("click", () => {
@@ -1179,10 +1285,8 @@ document.querySelectorAll(".filtro-agendamento").forEach((botao) => {
 
 const listaClientesEl = document.getElementById("lista-clientes");
 
-// CARREGAR CLIENTES
-
 async function carregarClientes() {
-  if (!listaClientesEl) {
+  if (!listaClientesEl || !lojaId) {
     return false;
   }
 
@@ -1190,13 +1294,13 @@ async function carregarClientes() {
     .from("agendamentos")
     .select(
       `
-        cliente_id,
-        profiles(
-          id,
-          nome,
-          telefone
-        )
-      `,
+      cliente_id,
+      profiles(
+        id,
+        nome,
+        telefone
+      )
+    `,
     )
     .eq("barbearia_id", lojaId);
 
@@ -1236,8 +1340,6 @@ async function carregarClientes() {
 
   return true;
 }
-
-// RENDERIZAR CLIENTES
 
 function renderizarClientes(clientes) {
   if (!listaClientesEl) {
@@ -1289,10 +1391,8 @@ const btnSalvarBarbeiro = document.getElementById("btn-salvar-barbeiro");
 
 const btnCancelarBarbeiro = document.getElementById("btn-cancelar-barbeiro");
 
-// CARREGAR PROFISSIONAIS
-
 async function carregarProfissionais() {
-  if (!listaProfissionaisEl) {
+  if (!listaProfissionaisEl || !lojaId) {
     return false;
   }
 
@@ -1325,8 +1425,6 @@ async function carregarProfissionais() {
   return true;
 }
 
-// ATUALIZAR CARD PROFISSIONAIS
-
 function atualizarCardProfissionais() {
   const elemento = document.getElementById("total-profissionais");
 
@@ -1334,8 +1432,6 @@ function atualizarCardProfissionais() {
     elemento.textContent = profissionaisCache.length;
   }
 }
-
-// RENDERIZAR PROFISSIONAIS
 
 function renderizarProfissionais(profissionais) {
   if (!listaProfissionaisEl) {
@@ -1381,7 +1477,7 @@ function renderizarProfissionais(profissionais) {
         <div>
 
           <h3>
-            ${escaparHtml(profissional.nome)}
+            ${escaparHtml(profissional.nome || "Profissional")}
           </h3>
 
           <p>
@@ -1417,7 +1513,7 @@ function renderizarProfissionais(profissionais) {
   });
 }
 
-// PREVIEW BARBEIRO
+// PREVIEW FOTO BARBEIRO
 
 const inputFotoBarbeiro = document.getElementById("barbeiro-foto");
 
@@ -1464,9 +1560,18 @@ if (formBarbeiro) {
     const fotoAtual = document.getElementById("barbeiro-foto-atual")?.value;
 
     if (!nome) {
-      alert("Digite o nome do profissional.");
+      mostrarMensagem(
+        "mensagem-barbeiro",
+        "Digite o nome do profissional.",
+        "erro",
+      );
 
       return;
+    }
+
+    if (btnSalvarBarbeiro) {
+      btnSalvarBarbeiro.disabled = true;
+      btnSalvarBarbeiro.textContent = "Salvando...";
     }
 
     let fotoUrl = fotoAtual || null;
@@ -1507,7 +1612,18 @@ if (formBarbeiro) {
     if (erro) {
       console.error("Erro ao salvar profissional:", erro);
 
-      alert("Não foi possível salvar o profissional.");
+      mostrarMensagem(
+        "mensagem-barbeiro",
+        "Não foi possível salvar o profissional.",
+        "erro",
+      );
+
+      if (btnSalvarBarbeiro) {
+        btnSalvarBarbeiro.disabled = false;
+        btnSalvarBarbeiro.textContent = id
+          ? "Salvar edição"
+          : "+ Adicionar profissional";
+      }
 
       return;
     }
@@ -1516,6 +1632,12 @@ if (formBarbeiro) {
 
     await carregarProfissionais();
     await carregarDashboard();
+
+    mostrarMensagem(
+      "mensagem-barbeiro",
+      "Profissional salvo com sucesso!",
+      "sucesso",
+    );
   });
 }
 
@@ -1528,7 +1650,6 @@ function editarBarbeiro(id) {
 
   if (!barbeiro) {
     alert("Profissional não encontrado.");
-
     return;
   }
 
@@ -1543,11 +1664,23 @@ function editarBarbeiro(id) {
 
   document.getElementById("barbeiro-foto").value = "";
 
-  btnSalvarBarbeiro.textContent = "Salvar edição";
+  if (barbeiro.foto_url && previewBarbeiroImg) {
+    previewBarbeiroImg.src = barbeiro.foto_url;
 
-  btnCancelarBarbeiro.hidden = false;
+    if (previewBarbeiro) {
+      previewBarbeiro.hidden = false;
+    }
+  }
 
-  formBarbeiro.scrollIntoView({
+  if (btnSalvarBarbeiro) {
+    btnSalvarBarbeiro.textContent = "Salvar edição";
+  }
+
+  if (btnCancelarBarbeiro) {
+    btnCancelarBarbeiro.hidden = false;
+  }
+
+  formBarbeiro?.scrollIntoView({
     behavior: "smooth",
   });
 }
@@ -1561,17 +1694,39 @@ function cancelarEdicaoBarbeiro() {
 
   formBarbeiro.reset();
 
-  document.getElementById("barbeiro-id").value = "";
+  const campoId = document.getElementById("barbeiro-id");
 
-  document.getElementById("barbeiro-foto-atual").value = "";
+  const campoFotoAtual = document.getElementById("barbeiro-foto-atual");
 
-  btnSalvarBarbeiro.textContent = "+ Adicionar profissional";
+  if (campoId) {
+    campoId.value = "";
+  }
 
-  btnCancelarBarbeiro.hidden = true;
+  if (campoFotoAtual) {
+    campoFotoAtual.value = "";
+  }
+
+  if (btnSalvarBarbeiro) {
+    btnSalvarBarbeiro.textContent = "+ Adicionar profissional";
+
+    btnSalvarBarbeiro.disabled = false;
+  }
+
+  if (btnCancelarBarbeiro) {
+    btnCancelarBarbeiro.hidden = true;
+  }
 
   if (previewBarbeiro) {
     previewBarbeiro.hidden = true;
   }
+
+  if (previewBarbeiroImg) {
+    previewBarbeiroImg.src = "";
+  }
+}
+
+if (btnCancelarBarbeiro) {
+  btnCancelarBarbeiro.addEventListener("click", cancelarEdicaoBarbeiro);
 }
 
 // EXCLUIR BARBEIRO
@@ -1603,14 +1758,16 @@ async function excluirBarbeiro(id) {
 
 async function carregarDashboard() {
   if (!lojaId) {
-    return;
+    return false;
   }
 
   const hoje = obterInicioDoDia();
 
   const fimHoje = obterFimDoDia();
 
+  // ----------------------------------------------------------
   // AGENDAMENTOS DE HOJE
+  // ----------------------------------------------------------
 
   const { data: agendamentosHoje, error: erroAgendamentos } =
     await supabaseClient
@@ -1637,10 +1794,12 @@ async function carregarDashboard() {
   if (erroAgendamentos) {
     console.error("Erro no dashboard:", erroAgendamentos);
 
-    return;
+    return false;
   }
 
+  // ----------------------------------------------------------
   // TOTAL DE CLIENTES
+  // ----------------------------------------------------------
 
   const { data: clientes } = await supabaseClient
     .from("agendamentos")
@@ -1651,7 +1810,9 @@ async function carregarDashboard() {
     (clientes || []).map((item) => item.cliente_id).filter(Boolean),
   );
 
+  // ----------------------------------------------------------
   // TOTAL DE PROFISSIONAIS
+  // ----------------------------------------------------------
 
   const { count: totalProfissionais } = await supabaseClient
     .from("profissionais")
@@ -1661,13 +1822,17 @@ async function carregarDashboard() {
     })
     .eq("barbearia_id", lojaId);
 
+  // ----------------------------------------------------------
   // FATURAMENTO DO DIA
+  // ----------------------------------------------------------
 
   const faturamento = (agendamentosHoje || [])
     .filter((item) => item.status === "concluido")
     .reduce((total, item) => total + Number(item.servicos?.preco || 0), 0);
 
+  // ----------------------------------------------------------
   // ATUALIZAR CARDS
+  // ----------------------------------------------------------
 
   const elementoAgendamentos = document.getElementById(
     "total-agendamentos-hoje",
@@ -1696,6 +1861,8 @@ async function carregarDashboard() {
   }
 
   renderizarProximosAgendamentos(agendamentosHoje || []);
+
+  return true;
 }
 
 // PRÓXIMOS AGENDAMENTOS
@@ -1736,33 +1903,33 @@ function renderizarProximosAgendamentos(agendamentos) {
     item.classList.add("item-lista");
 
     item.innerHTML = `
-        <div class="item-info">
+      <div class="item-info">
 
-          <h3>
-            ${escaparHtml(agendamento.profiles?.nome || "Cliente")}
-          </h3>
+        <h3>
+          ${escaparHtml(agendamento.profiles?.nome || "Cliente")}
+        </h3>
 
-          <p>
-            ${escaparHtml(agendamento.servicos?.nome || "Serviço")}
-            ·
-            ${dataHora.toLocaleTimeString("pt-BR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
+        <p>
+          ${escaparHtml(agendamento.servicos?.nome || "Serviço")}
+          ·
+          ${dataHora.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
 
-        </div>
+      </div>
 
-        <div class="item-status">
-          ${STATUS_LABEL[agendamento.status] || "Pendente"}
-        </div>
-      `;
+      <div class="item-status">
+        ${STATUS_LABEL[agendamento.status] || "Pendente"}
+      </div>
+    `;
 
     elemento.appendChild(item);
   });
 }
 
-// HORÁRIOS DE FUNCIONAMENTO
+// HORÁRIOS
 
 const DIAS_SEMANA = [
   "Domingo",
@@ -1775,7 +1942,9 @@ const DIAS_SEMANA = [
 ];
 
 const listaHorariosEl = document.getElementById("lista-horarios");
+
 const formHorarios = document.getElementById("form-horarios");
+
 const btnSalvarHorarios = document.getElementById("btn-salvar-horarios");
 
 // CARREGAR HORÁRIOS
@@ -1847,93 +2016,101 @@ function renderizarHorarios(horarios) {
     item.classList.add("horario-item");
 
     item.innerHTML = `
-      <div class="horario-cabecalho">
+        <div class="horario-cabecalho">
 
-        <span class="horario-dia">
-          ${escaparHtml(nomeDia)}
-        </span>
-
-        <label class="horario-toggle">
-
-          <input
-            type="checkbox"
-            id="horario-aberto-${indice}"
-            ${aberto ? "checked" : ""}
-            onchange="alternarHorario(${indice})"
-          >
-
-          <span>
-            ${aberto ? "Aberto" : "Fechado"}
+          <span class="horario-dia">
+            ${escaparHtml(nomeDia)}
           </span>
 
-        </label>
+          <label class="horario-toggle">
 
-      </div>
+            <input
+              type="checkbox"
+              id="horario-aberto-${indice}"
+              ${aberto ? "checked" : ""}
+              onchange="alternarHorario(${indice})"
+            >
 
-      <div class="horario-campos">
+            <span>
+              ${aberto ? "Aberto" : "Fechado"}
+            </span>
 
-        <div class="horario-campo">
-
-          <label for="horario-abertura-${indice}">
-            Abertura
           </label>
-
-          <input
-            type="time"
-            id="horario-abertura-${indice}"
-            value="${horaAbertura}"
-            ${!aberto ? "disabled" : ""}
-          >
 
         </div>
 
-        <div class="horario-campo">
+        <div class="horario-campos">
 
-          <label for="horario-fechamento-${indice}">
-            Fechamento
-          </label>
+          <div class="horario-campo">
 
-          <input
-            type="time"
-            id="horario-fechamento-${indice}"
-            value="${horaFechamento}"
-            ${!aberto ? "disabled" : ""}
-          >
+            <label
+              for="horario-abertura-${indice}"
+            >
+              Abertura
+            </label>
+
+            <input
+              type="time"
+              id="horario-abertura-${indice}"
+              value="${horaAbertura}"
+              ${!aberto ? "disabled" : ""}
+            >
+
+          </div>
+
+          <div class="horario-campo">
+
+            <label
+              for="horario-fechamento-${indice}"
+            >
+              Fechamento
+            </label>
+
+            <input
+              type="time"
+              id="horario-fechamento-${indice}"
+              value="${horaFechamento}"
+              ${!aberto ? "disabled" : ""}
+            >
+
+          </div>
+
+          <div class="horario-campo">
+
+            <label
+              for="horario-intervalo-inicio-${indice}"
+            >
+              Início intervalo
+            </label>
+
+            <input
+              type="time"
+              id="horario-intervalo-inicio-${indice}"
+              value="${intervaloInicio}"
+              ${!aberto ? "disabled" : ""}
+            >
+
+          </div>
+
+          <div class="horario-campo">
+
+            <label
+              for="horario-intervalo-fim-${indice}"
+            >
+              Fim intervalo
+            </label>
+
+            <input
+              type="time"
+              id="horario-intervalo-fim-${indice}"
+              value="${intervaloFim}"
+              ${!aberto ? "disabled" : ""}
+            >
+
+          </div>
 
         </div>
-
-        <div class="horario-campo">
-
-          <label for="horario-intervalo-inicio-${indice}">
-            Início intervalo
-          </label>
-
-          <input
-            type="time"
-            id="horario-intervalo-inicio-${indice}"
-            value="${intervaloInicio}"
-            ${!aberto ? "disabled" : ""}
-          >
-
-        </div>
-
-        <div class="horario-campo">
-
-          <label for="horario-intervalo-fim-${indice}">
-            Fim intervalo
-          </label>
-
-          <input
-            type="time"
-            id="horario-intervalo-fim-${indice}"
-            value="${intervaloFim}"
-            ${!aberto ? "disabled" : ""}
-          >
-
-        </div>
-
-      </div>
-    `;
+      `;
 
     listaHorariosEl.appendChild(item);
   });
@@ -1982,7 +2159,6 @@ function validarHorarioDia(dia) {
     };
   }
 
-  // Dia fechado não precisa validar horários
   if (!checkbox.checked) {
     return {
       valido: true,
@@ -2017,7 +2193,6 @@ function validarHorarioDia(dia) {
     };
   }
 
-  // Se apenas um campo do intervalo foi preenchido
   if (
     (intervaloInicio && !intervaloFim) ||
     (!intervaloInicio && intervaloFim)
@@ -2028,7 +2203,6 @@ function validarHorarioDia(dia) {
     };
   }
 
-  // Se existe intervalo
   if (intervaloInicio && intervaloFim) {
     if (intervaloInicio >= intervaloFim) {
       return {
@@ -2068,11 +2242,11 @@ if (formHorarios) {
 
     if (btnSalvarHorarios) {
       btnSalvarHorarios.disabled = true;
+
       btnSalvarHorarios.textContent = "Salvando...";
     }
 
-    // VALIDAR TODOS OS DIAS
-
+    // Validar todos
     for (let dia = 0; dia <= 6; dia++) {
       const validacao = validarHorarioDia(dia);
 
@@ -2081,14 +2255,13 @@ if (formHorarios) {
 
         if (btnSalvarHorarios) {
           btnSalvarHorarios.disabled = false;
+
           btnSalvarHorarios.textContent = "💾 Salvar horários";
         }
 
         return;
       }
     }
-
-    // MONTAR DADOS
 
     const dados = [];
 
@@ -2123,8 +2296,6 @@ if (formHorarios) {
         intervalo_fim: intervaloFim,
       });
     }
-
-    // SALVAR
 
     let erroGeral = null;
 
@@ -2170,8 +2341,6 @@ if (formHorarios) {
       }
     }
 
-    // RESULTADO
-
     if (erroGeral) {
       console.error("Erro ao salvar horários:", erroGeral);
 
@@ -2183,6 +2352,7 @@ if (formHorarios) {
 
       if (btnSalvarHorarios) {
         btnSalvarHorarios.disabled = false;
+
         btnSalvarHorarios.textContent = "💾 Salvar horários";
       }
 
@@ -2199,6 +2369,7 @@ if (formHorarios) {
 
     if (btnSalvarHorarios) {
       btnSalvarHorarios.disabled = false;
+
       btnSalvarHorarios.textContent = "💾 Salvar horários";
     }
   });
@@ -2207,8 +2378,11 @@ if (formHorarios) {
 // FINANCEIRO
 
 const listaFinanceiroEl = document.getElementById("lista-financeiro");
+
 const formGasto = document.getElementById("form-gasto");
+
 const btnSalvarGasto = document.getElementById("btn-salvar-gasto");
+
 const btnCancelarGasto = document.getElementById("btn-cancelar-gasto");
 
 // CARREGAR FINANCEIRO
@@ -2219,16 +2393,18 @@ async function carregarFinanceiro() {
   }
 
   const agora = new Date();
+
   const ano = agora.getFullYear();
+
   const mes = agora.getMonth();
 
-  // Primeiro dia do mês
   const inicioMes = obterDataLocalISO(new Date(ano, mes, 1));
 
-  // Primeiro dia do próximo mês
   const inicioProximoMes = obterDataLocalISO(new Date(ano, mes + 1, 1));
 
-  // CARREGAR GASTOS
+  // ----------------------------------------------------------
+  // GASTOS
+  // ----------------------------------------------------------
 
   const { data: gastos, error: erroGastos } = await supabaseClient
     .from("gastos")
@@ -2258,7 +2434,9 @@ async function carregarFinanceiro() {
 
   gastosCache = gastos || [];
 
-  // CARREGAR ENTRADAS
+  // ----------------------------------------------------------
+  // ENTRADAS
+  // ----------------------------------------------------------
 
   const inicioMesDate = new Date(ano, mes, 1, 0, 0, 0, 0);
 
@@ -2268,11 +2446,11 @@ async function carregarFinanceiro() {
     .from("agendamentos")
     .select(
       `
-        *,
-        servicos(
-          preco
-        )
-      `,
+      *,
+      servicos(
+        preco
+      )
+    `,
     )
     .eq("barbearia_id", lojaId)
     .gte("data_hora", inicioMesDate.toISOString())
@@ -2285,23 +2463,28 @@ async function carregarFinanceiro() {
     return false;
   }
 
-  // Apenas agendamentos concluídos entram no faturamento
   const entradas = (agendamentos || [])
     .filter((item) => item.status === "concluido")
     .reduce((total, item) => total + Number(item.servicos?.preco || 0), 0);
 
+  // ----------------------------------------------------------
   // SAÍDAS
+  // ----------------------------------------------------------
 
   const saidas = gastosCache.reduce(
     (total, item) => total + Number(item.valor || 0),
     0,
   );
 
+  // ----------------------------------------------------------
   // LUCRO
+  // ----------------------------------------------------------
 
   const lucro = entradas - saidas;
 
-  // ATUALIZAR CARDS
+  // ----------------------------------------------------------
+  // CARDS
+  // ----------------------------------------------------------
 
   const elementoEntradas = document.getElementById("financeiro-entradas");
 
@@ -2359,9 +2542,7 @@ function renderizarGastos(gastos) {
 
         <p>
           ${escaparHtml(gasto.categoria || "Sem categoria")}
-
           ·
-
           ${formatarData(gasto.data_gasto)}
         </p>
 
@@ -2372,6 +2553,14 @@ function renderizarGastos(gastos) {
         <strong>
           - ${formatarMoeda(gasto.valor)}
         </strong>
+
+        <button
+          type="button"
+          title="Editar"
+          onclick="editarGasto('${gasto.id}')"
+        >
+          ✏️
+        </button>
 
         <button
           type="button"
@@ -2388,9 +2577,7 @@ function renderizarGastos(gastos) {
   });
 }
 
-
 // SALVAR GASTO
-
 
 if (formGasto) {
   formGasto.addEventListener("submit", async (event) => {
@@ -2404,25 +2591,45 @@ if (formGasto) {
 
     const dataGasto = document.getElementById("gasto-data")?.value;
 
-    if (!descricao || Number.isNaN(valor) || valor < 0 || !dataGasto) {
-      alert("Preencha os dados do gasto corretamente.");
+    const pagamento = document.getElementById("gasto-pagamento")?.value;
+
+    const observacao = document
+      .getElementById("gasto-observacao")
+      ?.value.trim();
+
+    const id = document.getElementById("gasto-id")?.value;
+
+    if (!descricao || Number.isNaN(valor) || valor <= 0 || !dataGasto) {
+      mostrarMensagem(
+        "mensagem-gasto",
+        "Preencha os dados do gasto corretamente.",
+        "erro",
+      );
 
       return;
     }
 
-    const id = document.getElementById("gasto-id")?.value;
+    if (btnSalvarGasto) {
+      btnSalvarGasto.disabled = true;
+
+      btnSalvarGasto.textContent = "Salvando...";
+    }
+
+    const dadosGasto = {
+      descricao,
+      valor,
+      categoria: categoria || null,
+      data_gasto: dataGasto,
+      pagamento: pagamento || null,
+      observacao: observacao || null,
+    };
 
     let erro = null;
 
     if (id) {
       const resposta = await supabaseClient
         .from("gastos")
-        .update({
-          descricao,
-          valor,
-          categoria: categoria || null,
-          data_gasto: dataGasto,
-        })
+        .update(dadosGasto)
         .eq("id", id)
         .eq("barbearia_id", lojaId);
 
@@ -2430,10 +2637,7 @@ if (formGasto) {
     } else {
       const resposta = await supabaseClient.from("gastos").insert({
         barbearia_id: lojaId,
-        descricao,
-        valor,
-        categoria: categoria || null,
-        data_gasto: dataGasto,
+        ...dadosGasto,
       });
 
       erro = resposta.error;
@@ -2442,7 +2646,17 @@ if (formGasto) {
     if (erro) {
       console.error("Erro ao salvar gasto:", erro);
 
-      alert("Não foi possível salvar o gasto.");
+      mostrarMensagem(
+        "mensagem-gasto",
+        "Não foi possível salvar o gasto.",
+        "erro",
+      );
+
+      if (btnSalvarGasto) {
+        btnSalvarGasto.disabled = false;
+
+        btnSalvarGasto.textContent = id ? "Salvar edição" : "+ Adicionar gasto";
+      }
 
       return;
     }
@@ -2450,19 +2664,18 @@ if (formGasto) {
     cancelarEdicaoGasto();
 
     await carregarFinanceiro();
+
+    mostrarMensagem("mensagem-gasto", "Gasto salvo com sucesso!", "sucesso");
   });
 }
 
-
 // EDITAR GASTO
-
 
 function editarGasto(id) {
   const gasto = gastosCache.find((item) => String(item.id) === String(id));
 
   if (!gasto) {
     alert("Gasto não encontrado.");
-
     return;
   }
 
@@ -2475,6 +2688,18 @@ function editarGasto(id) {
   document.getElementById("gasto-categoria").value = gasto.categoria || "";
 
   document.getElementById("gasto-data").value = gasto.data_gasto || "";
+
+  const pagamento = document.getElementById("gasto-pagamento");
+
+  if (pagamento) {
+    pagamento.value = gasto.pagamento || "";
+  }
+
+  const observacao = document.getElementById("gasto-observacao");
+
+  if (observacao) {
+    observacao.value = gasto.observacao || "";
+  }
 
   if (btnSalvarGasto) {
     btnSalvarGasto.textContent = "Salvar edição";
@@ -2489,9 +2714,7 @@ function editarGasto(id) {
   });
 }
 
-
-// CANCELAR EDIÇÃO
-
+// CANCELAR GASTO
 
 function cancelarEdicaoGasto() {
   if (!formGasto) {
@@ -2514,6 +2737,8 @@ function cancelarEdicaoGasto() {
 
   if (btnSalvarGasto) {
     btnSalvarGasto.textContent = "+ Adicionar gasto";
+
+    btnSalvarGasto.disabled = false;
   }
 
   if (btnCancelarGasto) {
@@ -2521,9 +2746,11 @@ function cancelarEdicaoGasto() {
   }
 }
 
+if (btnCancelarGasto) {
+  btnCancelarGasto.addEventListener("click", cancelarEdicaoGasto);
+}
 
 // EXCLUIR GASTO
-
 
 async function excluirGasto(id) {
   if (!confirm("Remover este gasto?")) {
@@ -2607,7 +2834,7 @@ async function carregarConfiguracoes() {
   }
 }
 
-// FORMULÁRIO DA BARBEARIA
+// FORMULÁRIO BARBEARIA
 
 const formConfiguracaoBarbearia = document.getElementById(
   "form-configuracao-barbearia",
@@ -2658,13 +2885,15 @@ if (formConfiguracaoBarbearia) {
       endereco,
     };
 
-    await carregarLoja();
+    atualizarCabecalhoLoja();
+
+    await carregarConfiguracoes();
 
     alert("Dados da barbearia atualizados!");
   });
 }
 
-// FORMULÁRIO DO USUÁRIO
+// FORMULÁRIO USUÁRIO
 
 const formConfiguracaoUsuario = document.getElementById(
   "form-configuracao-usuario",
@@ -2794,9 +3023,7 @@ if (btnExcluirBarbearia) {
 
     alert("Barbearia excluída com sucesso.");
 
-    await supabaseClient.auth.signOut();
-
-    window.location.href = "../barbearia/index.html";
+    window.location.href = "../barbearias/index.html";
   });
 }
 
@@ -2859,15 +3086,15 @@ async function gerarRelatorio() {
     .from("agendamentos")
     .select(
       `
-        *,
-        servicos(
-          nome,
-          preco
-        ),
-        profiles(
-          nome
-        )
-      `,
+      *,
+      servicos(
+        nome,
+        preco
+      ),
+      profiles(
+        nome
+      )
+    `,
     )
     .eq("barbearia_id", lojaId)
     .gte("data_hora", `${dataInicial}T00:00:00`)
@@ -3007,6 +3234,7 @@ async function gerarRelatorio() {
         }
 
         @media print {
+
           .botao {
             display: none;
           }
@@ -3014,6 +3242,7 @@ async function gerarRelatorio() {
           body {
             padding: 0;
           }
+
         }
 
       </style>
@@ -3041,33 +3270,27 @@ async function gerarRelatorio() {
       <div class="resumo">
 
         <div class="card">
-
           Agendamentos
 
           <strong>
             ${total}
           </strong>
-
         </div>
 
         <div class="card">
-
           Concluídos
 
           <strong>
             ${concluidos.length}
           </strong>
-
         </div>
 
         <div class="card">
-
           Faturamento
 
           <strong>
             ${formatarMoeda(faturamento)}
           </strong>
-
         </div>
 
       </div>
@@ -3117,46 +3340,31 @@ async function gerarRelatorio() {
   janela.document.close();
 }
 
-
 // WHATSAPP
 
-
-const btnEnviarWhatsapp =
-  document.getElementById(
-    "btn-enviar-whatsapp"
-  );
+const btnEnviarWhatsapp = document.getElementById("btn-enviar-whatsapp");
 
 if (btnEnviarWhatsapp) {
-  btnEnviarWhatsapp.addEventListener(
-    "click",
-    () => {
-      const dataInicial =
-        document.getElementById(
-          "relatorio-data-inicial"
-        )?.value;
+  btnEnviarWhatsapp.addEventListener("click", () => {
+    const dataInicial = document.getElementById(
+      "relatorio-data-inicial",
+    )?.value;
 
-      const dataFinal =
-        document.getElementById(
-          "relatorio-data-final"
-        )?.value;
+    const dataFinal = document.getElementById("relatorio-data-final")?.value;
 
-      if (!dataInicial || !dataFinal) {
-        alert(
-          "Informe o período do relatório."
-        );
+    if (!dataInicial || !dataFinal) {
+      alert("Informe o período do relatório.");
 
-        return;
-      }
+      return;
+    }
 
-      if (dataInicial > dataFinal) {
-        alert(
-          "A data inicial não pode ser maior que a data final."
-        );
+    if (dataInicial > dataFinal) {
+      alert("A data inicial não pode ser maior que a data final.");
 
-        return;
-      }
+      return;
+    }
 
-      const mensagem = `
+    const mensagem = `
 ${lojaAtual?.nome || "Barbearia"}
 
 Relatório: ${tipoRelatorioSelecionado}
@@ -3167,34 +3375,39 @@ ${formatarData(dataInicial)} até ${formatarData(dataFinal)}
 Relatório gerado pelo BarberHub.
       `.trim();
 
-      const url =
-        `https://wa.me/?text=${encodeURIComponent(
-          mensagem
-        )}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
 
-      window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    }
-  );
+    window.open(url, "_blank", "noopener,noreferrer");
+  });
+}
+
+// DATA PADRÃO DO FORMULÁRIO DE GASTO
+
+const campoDataGasto = document.getElementById("gasto-data");
+
+if (campoDataGasto && !campoDataGasto.value) {
+  campoDataGasto.value = obterDataLocalISO();
 }
 
 // INICIAR PAINEL
 
 async function iniciarPainel() {
   try {
-    // 1. CARREGAR LOJA
+    // 1. Verificar Supabase
+    if (!supabaseClient) {
+      mostrarErroCarregamento("Supabase não foi configurado corretamente.");
 
+      return;
+    }
+
+    // 2. Carregar barbearia
     const lojaCarregada = await carregarLoja();
 
     if (!lojaCarregada) {
       return;
     }
 
-    // 2. CARREGAR DADOS PRINCIPAIS
-
+    // 3. Carregar dados principais
     await Promise.all([
       carregarServicos(),
       carregarProdutos(),
@@ -3204,21 +3417,19 @@ async function iniciarPainel() {
       carregarHorarios(),
     ]);
 
-    // 3. CARREGAR DASHBOARD
-
+    // 4. Dashboard
     await carregarDashboard();
 
-    // 4. CONFIGURAÇÕES
-
+    // 5. Configurações
     await carregarConfiguracoes();
 
-    // 5. ABRIR VISÃO GERAL
-
+    // 6. Abrir visão geral
     mudarAba("visao-geral");
 
-    // 6. ESCONDER LOADING
-
+    // 7. Esconder loading
     esconderTelaCarregamento();
+
+    console.log("BarberHub: painel carregado com sucesso.");
   } catch (erro) {
     console.error("Erro inesperado ao iniciar painel:", erro);
 
@@ -3227,4 +3438,5 @@ async function iniciarPainel() {
 }
 
 // INICIAR SISTEMA
-(carregarHorarios(), iniciarPainel());
+
+iniciarPainel();

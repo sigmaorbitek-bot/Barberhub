@@ -398,7 +398,7 @@ button:disabled {
    ITEM DO MENU
    ================================================== */
 
-.menu-item {
+.menu-item, .btn-adicionar-barbearia {
   width: 100%;
 
   min-height: 46px;
@@ -2252,4 +2252,15 @@ textarea:focus-visible {
   .horario-intervalo {
     grid-template-columns: 1fr;
   }
+}
+
+.painel-header .painel-logo,
+.painel-header .painel-logo-vazio,
+.painel-header img {
+  width: 64px !important;
+  height: 64px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
 }
