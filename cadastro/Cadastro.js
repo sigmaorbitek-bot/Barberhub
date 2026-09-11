@@ -21,8 +21,7 @@ if (!supabaseClient) {
   console.error("Supabase não foi carregado.");
 
   if (mensagem) {
-    mensagem.textContent =
-      "Erro: não foi possível conectar ao sistema.";
+    mensagem.textContent = "Erro: não foi possível conectar ao sistema.";
     mensagem.style.color = "#C1121F";
   }
 }
@@ -39,10 +38,7 @@ form.addEventListener("submit", async (event) => {
   // ----------------------------------------------------
 
   if (!supabaseClient) {
-    mostrarMensagem(
-      "Erro de conexão com o sistema.",
-      "erro"
-    );
+    mostrarMensagem("Erro de conexão com o sistema.", "erro");
     return;
   }
 
@@ -50,25 +46,19 @@ form.addEventListener("submit", async (event) => {
   // Elementos
   // ----------------------------------------------------
 
-  const botao = form.querySelector(
-    'button[type="submit"]'
-  );
+  const botao = form.querySelector('button[type="submit"]');
 
   // ----------------------------------------------------
   // Dados do formulário
   // ----------------------------------------------------
 
-  const nome =
-    document.getElementById("nome")?.value.trim() || "";
+  const nome = document.getElementById("nome")?.value.trim() || "";
 
-  const telefone =
-    document.getElementById("telefone")?.value.trim() || "";
+  const telefone = document.getElementById("telefone")?.value.trim() || "";
 
-  const cidade =
-    document.getElementById("cidade")?.value.trim() || "";
+  const cidade = document.getElementById("cidade")?.value.trim() || "";
 
-  const endereco =
-    document.getElementById("endereco")?.value.trim() || "";
+  const endereco = document.getElementById("endereco")?.value.trim() || "";
 
   const horarioAbertura =
     document.getElementById("horario_abertura")?.value || "";
@@ -79,21 +69,19 @@ form.addEventListener("submit", async (event) => {
   const email =
     document.getElementById("email")?.value.trim().toLowerCase() || "";
 
-  const senha =
-    document.getElementById("senha")?.value || "";
+  const senha = document.getElementById("senha")?.value || "";
 
   const confirmarSenha =
     document.getElementById("confirmar-senha")?.value || "";
 
-  const arquivoLogo =
-    document.getElementById("foto")?.files?.[0] || null;
+  const arquivoLogo = document.getElementById("foto")?.files?.[0] || null;
 
   // ----------------------------------------------------
   // Dias de funcionamento
   // ----------------------------------------------------
 
   const diasSelecionados = Array.from(
-    document.querySelectorAll('input[name="dias"]:checked')
+    document.querySelectorAll('input[name="dias"]:checked'),
   ).map((checkbox) => checkbox.value);
 
   // ====================================================
@@ -101,50 +89,32 @@ form.addEventListener("submit", async (event) => {
   // ====================================================
 
   if (!nome) {
-    mostrarMensagem(
-      "Digite o nome da barbearia.",
-      "erro"
-    );
+    mostrarMensagem("Digite o nome da barbearia.", "erro");
     return;
   }
 
   if (!cidade) {
-    mostrarMensagem(
-      "Selecione a cidade.",
-      "erro"
-    );
+    mostrarMensagem("Selecione a cidade.", "erro");
     return;
   }
 
   if (!email) {
-    mostrarMensagem(
-      "Digite o e-mail.",
-      "erro"
-    );
+    mostrarMensagem("Digite o e-mail.", "erro");
     return;
   }
 
   if (!senha) {
-    mostrarMensagem(
-      "Digite uma senha.",
-      "erro"
-    );
+    mostrarMensagem("Digite uma senha.", "erro");
     return;
   }
 
   if (senha.length < 6) {
-    mostrarMensagem(
-      "A senha precisa ter pelo menos 6 caracteres.",
-      "erro"
-    );
+    mostrarMensagem("A senha precisa ter pelo menos 6 caracteres.", "erro");
     return;
   }
 
   if (senha !== confirmarSenha) {
-    mostrarMensagem(
-      "As senhas não são iguais.",
-      "erro"
-    );
+    mostrarMensagem("As senhas não são iguais.", "erro");
     return;
   }
 
@@ -159,7 +129,7 @@ form.addEventListener("submit", async (event) => {
   ) {
     mostrarMensagem(
       "O horário de fechamento precisa ser depois da abertura.",
-      "erro"
+      "erro",
     );
     return;
   }
@@ -173,24 +143,18 @@ form.addEventListener("submit", async (event) => {
       "image/jpeg",
       "image/jpg",
       "image/png",
-      "image/webp"
+      "image/webp",
     ];
 
     if (!tiposPermitidos.includes(arquivoLogo.type)) {
-      mostrarMensagem(
-        "A logo precisa ser JPG, PNG ou WEBP.",
-        "erro"
-      );
+      mostrarMensagem("A logo precisa ser JPG, PNG ou WEBP.", "erro");
       return;
     }
 
     const tamanhoMaximo = 5 * 1024 * 1024;
 
     if (arquivoLogo.size > tamanhoMaximo) {
-      mostrarMensagem(
-        "A logo pode ter no máximo 5 MB.",
-        "erro"
-      );
+      mostrarMensagem("A logo pode ter no máximo 5 MB.", "erro");
       return;
     }
   }
@@ -213,21 +177,19 @@ form.addEventListener("submit", async (event) => {
 
     console.log("Criando usuário...");
 
-    const {
-      data: authData,
-      error: authError
-    } = await supabaseClient.auth.signUp({
-      email: email,
-      password: senha,
+    const { data: authData, error: authError } =
+      await supabaseClient.auth.signUp({
+        email: email,
+        password: senha,
 
-      options: {
-        data: {
-          nome: nome,
-          telefone: telefone || null,
-          tipo: "dono"
-        }
-      }
-    });
+        options: {
+          data: {
+            nome: nome,
+            telefone: telefone || null,
+            tipo: "dono",
+          },
+        },
+      });
 
     // --------------------------------------------------
     // Erro no Auth
@@ -236,10 +198,7 @@ form.addEventListener("submit", async (event) => {
     if (authError) {
       console.error("ERRO AUTH:", authError);
 
-      mostrarMensagem(
-        traduzirErroSupabase(authError),
-        "erro"
-      );
+      mostrarMensagem(traduzirErroSupabase(authError), "erro");
 
       return;
     }
@@ -249,25 +208,16 @@ form.addEventListener("submit", async (event) => {
     // --------------------------------------------------
 
     if (!authData || !authData.user) {
-      console.error(
-        "Supabase não retornou o usuário:",
-        authData
-      );
+      console.error("Supabase não retornou o usuário:", authData);
 
-      mostrarMensagem(
-        "Não foi possível criar a conta.",
-        "erro"
-      );
+      mostrarMensagem("Não foi possível criar a conta.", "erro");
 
       return;
     }
 
     const usuarioId = authData.user.id;
 
-    console.log(
-      "Usuário criado:",
-      usuarioId
-    );
+    console.log("Usuário criado:", usuarioId);
 
     // ==================================================
     // IMPORTANTE
@@ -287,22 +237,18 @@ form.addEventListener("submit", async (event) => {
     //
     // ==================================================
 
-    console.log(
-      "Perfil será criado automaticamente pelo trigger."
-    );
+    console.log("Perfil será criado automaticamente pelo trigger.");
 
     // ==================================================
     // 2 — VERIFICAR SESSÃO
     // ==================================================
 
     if (!authData.session) {
-      console.warn(
-        "Usuário criado, porém sem sessão."
-      );
+      console.warn("Usuário criado, porém sem sessão.");
 
       mostrarMensagem(
         "Conta criada! Verifique seu e-mail para confirmar o cadastro.",
-        "sucesso"
+        "sucesso",
       );
 
       return;
@@ -317,44 +263,29 @@ form.addEventListener("submit", async (event) => {
     if (arquivoLogo) {
       console.log("Enviando logo...");
 
-      const extensao =
-        arquivoLogo.name
-          .split(".")
-          .pop()
-          .toLowerCase();
+      const extensao = arquivoLogo.name.split(".").pop().toLowerCase();
 
-      const nomeArquivo =
-        `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
+      const nomeArquivo = `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
 
-      const caminhoArquivo =
-        `${usuarioId}/${nomeArquivo}`;
+      const caminhoArquivo = `${usuarioId}/${nomeArquivo}`;
 
-      const {
-        error: erroUpload
-      } = await supabaseClient.storage
+      const { error: erroUpload } = await supabaseClient.storage
         .from("barbearias")
-        .upload(
-          caminhoArquivo,
-          arquivoLogo,
-          {
-            cacheControl: "3600",
-            upsert: false
-          }
-        );
+        .upload(caminhoArquivo, arquivoLogo, {
+          cacheControl: "3600",
+          upsert: false,
+        });
 
       // ------------------------------------------------
       // Erro upload
       // ------------------------------------------------
 
       if (erroUpload) {
-        console.error(
-          "ERRO AO ENVIAR LOGO:",
-          erroUpload
-        );
+        console.error("ERRO AO ENVIAR LOGO:", erroUpload);
 
         mostrarMensagem(
           "Conta criada, mas não foi possível enviar a logo.",
-          "erro"
+          "erro",
         );
 
         return;
@@ -364,54 +295,37 @@ form.addEventListener("submit", async (event) => {
       // URL pública
       // ------------------------------------------------
 
-      const {
-        data: urlData
-      } = supabaseClient.storage
+      const { data: urlData } = supabaseClient.storage
         .from("barbearias")
         .getPublicUrl(caminhoArquivo);
 
-      logoUrl =
-        urlData?.publicUrl || null;
+      logoUrl = urlData?.publicUrl || null;
 
-      console.log(
-        "Logo enviada:",
-        logoUrl
-      );
+      console.log("Logo enviada:", logoUrl);
     }
 
     // ==================================================
     // 4 — CRIAR BARBEARIA
     // ==================================================
 
-    console.log(
-      "Criando barbearia..."
-    );
+    console.log("Criando barbearia...");
 
     const dadosBarbearia = {
+      id: nome,
       dono_id: usuarioId,
       nome: nome,
       cidade: cidade,
       endereco: endereco || null,
       telefone: telefone || null,
-      horario_abertura:
-        horarioAbertura || null,
-      horario_fechamento:
-        horarioFechamento || null,
-      dias_funcionamento:
-        diasSelecionados,
-      logo_url:
-        logoUrl
+      horario_abertura: horarioAbertura || null,
+      horario_fechamento: horarioFechamento || null,
+      dias_funcionamento: diasSelecionados,
+      logo_url: logoUrl,
     };
 
-    console.log(
-      "Dados da barbearia:",
-      dadosBarbearia
-    );
+    console.log("Dados da barbearia:", dadosBarbearia);
 
-    const {
-      data: barbearia,
-      error: erroBarbearia
-    } = await supabaseClient
+    const { data: barbearia, error: erroBarbearia } = await supabaseClient
       .from("barbearias")
       .insert(dadosBarbearia)
       .select()
@@ -422,55 +336,31 @@ form.addEventListener("submit", async (event) => {
     // --------------------------------------------------
 
     if (erroBarbearia) {
-      console.error(
-        "================================="
-      );
+      console.error("=================================");
 
-      console.error(
-        "ERRO AO CRIAR BARBEARIA"
-      );
+      console.error("ERRO AO CRIAR BARBEARIA");
 
-      console.error(
-        "Mensagem:",
-        erroBarbearia.message
-      );
+      console.error("Mensagem:", erroBarbearia.message);
 
-      console.error(
-        "Detalhes:",
-        erroBarbearia.details
-      );
+      console.error("Detalhes:", erroBarbearia.details);
 
-      console.error(
-        "Hint:",
-        erroBarbearia.hint
-      );
+      console.error("Hint:", erroBarbearia.hint);
 
-      console.error(
-        "Código:",
-        erroBarbearia.code
-      );
+      console.error("Código:", erroBarbearia.code);
 
-      console.error(
-        "Objeto completo:",
-        erroBarbearia
-      );
+      console.error("Objeto completo:", erroBarbearia);
 
-      console.error(
-        "================================="
-      );
+      console.error("=================================");
 
       mostrarMensagem(
         "Conta criada, mas não foi possível criar a barbearia. Veja o Console (F12).",
-        "erro"
+        "erro",
       );
 
       return;
     }
 
-    console.log(
-      "Barbearia criada:",
-      barbearia
-    );
+    console.log("Barbearia criada:", barbearia);
 
     // ==================================================
     // 5 — SUCESSO
@@ -478,61 +368,40 @@ form.addEventListener("submit", async (event) => {
 
     mostrarMensagem(
       "Cadastro realizado com sucesso! Redirecionando...",
-      "sucesso"
+      "sucesso",
     );
 
-    console.log(
-      "CADASTRO FINALIZADO COM SUCESSO!"
-    );
+    console.log("CADASTRO FINALIZADO COM SUCESSO!");
 
     // ==================================================
     // REDIRECIONAMENTO
     // ==================================================
 
     setTimeout(() => {
-      window.location.href =
-        `../painel/index.html?id=${barbearia.id}`;
+      window.location.href = `../painel/index.html?id=${barbearia.id}`;
     }, 1000);
-
   } catch (erro) {
-
     // ==================================================
     // ERRO INESPERADO
     // ==================================================
 
-    console.error(
-      "================================="
-    );
+    console.error("=================================");
 
-    console.error(
-      "ERRO INESPERADO NO CADASTRO"
-    );
+    console.error("ERRO INESPERADO NO CADASTRO");
 
-    console.error(
-      erro
-    );
+    console.error(erro);
 
-    console.error(
-      "Mensagem:",
-      erro?.message
-    );
+    console.error("Mensagem:", erro?.message);
 
-    console.error(
-      "Stack:",
-      erro?.stack
-    );
+    console.error("Stack:", erro?.stack);
 
-    console.error(
-      "================================="
-    );
+    console.error("=================================");
 
     mostrarMensagem(
       "Ocorreu um erro inesperado. Abra o Console (F12) para verificar.",
-      "erro"
+      "erro",
     );
-
   } finally {
-
     // ==================================================
     // REATIVA BOTÃO
     // ==================================================
@@ -548,10 +417,7 @@ form.addEventListener("submit", async (event) => {
 // FUNÇÃO — MOSTRAR MENSAGEM
 // ======================================================
 
-function mostrarMensagem(
-  texto,
-  tipo = "erro"
-) {
+function mostrarMensagem(texto, tipo = "erro") {
   if (!mensagem) {
     return;
   }
@@ -574,8 +440,7 @@ function traduzirErroSupabase(error) {
     return "Ocorreu um erro.";
   }
 
-  const mensagemErro =
-    error.message?.toLowerCase() || "";
+  const mensagemErro = error.message?.toLowerCase() || "";
 
   // ----------------------------------------------------
   // E-mail já cadastrado
@@ -593,9 +458,7 @@ function traduzirErroSupabase(error) {
   // E-mail inválido
   // ----------------------------------------------------
 
-  if (
-    mensagemErro.includes("invalid email")
-  ) {
+  if (mensagemErro.includes("invalid email")) {
     return "Digite um e-mail válido.";
   }
 
@@ -605,10 +468,7 @@ function traduzirErroSupabase(error) {
 
   if (
     mensagemErro.includes("password") &&
-    (
-      mensagemErro.includes("weak") ||
-      mensagemErro.includes("short")
-    )
+    (mensagemErro.includes("weak") || mensagemErro.includes("short"))
   ) {
     return "A senha escolhida é muito fraca.";
   }
@@ -628,8 +488,5 @@ function traduzirErroSupabase(error) {
   // Retorna erro original
   // ----------------------------------------------------
 
-  return (
-    error.message ||
-    "Não foi possível realizar o cadastro."
-  );
+  return error.message || "Não foi possível realizar o cadastro.";
 }

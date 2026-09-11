@@ -335,6 +335,22 @@ function mudarAba(aba) {
       descricao: "Consulte seus horários marcados no BarberHub.",
     },
 
+    notificacoes: {
+      titulo: "Notificações",
+      descricao:
+        "Acompanhe novidades, confirmações e atualizações dos seus agendamentos.",
+    },
+
+    produtos: {
+      titulo: "Ver produtos",
+      descricao: "Veja os produtos disponíveis nas suas barbearias.",
+    },
+
+    avaliacoes: {
+      titulo: "Avaliações",
+      descricao: "Avalie seus atendimentos e acompanhe seus comentários.",
+    },
+
     favoritos: {
       titulo: "Favoritos",
       descricao: "Encontre rapidamente suas barbearias favoritas.",
@@ -371,6 +387,18 @@ function mudarAba(aba) {
 
   if (aba === "agendamentos") {
     carregarAgendamentos();
+  }
+
+  if (aba === "notificacoes") {
+    carregarNotificacoesCliente();
+  }
+
+  if (aba === "produtos") {
+    carregarProdutosCliente();
+  }
+
+  if (aba === "avaliacoes") {
+    carregarAvaliacoesCliente();
   }
 
   if (aba === "favoritos") {

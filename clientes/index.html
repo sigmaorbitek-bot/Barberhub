@@ -112,6 +112,36 @@
           <button
             type="button"
             class="menu-item"
+            data-aba="notificacoes"
+            onclick="mudarAba('notificacoes')"
+          >
+            <span class="menu-icon">🔔</span>
+            <span>Notificações</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="produtos"
+            onclick="mudarAba('produtos')"
+          >
+            <span class="menu-icon">🛍️</span>
+            <span>Ver produtos</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="avaliacoes"
+            onclick="mudarAba('avaliacoes')"
+          >
+            <span class="menu-icon">⭐</span>
+            <span>Avaliações</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
             data-aba="favoritos"
             onclick="mudarAba('favoritos')"
           >
@@ -191,6 +221,35 @@
             >
               <span>🗓️</span>
               <span>Meus agendamentos</span>
+            </button>
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="notificacoes"
+              onclick="mudarAba('notificacoes')"
+            >
+              <span>🔔</span>
+              <span>Notificações</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="produtos"
+              onclick="mudarAba('produtos')"
+            >
+              <span>🛍️</span>
+              <span>Ver produtos</span>
+            </button>
+
+            <button
+              type="button"
+              class="mobile-menu-item"
+              data-aba="avaliacoes"
+              onclick="mudarAba('avaliacoes')"
+            >
+              <span>⭐</span>
+              <span>Avaliações</span>
             </button>
 
             <button
@@ -386,6 +445,42 @@
                 <button
                   type="button"
                   class="acao-rapida"
+                  onclick="mudarAba('notificacoes')"
+                >
+                  <span class="acao-rapida-icone">🔔 </span>
+
+                  <strong> Notificações </strong>
+
+                  <small> Veja seus avisos </small>
+                </button>
+
+                <button
+                  type="button"
+                  class="acao-rapida"
+                  onclick="mudarAba('produtos')"
+                >
+                  <span class="acao-rapida-icone">🛍️</span>
+
+                  <strong> Ver produtos </strong>
+
+                  <small> Confira produtos disponíveis </small>
+                </button>
+
+                <button
+                  type="button"
+                  class="acao-rapida"
+                  onclick="mudarAba('avaliacoes')"
+                >
+                  <span class="acao-rapida-icone">⭐</span>
+
+                  <strong> Avaliar atendimento </strong>
+
+                  <small> Conte sua experiência </small>
+                </button>
+
+                <button
+                  type="button"
+                  class="acao-rapida"
                   onclick="mudarAba('favoritos')"
                 >
                   <span class="acao-rapida-icone"> ❤️ </span>
@@ -542,6 +637,75 @@
             </div>
 
             <div id="lista-meus-agendamentos" class="lista-itens"></div>
+          </section>
+
+          <section id="conteudo-notificacoes" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow">AVISOS</span>
+
+              <h1>Notificações</h1>
+
+              <p>
+                Acompanhe novidades, confirmações e atualizações dos seus
+                agendamentos.
+              </p>
+            </div>
+
+            <div id="lista-notificacoes-cliente" class="lista-itens"></div>
+          </section>
+
+          <section id="conteudo-produtos" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow">PRODUTOS</span>
+
+              <h1>Ver produtos</h1>
+
+              <p>Veja os produtos disponíveis nas suas barbearias.</p>
+            </div>
+
+            <div id="lista-produtos-cliente" class="lista-barbearias"></div>
+          </section>
+
+          <section id="conteudo-avaliacoes" class="painel-conteudo oculto">
+            <div class="conteudo-titulo">
+              <span class="conteudo-eyebrow">AVALIAÇÃO</span>
+
+              <h1>Avaliações</h1>
+
+              <p>
+                Avalie seus atendimentos e veja os comentários das barbearias.
+              </p>
+            </div>
+
+            <div class="configuracao-card">
+              <div class="configuracao-cabecalho">
+                <div class="configuracao-icone">⭐</div>
+
+                <div>
+                  <h2>Avaliar atendimento</h2>
+
+                  <p>Conte como foi sua experiência.</p>
+                </div>
+              </div>
+
+              <div id="lista-avaliacoes-pendentes" class="lista-itens"></div>
+            </div>
+
+            <div class="configuracao-card">
+              <div class="configuracao-cabecalho">
+                <div class="configuracao-icone">💬</div>
+
+                <div>
+                  <h2>Meus comentários</h2>
+
+                  <p>Veja suas avaliações enviadas.</p>
+                </div>
+              </div>
+
+              <div id="lista-meus-comentarios" class="lista-itens"></div>
+            </div>
+
+            <p id="mensagem-avaliacao" class="mensagem" aria-live="polite"></p>
           </section>
 
           <!-- ==================================================

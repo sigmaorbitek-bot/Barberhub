@@ -183,6 +183,16 @@
           <button
             type="button"
             class="menu-item"
+            data-aba="avaliacoes"
+            onclick="mudarAba('avaliacoes')"
+          >
+            <span class="menu-icon">⭐</span>
+            <span>Avaliações</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
             data-aba="configuracoes"
             onclick="mudarAba('configuracoes')"
           >
@@ -287,6 +297,15 @@
         <button
           type="button"
           class="mobile-menu-item"
+          onclick="mudarAba('avaliacoes')"
+        >
+          <span>⭐</span>
+          Avaliações
+        </button>
+
+        <button
+          type="button"
+          class="mobile-menu-item"
           onclick="mudarAba('configuracoes')"
         >
           <span>⚙️</span>
@@ -358,12 +377,83 @@
 
                 <p>Faturamento hoje</p>
               </article>
+
+              <article class="dashboard-card">
+                <span>⭐</span>
+
+                <strong id="avaliacao-media">0,0</strong>
+
+                <p>Avaliação média</p>
+              </article>
+
+              <article class="dashboard-card">
+                <span>🔔</span>
+
+                <strong id="total-notificacoes">0</strong>
+
+                <p>Notificações</p>
+              </article>
             </div>
 
             <div class="dashboard-secao">
               <h2>Próximos agendamentos</h2>
 
               <div id="lista-proximos-agendamentos" class="lista-itens"></div>
+            </div>
+
+            <div class="dashboard-secao">
+              <h2>Ações rápidas</h2>
+
+              <div class="relatorios-tipos">
+                <button
+                  type="button"
+                  class="btn-relatorio"
+                  onclick="mudarAba('clientes')"
+                >
+                  📝 Cadastrar cliente
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-relatorio"
+                  onclick="mudarAba('produtos')"
+                >
+                  🛍️ Ver produtos
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-relatorio"
+                  onclick="mudarAba('avaliacoes')"
+                >
+                  ⭐ Ver avaliações
+                </button>
+              </div>
+            </div>
+
+            <div class="dashboard-secao">
+              <h2>🔔 Notificações</h2>
+
+              <div id="lista-notificacoes" class="lista-itens"></div>
+            </div>
+
+            <div class="dashboard-secao">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <h2>💬 Comentários recentes</h2>
+                  <p>Veja o que os clientes estão falando sobre sua barbearia.</p>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-relatorio"
+                  onclick="mudarAba('avaliacoes')"
+                >
+                  Ver todos
+                </button>
+              </div>
+
+              <div id="lista-comentarios-dashboard" class="lista-itens"></div>
             </div>
 
             <div class="dashboard-secao">
@@ -642,6 +732,53 @@
               <p>Acompanhe e gerencie os horários marcados.</p>
             </div>
 
+            <div class="dashboard-secao">
+                <h2>📅 Cadastrar agendamento</h2>
+                <p>Selecione um cliente já cadastrado e informe o serviço, a data e o horário.</p>
+
+                <form id="form-agendamento-manual" class="form-item">
+                  <div class="campo-inline">
+                    <div class="campo">
+                      <label for="agendamento-cliente">Cliente</label>
+                      <select id="agendamento-cliente" required>
+                        <option value="">Selecione o cliente</option>
+                      </select>
+                    </div>
+
+                    <div class="campo">
+                      <label for="agendamento-servico">Serviço</label>
+                      <select id="agendamento-servico" required>
+                        <option value="">Selecione o serviço</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="campo-inline">
+                    <div class="campo">
+                      <label for="agendamento-data">Data</label>
+                      <input type="date" id="agendamento-data" required />
+                    </div>
+
+                    <div class="campo campo--curto">
+                      <label for="agendamento-horario">Horário</label>
+                      <input type="time" id="agendamento-horario" required />
+                    </div>
+                  </div>
+
+                  <div class="form-item-botoes">
+                    <button
+                      type="submit"
+                      class="btn-principal"
+                      id="btn-salvar-agendamento-manual"
+                    >
+                      + Cadastrar agendamento
+                    </button>
+                  </div>
+                </form>
+
+                <p id="mensagem-agendamento-manual" class="mensagem" aria-live="polite"></p>
+              </div>
+
             <div class="filtros-agendamentos">
               <button
                 type="button"
@@ -679,8 +816,44 @@
             <div class="conteudo-titulo">
               <h1>Clientes</h1>
 
-              <p>Gerencie os clientes e o histórico de atendimentos.</p>
+              <p>Cadastre e gerencie os clientes da sua barbearia.</p>
             </div>
+
+            <form id="form-cliente" class="form-item">
+              <div class="campo-inline">
+                <div class="campo">
+                  <label for="cliente-nome">Nome do cliente</label>
+                  <input
+                    type="text"
+                    id="cliente-nome"
+                    placeholder="Ex: João da Silva"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="cliente-telefone">Telefone</label>
+                  <input
+                    type="tel"
+                    id="cliente-telefone"
+                    placeholder="(00) 99999-9999"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-item-botoes">
+                <button
+                  type="submit"
+                  class="btn-principal"
+                  id="btn-salvar-cliente"
+                >
+                  + Cadastrar cliente
+                </button>
+              </div>
+            </form>
+
+            <p id="mensagem-cliente" class="mensagem" aria-live="polite"></p>
 
             <div id="lista-clientes" class="lista-itens"></div>
           </section>
@@ -796,6 +969,36 @@
             </form>
 
             <p id="mensagem-horarios" class="mensagem" aria-live="polite"></p>
+          </section>
+
+          <!-- ==================================================
+               AVALIAÇÕES
+               ================================================== -->
+
+          <section id="conteudo-avaliacoes" class="painel-conteudo" hidden>
+            <div class="conteudo-titulo">
+              <h1>⭐ Avaliações e comentários</h1>
+              <p>Acompanhe a nota média e veja os comentários dos seus clientes.</p>
+            </div>
+
+            <div class="dashboard-cards">
+              <article class="dashboard-card">
+                <span>⭐</span>
+                <strong id="avaliacao-media-pagina">0,0</strong>
+                <p>Avaliação média</p>
+              </article>
+
+              <article class="dashboard-card">
+                <span>💬</span>
+                <strong id="total-avaliacoes">0</strong>
+                <p>Total de avaliações</p>
+              </article>
+            </div>
+
+            <div class="dashboard-secao">
+              <h2>💬 Comentários dos clientes</h2>
+              <div id="lista-comentarios" class="lista-itens"></div>
+            </div>
           </section>
 
           <!-- ==================================================
