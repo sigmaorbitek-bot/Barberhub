@@ -438,10 +438,20 @@
             </div>
 
             <div class="dashboard-secao">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 12px;
+                  flex-wrap: wrap;
+                "
+              >
                 <div>
                   <h2>💬 Comentários recentes</h2>
-                  <p>Veja o que os clientes estão falando sobre sua barbearia.</p>
+                  <p>
+                    Veja o que os clientes estão falando sobre sua barbearia.
+                  </p>
                 </div>
 
                 <button
@@ -733,51 +743,58 @@
             </div>
 
             <div class="dashboard-secao">
-                <h2>📅 Cadastrar agendamento</h2>
-                <p>Selecione um cliente já cadastrado e informe o serviço, a data e o horário.</p>
+              <h2>📅 Cadastrar agendamento</h2>
+              <p>
+                Selecione um cliente já cadastrado e informe o serviço, a data e
+                o horário.
+              </p>
 
-                <form id="form-agendamento-manual" class="form-item">
-                  <div class="campo-inline">
-                    <div class="campo">
-                      <label for="agendamento-cliente">Cliente</label>
-                      <select id="agendamento-cliente" required>
-                        <option value="">Selecione o cliente</option>
-                      </select>
-                    </div>
-
-                    <div class="campo">
-                      <label for="agendamento-servico">Serviço</label>
-                      <select id="agendamento-servico" required>
-                        <option value="">Selecione o serviço</option>
-                      </select>
-                    </div>
+              <form id="form-agendamento-manual" class="form-item">
+                <div class="campo-inline">
+                  <div class="campo">
+                    <label for="agendamento-cliente">Cliente</label>
+                    <select id="agendamento-cliente" required>
+                      <option value="">Selecione o cliente</option>
+                    </select>
                   </div>
 
-                  <div class="campo-inline">
-                    <div class="campo">
-                      <label for="agendamento-data">Data</label>
-                      <input type="date" id="agendamento-data" required />
-                    </div>
+                  <div class="campo">
+                    <label for="agendamento-servico">Serviço</label>
+                    <select id="agendamento-servico" required>
+                      <option value="">Selecione o serviço</option>
+                    </select>
+                  </div>
+                </div>
 
-                    <div class="campo campo--curto">
-                      <label for="agendamento-horario">Horário</label>
-                      <input type="time" id="agendamento-horario" required />
-                    </div>
+                <div class="campo-inline">
+                  <div class="campo">
+                    <label for="agendamento-data">Data</label>
+                    <input type="date" id="agendamento-data" required />
                   </div>
 
-                  <div class="form-item-botoes">
-                    <button
-                      type="submit"
-                      class="btn-principal"
-                      id="btn-salvar-agendamento-manual"
-                    >
-                      + Cadastrar agendamento
-                    </button>
+                  <div class="campo campo--curto">
+                    <label for="agendamento-horario">Horário</label>
+                    <input type="time" id="agendamento-horario" required />
                   </div>
-                </form>
+                </div>
 
-                <p id="mensagem-agendamento-manual" class="mensagem" aria-live="polite"></p>
-              </div>
+                <div class="form-item-botoes">
+                  <button
+                    type="submit"
+                    class="btn-principal"
+                    id="btn-salvar-agendamento-manual"
+                  >
+                    + Cadastrar agendamento
+                  </button>
+                </div>
+              </form>
+
+              <p
+                id="mensagem-agendamento-manual"
+                class="mensagem"
+                aria-live="polite"
+              ></p>
+            </div>
 
             <div class="filtros-agendamentos">
               <button
@@ -820,9 +837,13 @@
             </div>
 
             <form id="form-cliente" class="form-item">
+              <!-- ID usado durante a edição -->
+              <input type="hidden" id="cliente-id" />
+
               <div class="campo-inline">
                 <div class="campo">
-                  <label for="cliente-nome">Nome do cliente</label>
+                  <label for="cliente-nome"> Nome do cliente </label>
+
                   <input
                     type="text"
                     id="cliente-nome"
@@ -832,7 +853,8 @@
                 </div>
 
                 <div class="campo">
-                  <label for="cliente-telefone">Telefone</label>
+                  <label for="cliente-telefone"> Telefone </label>
+
                   <input
                     type="tel"
                     id="cliente-telefone"
@@ -849,6 +871,15 @@
                   id="btn-salvar-cliente"
                 >
                   + Cadastrar cliente
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-voltar"
+                  id="btn-cancelar-cliente"
+                  hidden
+                >
+                  Cancelar edição
                 </button>
               </div>
             </form>
@@ -978,7 +1009,9 @@
           <section id="conteudo-avaliacoes" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
               <h1>⭐ Avaliações e comentários</h1>
-              <p>Acompanhe a nota média e veja os comentários dos seus clientes.</p>
+              <p>
+                Acompanhe a nota média e veja os comentários dos seus clientes.
+              </p>
             </div>
 
             <div class="dashboard-cards">

@@ -1,5 +1,6 @@
 // BARBERHUB — PAINEL DO CLIENTE
 
+// 01. CONFIGURAÇÃO
 const CONFIG = {
   LOGIN_URL: "../login/cliente.html",
 
@@ -14,29 +15,26 @@ const CONFIG = {
   ],
 
   INTERVALO_SLOTS_MINUTOS: 30,
-
   STATUS_BLOQUEIAM_HORARIO: ["pendente", "confirmado"],
 };
 
-// ELEMENTOS
+// 02. ELEMENTOS PRINCIPAIS
 
 const telaCarregamento = document.getElementById("tela-carregamento");
 const nomeCliente = document.getElementById("nome-cliente");
 
-// ESTADO
+// 03. ESTADO GLOBAL
 
 let usuarioAtual = null;
 let perfilAtual = null;
-
 let barbearias = [];
 let servicos = [];
 let profissionais = [];
 let agendamentos = [];
 let horariosFuncionamento = [];
-
 let filtroAgendamentosAtual = "proximos";
 
-// HELPERS
+// 04. HELPERS e ESCAPAR HTML
 
 function escapeHTML(valor) {
   return String(valor ?? "")
@@ -47,23 +45,33 @@ function escapeHTML(valor) {
     .replace(/'/g, "&#039;");
 }
 
+// 4.1 MOSTRAR MENSAGEM
+
 function mostrarMensagem(elementoId, mensagem, tipo = "info") {
   const elemento = document.getElementById(elementoId);
 
-  if (!elemento) return;
+  if (!elemento) {
+    return;
+  }
 
   elemento.textContent = mensagem;
   elemento.className = `mensagem mensagem-${tipo}`;
 }
 
+// 4.2 LIMPAR MENSAGEM
+
 function limparMensagem(elementoId) {
   const elemento = document.getElementById(elementoId);
 
-  if (!elemento) return;
+  if (!elemento) {
+    return;
+  }
 
   elemento.textContent = "";
   elemento.className = "mensagem";
 }
+
+// 4.3 FORMATAR PREÇO
 
 function formatarPreco(valor) {
   const numero = Number(valor) || 0;
@@ -74,29 +82,40 @@ function formatarPreco(valor) {
   });
 }
 
-function formatarData(data) {
-  if (!data) return "-";
+// 4.4 FORMATAR DATA
 
-  // Evita problemas de fuso horário para YYYY-MM-DD
+function formatarData(data) {
+  if (!data) {
+    return "-";
+  }
+
+  // Evita problemas de fuso horário em YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
     const [ano, mes, dia] = data.split("-");
-
     return `${dia}/${mes}/${ano}`;
   }
 
   const dataObj = new Date(data);
 
-  if (Number.isNaN(dataObj.getTime())) return "-";
+  if (Number.isNaN(dataObj.getTime())) {
+    return "-";
+  }
 
   return dataObj.toLocaleDateString("pt-BR");
 }
 
+// 4.5 FORMATAR HORA
+
 function formatarHora(data) {
-  if (!data) return "-";
+  if (!data) {
+    return "-";
+  }
 
   const dataObj = new Date(data);
 
-  if (Number.isNaN(dataObj.getTime())) return "-";
+  if (Number.isNaN(dataObj.getTime())) {
+    return "-";
+  }
 
   return dataObj.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
@@ -104,12 +123,18 @@ function formatarHora(data) {
   });
 }
 
+// 4.6 FORMATAR DATA E HORA
+
 function formatarDataHora(data) {
-  if (!data) return "-";
+  if (!data) {
+    return "-";
+  }
 
   const dataObj = new Date(data);
 
-  if (Number.isNaN(dataObj.getTime())) return "-";
+  if (Number.isNaN(dataObj.getTime())) {
+    return "-";
+  }
 
   return dataObj.toLocaleString("pt-BR", {
     dateStyle: "short",
@@ -117,9 +142,10 @@ function formatarDataHora(data) {
   });
 }
 
+// 4.7 OBTER DATA MÍNIMA
+
 function obterDataMinima() {
   const agora = new Date();
-
   const ano = agora.getFullYear();
   const mes = String(agora.getMonth() + 1).padStart(2, "0");
   const dia = String(agora.getDate()).padStart(2, "0");
@@ -127,9 +153,13 @@ function obterDataMinima() {
   return `${ano}-${mes}-${dia}`;
 }
 
+// 4.8 MOSTRAR ERRO NO CONSOLE
+
 function mostrarErroConsole(contexto, erro) {
   console.error(`[BarberHub] ${contexto}:`, erro);
 }
+
+// 4.9 MINUTOS → HORA
 
 function minutosParaHora(minutos) {
   const horas = Math.floor(minutos / 60);
@@ -138,12 +168,18 @@ function minutosParaHora(minutos) {
   return `${String(horas).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
+// 4.10 HORA → MINUTOS
+
 function horaParaMinutos(hora) {
-  if (!hora) return null;
+  if (!hora) {
+    return null;
+  }
 
   const partes = String(hora).substring(0, 5).split(":");
 
-  if (partes.length !== 2) return null;
+  if (partes.length !== 2) {
+    return null;
+  }
 
   const horas = Number(partes[0]);
   const minutos = Number(partes[1]);
@@ -155,16 +191,24 @@ function horaParaMinutos(hora) {
   return horas * 60 + minutos;
 }
 
+// 4.11 CRIAR DATA LOCAL
+
 function criarDataLocal(data, hora) {
   return new Date(`${data}T${hora}:00`);
 }
 
+// 4.12 FORMATAR TELEFONE PARA WHATSAPP
+
 function formatarTelefoneWhatsApp(telefone) {
-  if (!telefone) return null;
+  if (!telefone) {
+    return null;
+  }
 
   let numero = String(telefone).replace(/\D/g, "");
 
-  if (!numero) return null;
+  if (!numero) {
+    return null;
+  }
 
   // Brasil
   if (!numero.startsWith("55")) {
@@ -174,38 +218,43 @@ function formatarTelefoneWhatsApp(telefone) {
   return numero;
 }
 
+// 4.13 ABRIR WHATSAPP
+
 function abrirWhatsApp(telefone, mensagem) {
   const numero = formatarTelefoneWhatsApp(telefone);
 
   if (!numero) {
     console.warn("[BarberHub] Telefone não encontrado para abrir WhatsApp.");
+
     return false;
   }
 
   const texto = encodeURIComponent(mensagem);
-
   const url = `https://wa.me/${numero}?text=${texto}`;
-
   window.open(url, "_blank");
 
   return true;
 }
 
-// TELA DE CARREGAMENTO
+// 05. TELA DE CARREGAMENTO
 
 function esconderTelaCarregamento() {
-  if (!telaCarregamento) return;
+  if (!telaCarregamento) {
+    return;
+  }
 
   telaCarregamento.classList.add("tela-carregamento--oculta");
 }
 
 function mostrarTelaCarregamento() {
-  if (!telaCarregamento) return;
+  if (!telaCarregamento) {
+    return;
+  }
 
   telaCarregamento.classList.remove("tela-carregamento--oculta");
 }
 
-// SESSÃO
+// 06. SESSÃO / AUTENTICAÇÃO
 
 async function verificarSessao() {
   try {
@@ -218,10 +267,15 @@ async function verificarSessao() {
       throw error;
     }
 
+    // 06.1 NÃO ESTÁ LOGADO
+
     if (!session) {
       window.location.href = CONFIG.LOGIN_URL;
+
       return false;
     }
+
+    // 06.2 USUÁRIO LOGADO
 
     usuarioAtual = session.user;
 
@@ -235,22 +289,24 @@ async function verificarSessao() {
   }
 }
 
-// CLIENTE / PERFIL
+// 07. PERFIL / IDENTIFICAÇÃO DO CLIENTE
 
 async function carregarCliente() {
-  if (!usuarioAtual) return;
+  if (!usuarioAtual) {
+    return;
+  }
 
   try {
     const { data, error } = await supabaseClient
       .from("profiles")
       .select(
         `
-        id,
-        nome,
-        telefone,
-        tipo,
-        created_at
-      `,
+            id,
+            nome,
+            telefone,
+            tipo,
+            created_at
+          `,
       )
       .eq("id", usuarioAtual.id)
       .maybeSingle();
@@ -259,7 +315,11 @@ async function carregarCliente() {
       throw error;
     }
 
+    // 07.1 GUARDAR PERFIL
+
     perfilAtual = data;
+
+    // 07.2 NOME PARA A SAUDAÇÃO
 
     const nome = data?.nome || usuarioAtual.email?.split("@")[0] || "Cliente";
 
@@ -267,20 +327,23 @@ async function carregarCliente() {
       nomeCliente.textContent = nome;
     }
 
+    // 07.3 CAMPOS DO PERFIL
+
     const campoNome = document.getElementById("perfil-nome");
-
     const campoTelefone = document.getElementById("perfil-telefone");
-
     const campoEmail = document.getElementById("perfil-email");
 
+    // Nome
     if (campoNome) {
       campoNome.value = data?.nome || "";
     }
 
+    // Telefone
     if (campoTelefone) {
       campoTelefone.value = data?.telefone || "";
     }
 
+    // E-mail
     if (campoEmail) {
       campoEmail.value = usuarioAtual.email || "";
     }
@@ -289,187 +352,173 @@ async function carregarCliente() {
   }
 }
 
-// NAVEGAÇÃO
+// 08. INÍCIO / DASHBOARD
 
-function mudarAba(aba) {
-  const conteudos = document.querySelectorAll(".painel-conteudo");
+// 08.1 CARREGAR DASHBOARD
 
-  conteudos.forEach((conteudo) => {
-    conteudo.classList.add("oculto");
-  });
-
-  const conteudoAtivo = document.getElementById(`conteudo-${aba}`);
-
-  if (conteudoAtivo) {
-    conteudoAtivo.classList.remove("oculto");
+async function carregarDashboard() {
+  if (!usuarioAtual) {
+    return;
   }
 
-  document
-    .querySelectorAll(".menu-item[data-aba], .mobile-bottom-item[data-aba]")
-    .forEach((item) => {
-      item.classList.toggle("ativo", item.dataset.aba === aba);
+  try {
+    // Carrega os agendamentos do cliente
+    await carregarAgendamentos();
+    // Atualiza total de favoritos
+    atualizarTotalFavoritos();
+  } catch (erro) {
+    mostrarErroConsole("Erro ao carregar dashboard", erro);
+  }
+}
+// 08.2 ATUALIZAR RESUMO DO DASHBOARD
 
-      item.classList.toggle(
-        "mobile-bottom-item--ativo",
-        item.dataset.aba === aba,
+function atualizarResumoDashboard() {
+  const total = document.getElementById("total-agendamentos");
+  const proximo = document.getElementById("proximo-agendamento");
+
+  const agora = new Date();
+  // 08.3 AGENDAMENTOS VÁLIDOS
+  const validos = agendamentos.filter(
+    (agendamento) => agendamento.status !== "cancelado",
+  );
+  // 08.4 TOTAL DE AGENDAMENTOS
+
+  if (total) {
+    total.textContent = validos.length;
+  }
+
+  // 08.5 PRÓXIMOS AGENDAMENTOS
+
+  const proximos = agendamentos
+    .filter((agendamento) => {
+      const data = new Date(agendamento.data_hora);
+      return (
+        data > agora &&
+        agendamento.status !== "cancelado" &&
+        agendamento.status !== "concluido"
       );
-    });
+    })
+    .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
 
-  const titulo = document.getElementById("titulo-painel");
+  // 08.6 PRIMEIRO PRÓXIMO AGENDAMENTO
 
-  const descricao = document.getElementById("descricao-painel");
-
-  const dadosAbas = {
-    inicio: {
-      titulo: "Início",
-      descricao: "Acompanhe sua conta e seus próximos horários.",
-    },
-
-    agendamento: {
-      titulo: "Agendar horário",
-      descricao: "Escolha a barbearia, serviço, profissional e horário.",
-    },
-
-    agendamentos: {
-      titulo: "Meus agendamentos",
-      descricao: "Consulte seus horários marcados no BarberHub.",
-    },
-
-    notificacoes: {
-      titulo: "Notificações",
-      descricao:
-        "Acompanhe novidades, confirmações e atualizações dos seus agendamentos.",
-    },
-
-    produtos: {
-      titulo: "Ver produtos",
-      descricao: "Veja os produtos disponíveis nas suas barbearias.",
-    },
-
-    avaliacoes: {
-      titulo: "Avaliações",
-      descricao: "Avalie seus atendimentos e acompanhe seus comentários.",
-    },
-
-    favoritos: {
-      titulo: "Favoritos",
-      descricao: "Encontre rapidamente suas barbearias favoritas.",
-    },
-
-    perfil: {
-      titulo: "Meu perfil",
-      descricao: "Consulte e altere seus dados pessoais.",
-    },
-  };
-
-  const dados = dadosAbas[aba];
-
-  if (dados) {
-    if (titulo) {
-      titulo.textContent = dados.titulo;
-    }
-
-    if (descricao) {
-      descricao.textContent = dados.descricao;
+  const proximoAgendamento = proximos[0];
+  if (proximo) {
+    if (proximoAgendamento) {
+      proximo.textContent = formatarDataHora(proximoAgendamento.data_hora);
+    } else {
+      proximo.textContent = "Nenhum";
     }
   }
+  // 08.7 RENDERIZAR CARD
+  renderizarProximoAgendamento(proximoAgendamento);
+}
+// 08.8 RENDERIZAR PRÓXIMO AGENDAMENTO
 
-  fecharMenuMobile();
-
-  // Carregamento da aba
-  if (aba === "inicio") {
-    carregarDashboard();
+function renderizarProximoAgendamento(agendamento) {
+  const card = document.getElementById("card-proximo-agendamento");
+  if (!card) {
+    return;
   }
 
-  if (aba === "agendamento") {
-    carregarDadosAgendamento();
-  }
+  // 08.9 SEM AGENDAMENTO
 
-  if (aba === "agendamentos") {
-    carregarAgendamentos();
+  if (!agendamento) {
+    card.innerHTML = `
+      <div class="lista-vazia">
+        <p>
+          Você não possui próximos agendamentos.
+        </p>
+      </div>
+    `;
+    return;
   }
+  // 08.10 DADOS RELACIONADOS
 
-  if (aba === "notificacoes") {
-    carregarNotificacoesCliente();
-  }
+  const barbearia = agendamento.barbearias;
+  const servico = agendamento.servicos;
+  const profissional = agendamento.profissionais;
 
-  if (aba === "produtos") {
-    carregarProdutosCliente();
-  }
+  // 08.11 CARD
 
-  if (aba === "avaliacoes") {
-    carregarAvaliacoesCliente();
-  }
+  card.innerHTML = `
+    <article class="item-agendamento">
 
-  if (aba === "favoritos") {
-    carregarFavoritos();
-  }
+      <div class="item-agendamento-topo">
 
-  if (aba === "perfil") {
-    carregarCliente();
-  }
+        <div>
+
+          <h3>
+            ${escapeHTML(barbearia?.nome || "Barbearia")}
+          </h3>
+
+          <p>
+            ${escapeHTML(servico?.nome || "Serviço")}
+          </p>
+
+        </div>
+
+        <span
+          class="status status-${escapeHTML(agendamento.status)}"
+        >
+          ${escapeHTML(textoStatus(agendamento.status))}
+        </span>
+
+      </div>
+
+      <div class="item-agendamento-detalhes">
+
+        <p>
+          📅
+          ${formatarData(agendamento.data_hora)}
+        </p>
+
+        <p>
+          🕐
+          ${formatarHora(agendamento.data_hora)}
+        </p>
+
+        <p>
+          💰
+          ${formatarPreco(servico?.preco)}
+        </p>
+
+        ${
+          profissional
+            ? `
+              <p>
+                💇
+                ${escapeHTML(profissional.nome)}
+              </p>
+            `
+            : ""
+        }
+
+      </div>
+
+    </article>
+  `;
 }
 
-// MENU MOBILE
+// 09. AGENDAMENTO
 
-function abrirMenuMobile() {
-  const menu = document.getElementById("menu-mobile");
-
-  const botao = document.getElementById("btn-menu-mobile");
-
-  if (menu) {
-    menu.classList.add("aberto");
-  }
-
-  if (botao) {
-    botao.setAttribute("aria-expanded", "true");
-  }
-}
-
-function fecharMenuMobile() {
-  const menu = document.getElementById("menu-mobile");
-
-  const botao = document.getElementById("btn-menu-mobile");
-
-  if (menu) {
-    menu.classList.remove("aberto");
-  }
-
-  if (botao) {
-    botao.setAttribute("aria-expanded", "false");
-  }
-}
-
-function alternarMenuMobile() {
-  const menu = document.getElementById("menu-mobile");
-
-  if (!menu) return;
-
-  if (menu.classList.contains("aberto")) {
-    fecharMenuMobile();
-  } else {
-    abrirMenuMobile();
-  }
-}
-
-// BARBEARIAS
-
+// 9.1 — CARREGAR BARBEARIAS
 async function carregarBarbearias() {
   try {
     const { data, error } = await supabaseClient
       .from("barbearias")
       .select(
         `
-        id,
-        nome,
-        cidade,
-        endereco,
-        telefone,
-        logo_url,
-        horario_abertura,
-        horario_fechamento,
-        dias_funcionamento
-      `,
+          id,
+          nome,
+          cidade,
+          endereco,
+          telefone,
+          logo_url,
+          horario_abertura,
+          horario_fechamento,
+          dias_funcionamento
+        `,
       )
       .order("nome", {
         ascending: true,
@@ -493,10 +542,14 @@ async function carregarBarbearias() {
   }
 }
 
+// 9.2 — PREENCHER SELECT DE BARBEARIAS
+
 function preencherSelectBarbearias() {
   const select = document.getElementById("agendamento-barbearia");
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
 
   select.innerHTML = '<option value="">Selecione uma barbearia</option>';
 
@@ -513,19 +566,22 @@ function preencherSelectBarbearias() {
   });
 }
 
-// SERVIÇOS
+// 9.3 — CARREGAR SERVIÇOS
 
 async function carregarServicos(barbeariaId) {
   const select = document.getElementById("agendamento-servico");
 
   servicos = [];
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
 
   select.innerHTML = '<option value="">Carregando serviços...</option>';
 
   select.disabled = true;
 
+  // Nenhuma barbearia selecionada
   if (!barbeariaId) {
     select.innerHTML = '<option value="">Selecione um serviço</option>';
 
@@ -539,8 +595,11 @@ async function carregarServicos(barbeariaId) {
       .from("servicos")
       .select(
         `
-        id,nome,preco,duracao
-      `,
+            id,
+            nome,
+            preco,
+            duracao
+          `,
       )
       .eq("barbearia_id", barbeariaId)
       .order("nome", {
@@ -577,19 +636,22 @@ async function carregarServicos(barbeariaId) {
   }
 }
 
-// PROFISSIONAIS
+// 9.4 — CARREGAR PROFISSIONAIS
 
 async function carregarProfissionais(barbeariaId) {
   const select = document.getElementById("agendamento-profissional");
 
   profissionais = [];
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
 
   select.innerHTML = '<option value="">Carregando profissionais...</option>';
 
   select.disabled = true;
 
+  // Nenhuma barbearia selecionada
   if (!barbeariaId) {
     select.innerHTML = '<option value="">Qualquer profissional</option>';
 
@@ -603,12 +665,12 @@ async function carregarProfissionais(barbeariaId) {
       .from("profissionais")
       .select(
         `
-          id,
-          nome,
-          telefone,
-          foto_url,
-          ativo
-        `,
+            id,
+            nome,
+            telefone,
+            foto_url,
+            ativo
+          `,
       )
       .eq("barbearia_id", barbeariaId)
       .eq("ativo", true)
@@ -642,7 +704,7 @@ async function carregarProfissionais(barbeariaId) {
   }
 }
 
-// HORÁRIOS DE FUNCIONAMENTO
+// 9.5 CARREGAR HORÁRIOS DE FUNCIONAMENTO
 
 async function carregarHorariosFuncionamento(barbeariaId) {
   horariosFuncionamento = [];
@@ -656,15 +718,15 @@ async function carregarHorariosFuncionamento(barbeariaId) {
       .from("horarios_funcionamento")
       .select(
         `
-          id,
-          barbearia_id,
-          dia_semana,
-          aberto,
-          hora_abertura,
-          hora_fechamento,
-          intervalo_inicio,
-          intervalo_fim
-        `,
+            id,
+            barbearia_id,
+            dia_semana,
+            aberto,
+            hora_abertura,
+            hora_fechamento,
+            intervalo_inicio,
+            intervalo_fim
+          `,
       )
       .eq("barbearia_id", barbeariaId)
       .order("dia_semana", {
@@ -685,6 +747,8 @@ async function carregarHorariosFuncionamento(barbeariaId) {
   }
 }
 
+// 9.6 OBTER HORÁRIO DE UM DIA
+
 function obterHorarioDoDia(diaSemana) {
   return (
     horariosFuncionamento.find(
@@ -693,7 +757,7 @@ function obterHorarioDoDia(diaSemana) {
   );
 }
 
-// AGENDAMENTO
+// 9.7 PREPARAR DADOS DO AGENDAMENTO
 
 async function carregarDadosAgendamento() {
   const campoData = document.getElementById("agendamento-data");
@@ -715,23 +779,33 @@ async function carregarDadosAgendamento() {
   await carregarHorariosDisponiveis();
 }
 
+// 9.8 HORÁRIOS DISPONÍVEIS
+
 function limparHorarios() {
   const select = document.getElementById("agendamento-horario");
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
 
   select.innerHTML = '<option value="">Selecione um horário</option>';
 }
 
+// 9.9 MOSTRAR CARREGAMENTO
+
 function mostrarCarregandoHorarios() {
   const select = document.getElementById("agendamento-horario");
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
 
   select.innerHTML = '<option value="">Calculando horários...</option>';
 
   select.disabled = true;
 }
+
+// 9.10 BUSCAR AGENDAMENTOS DO DIA
 
 async function buscarAgendamentosDoDia(barbeariaId, profissionalId, data) {
   const inicioDia = criarDataLocal(data, "00:00").toISOString();
@@ -742,25 +816,25 @@ async function buscarAgendamentosDoDia(barbeariaId, profissionalId, data) {
     .from("agendamentos")
     .select(
       `
-      id,
-      data_hora,
-      status,
-      servico_id,
-      profissional_id,
-      servicos (
-        id,
-        nome,
-        duracao
-      )
-    `,
+          id,
+          data_hora,
+          status,
+          servico_id,
+          profissional_id,
+          servicos (
+            id,
+            nome,
+            duracao
+          )
+        `,
     )
     .eq("barbearia_id", barbeariaId)
     .in("status", CONFIG.STATUS_BLOQUEIAM_HORARIO)
     .gte("data_hora", inicioDia)
     .lte("data_hora", fimDia);
 
-  // Se o cliente escolheu um profissional,
-  // verifica apenas os horários daquele profissional.
+  // Se um profissional foi escolhido,
+  // verifica apenas os horários dele.
   if (profissionalId) {
     consulta = consulta.eq("profissional_id", profissionalId);
   }
@@ -776,9 +850,13 @@ async function buscarAgendamentosDoDia(barbeariaId, profissionalId, data) {
   return dados || [];
 }
 
+// 9.11 VERIFICAR SOBREPOSIÇÃO
+
 function horariosSeSobrepoem(inicioA, fimA, inicioB, fimB) {
   return inicioA < fimB && fimA > inicioB;
 }
+
+// 9.12 VERIFICAR INTERVALO
 
 function horarioDentroDoIntervalo(inicio, fim, intervaloInicio, intervaloFim) {
   if (intervaloInicio === null || intervaloFim === null) {
@@ -787,6 +865,8 @@ function horarioDentroDoIntervalo(inicio, fim, intervaloInicio, intervaloFim) {
 
   return horariosSeSobrepoem(inicio, fim, intervaloInicio, intervaloFim);
 }
+
+// 9.13 VERIFICAR SE SLOT ESTÁ OCUPADO
 
 function slotEstaOcupado(inicioSlot, fimSlot, agendamentosExistentes) {
   return agendamentosExistentes.some((agendamento) => {
@@ -806,6 +886,8 @@ function slotEstaOcupado(inicioSlot, fimSlot, agendamentosExistentes) {
     );
   });
 }
+
+// 9.14 CALCULAR HORÁRIOS DISPONÍVEIS
 
 async function carregarHorariosDisponiveis() {
   const selectBarbearia = document.getElementById("agendamento-barbearia");
@@ -869,6 +951,8 @@ async function carregarHorariosDisponiveis() {
 
     const horarioFuncionamento = obterHorarioDoDia(diaSemana);
 
+    // 9.14 BARBEARIA FECHADA
+
     if (!horarioFuncionamento || !horarioFuncionamento.aberto) {
       limparHorarios();
 
@@ -881,6 +965,8 @@ async function carregarHorariosDisponiveis() {
       return;
     }
 
+    // 9.15 ABERTURA E FECHAMENTO
+
     const abertura = horaParaMinutos(horarioFuncionamento.hora_abertura);
 
     const fechamento = horaParaMinutos(horarioFuncionamento.hora_fechamento);
@@ -888,6 +974,8 @@ async function carregarHorariosDisponiveis() {
     if (abertura === null || fechamento === null) {
       throw new Error("Horário de funcionamento inválido.");
     }
+
+    // 9.16 INTERVALO
 
     let intervaloInicio = null;
     let intervaloFim = null;
@@ -901,6 +989,8 @@ async function carregarHorariosDisponiveis() {
       intervaloFim = horaParaMinutos(horarioFuncionamento.intervalo_fim);
     }
 
+    // 9.18 AGENDAMENTOS EXISTENTES
+
     const agendamentosExistentes = await buscarAgendamentosDoDia(
       barbeariaId,
       profissionalId,
@@ -911,6 +1001,8 @@ async function carregarHorariosDisponiveis() {
 
     const opcoes = [];
 
+    // 9.19 GERAR SLOTS
+
     for (
       let inicio = abertura;
       inicio + duracao <= fechamento;
@@ -918,7 +1010,7 @@ async function carregarHorariosDisponiveis() {
     ) {
       const fim = inicio + duracao;
 
-      // Não permite marcar durante o intervalo
+      // Intervalo da barbearia
       if (
         horarioDentroDoIntervalo(inicio, fim, intervaloInicio, intervaloFim)
       ) {
@@ -929,14 +1021,14 @@ async function carregarHorariosDisponiveis() {
 
       const dataHora = criarDataLocal(data, hora);
 
-      // Não permite horários no passado
+      // Horário já passou
       if (dataHora <= agora) {
         continue;
       }
 
       const fimDataHora = new Date(dataHora.getTime() + duracao * 60 * 1000);
 
-      // Não permite conflito
+      // Conflito com outro agendamento
       if (slotEstaOcupado(dataHora, fimDataHora, agendamentosExistentes)) {
         continue;
       }
@@ -946,6 +1038,8 @@ async function carregarHorariosDisponiveis() {
         dataHora,
       });
     }
+
+    // 9.20 NENHUM HORÁRIO
 
     limparHorarios();
 
@@ -959,11 +1053,12 @@ async function carregarHorariosDisponiveis() {
       return;
     }
 
+    // 9.21 MOSTRAR HORÁRIOS
+
     opcoes.forEach((opcao) => {
       const option = document.createElement("option");
 
       option.value = opcao.hora;
-
       option.textContent = opcao.hora;
 
       selectHorario.appendChild(option);
@@ -983,7 +1078,7 @@ async function carregarHorariosDisponiveis() {
   }
 }
 
-// VERIFICAÇÃO FINAL DO HORÁRIO
+// 9.22 — VERIFICAÇÃO FINAL DO HORÁRIO
 
 async function verificarHorarioDisponivel(
   barbeariaId,
@@ -1002,12 +1097,16 @@ async function verificarHorarioDisponivel(
 
     const horario = obterHorarioDoDia(dataHora.getDay());
 
+    // 9.23 BARBEARIA FECHADA
+
     if (!horario || !horario.aberto) {
       return {
         disponivel: false,
         mensagem: "A barbearia está fechada neste dia.",
       };
     }
+
+    // 9.24 HORÁRIOS
 
     const inicioMin = dataHora.getHours() * 60 + dataHora.getMinutes();
 
@@ -1024,6 +1123,10 @@ async function verificarHorarioDisponivel(
       };
     }
 
+    // 9.25 INTERVALO
+
+    // 9.25 INTERVALO
+
     const intervaloInicio = horaParaMinutos(horario.intervalo_inicio);
 
     const intervaloFim = horaParaMinutos(horario.intervalo_fim);
@@ -1036,6 +1139,8 @@ async function verificarHorarioDisponivel(
         mensagem: "Esse horário está dentro do intervalo da barbearia.",
       };
     }
+
+    // 9.26 AGENDAMENTOS EXISTENTES
 
     const existentes = await buscarAgendamentosDoDia(
       barbeariaId,
@@ -1068,7 +1173,9 @@ async function verificarHorarioDisponivel(
   }
 }
 
-// WHATSAPP DO AGENDAMENTO
+// 9.27 — WHATSAPP DO AGENDAMENTO
+
+// 9.28 MONTAR MENSAGEM
 
 function montarMensagemWhatsApp({
   cliente,
@@ -1083,7 +1190,6 @@ function montarMensagemWhatsApp({
   return `Olá! 👋
 
 Tenho um novo agendamento pelo BarberHub.
-
 👤 Cliente: ${cliente}
 💈 Barbearia: ${barbearia.nome}
 ✂️ Serviço: ${servico.nome}
@@ -1092,11 +1198,11 @@ Tenho um novo agendamento pelo BarberHub.
 💇 Profissional: ${nomeProfissional}
 📅 Data: ${formatarData(data)}
 🕐 Horário: ${horario}
-
 Status: Pendente
-
 Agendamento realizado pelo BarberHub.`;
 }
+
+// 9.29 NOTIFICAR PELO WHATSAPP
 
 async function notificarAgendamentoWhatsApp({
   barbearia,
@@ -1123,7 +1229,7 @@ async function notificarAgendamentoWhatsApp({
   }
 
   // Caso contrário,
-  // manda para o dono/barbearia.
+  // manda para a barbearia.
   if (barbearia.telefone) {
     const mensagem = montarMensagemWhatsApp({
       cliente: nomeCliente,
@@ -1140,7 +1246,7 @@ async function notificarAgendamentoWhatsApp({
   return false;
 }
 
-// CONFIRMAR AGENDAMENTO
+// 9.30 CONFIRMAR AGENDAMENTO
 
 async function confirmarAgendamento() {
   if (!usuarioAtual) {
@@ -1154,17 +1260,13 @@ async function confirmarAgendamento() {
   }
 
   const selectBarbearia = document.getElementById("agendamento-barbearia");
-
   const selectServico = document.getElementById("agendamento-servico");
-
   const selectProfissional = document.getElementById(
     "agendamento-profissional",
   );
 
   const campoData = document.getElementById("agendamento-data");
-
   const selectHorario = document.getElementById("agendamento-horario");
-
   const botao = document.getElementById("btn-confirmar-agendamento");
 
   if (
@@ -1178,14 +1280,12 @@ async function confirmarAgendamento() {
   }
 
   const barbeariaId = selectBarbearia.value;
-
   const servicoId = selectServico.value;
-
   const profissionalId = selectProfissional.value || null;
-
   const data = campoData.value;
-
   const horario = selectHorario.value;
+
+  // 9.31 VALIDAÇÕES
 
   if (!barbeariaId) {
     mostrarMensagem("mensagem-agendamento", "Selecione uma barbearia.", "erro");
@@ -1211,14 +1311,14 @@ async function confirmarAgendamento() {
     return;
   }
 
+  // 9.32 LOCALIZAR DADOS
+
   const barbearia = barbearias.find(
     (item) => String(item.id) === String(barbeariaId),
   );
-
   const servico = servicos.find(
     (item) => String(item.id) === String(servicoId),
   );
-
   const profissional = profissionalId
     ? profissionais.find((item) => String(item.id) === String(profissionalId))
     : null;
@@ -1229,7 +1329,6 @@ async function confirmarAgendamento() {
       "Barbearia não encontrada.",
       "erro",
     );
-
     return;
   }
 
@@ -1239,8 +1338,9 @@ async function confirmarAgendamento() {
     return;
   }
 
-  const duracao = Number(servico.duracao) || 30;
+  // 9.33  DATA E DURAÇÃO
 
+  const duracao = Number(servico.duracao) || 30;
   const dataHora = criarDataLocal(data, horario);
 
   if (Number.isNaN(dataHora.getTime())) {
@@ -1253,6 +1353,7 @@ async function confirmarAgendamento() {
     return;
   }
 
+  // Não permite horário passado
   if (dataHora <= new Date()) {
     mostrarMensagem(
       "mensagem-agendamento",
@@ -1264,6 +1365,8 @@ async function confirmarAgendamento() {
   }
 
   try {
+    // 9.34 BLOQUEAR BOTÃO
+
     if (botao) {
       botao.disabled = true;
       botao.textContent = "Agendando...";
@@ -1275,8 +1378,8 @@ async function confirmarAgendamento() {
       "info",
     );
 
-    // Segunda verificação imediatamente antes
-    // de salvar no banco.
+    // 9.35 SEGUNDA VERIFICAÇÃO
+
     const disponibilidade = await verificarHorarioDisponivel(
       barbeariaId,
       profissionalId,
@@ -1286,11 +1389,11 @@ async function confirmarAgendamento() {
 
     if (!disponibilidade.disponivel) {
       mostrarMensagem("mensagem-agendamento", disponibilidade.mensagem, "erro");
-
       await carregarHorariosDisponiveis();
-
       return;
     }
+
+    // 9.36  SALVAR AGENDAMENTO
 
     mostrarMensagem(
       "mensagem-agendamento",
@@ -1304,6 +1407,7 @@ async function confirmarAgendamento() {
       servico_id: servicoId,
       profissional_id: profissionalId,
       data_hora: dataHora.toISOString(),
+
       status: "pendente",
     };
 
@@ -1312,14 +1416,14 @@ async function confirmarAgendamento() {
       .insert(novoAgendamento)
       .select(
         `
-          id,
-          barbearia_id,
-          cliente_id,
-          servico_id,
-          profissional_id,
-          data_hora,
-          status
-        `,
+            id,
+            barbearia_id,
+            cliente_id,
+            servico_id,
+            profissional_id,
+            data_hora,
+            status
+          `,
       )
       .single();
 
@@ -1329,13 +1433,15 @@ async function confirmarAgendamento() {
 
     console.log("Agendamento criado:", agendamentoCriado);
 
+    // 9.37 SUCESSO
+
     mostrarMensagem(
       "mensagem-agendamento",
       "Agendamento realizado com sucesso! 🎉",
       "sucesso",
     );
 
-    // WHATSAPP
+    // 9.38 WHATSAPP
 
     const whatsappAberto = await notificarAgendamentoWhatsApp({
       barbearia,
@@ -1351,14 +1457,18 @@ async function confirmarAgendamento() {
       );
     }
 
-    // Limpa formulário
+    // 9.39 LIMPAR FORMULÁRIO
+
     selectServico.value = "";
     selectProfissional.value = "";
     campoData.value = "";
+
     limparHorarios();
 
-    // Atualiza dados
+    // 9.40 ATUALIZAR DADOS
+
     await carregarAgendamentos();
+
     atualizarResumoDashboard();
   } catch (erro) {
     mostrarErroConsole("Erro ao confirmar agendamento", erro);
@@ -1376,10 +1486,14 @@ async function confirmarAgendamento() {
   }
 }
 
-// MEUS AGENDAMENTOS
+// 10. MEUS AGENDAMENTOS
+
+// 10.1 — CARREGAR AGENDAMENTOS
 
 async function carregarAgendamentos() {
-  if (!usuarioAtual) return [];
+  if (!usuarioAtual) {
+    return [];
+  }
 
   try {
     const { data, error } = await supabaseClient
@@ -1446,7 +1560,7 @@ async function carregarAgendamentos() {
   }
 }
 
-// STATUS
+// 10.2 — STATUS DO AGENDAMENTO
 
 function textoStatus(status) {
   const statusMap = {
@@ -1459,16 +1573,20 @@ function textoStatus(status) {
   return statusMap[status] || status || "Indefinido";
 }
 
-// RENDER AGENDAMENTOS
+// 10.3 — RENDERIZAR AGENDAMENTOS
 
 function renderizarAgendamentos() {
   const lista = document.getElementById("lista-meus-agendamentos");
 
-  if (!lista) return;
+  if (!lista) {
+    return;
+  }
 
   const agora = new Date();
 
   let listaFiltrada = [...agendamentos];
+
+  // FILTRO — PRÓXIMOS
 
   if (filtroAgendamentosAtual === "proximos") {
     listaFiltrada = listaFiltrada.filter((agendamento) => {
@@ -1484,137 +1602,169 @@ function renderizarAgendamentos() {
     listaFiltrada.sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
   }
 
+  // FILTRO — TODOS
+
+  if (filtroAgendamentosAtual === "todos") {
+    listaFiltrada.sort((a, b) => new Date(b.data_hora) - new Date(a.data_hora));
+  }
+
+  // FILTRO — CANCELADOS
+
   if (filtroAgendamentosAtual === "cancelados") {
     listaFiltrada = listaFiltrada.filter(
       (agendamento) => agendamento.status === "cancelado",
     );
+
+    listaFiltrada.sort((a, b) => new Date(b.data_hora) - new Date(a.data_hora));
   }
+
+  // LISTA VAZIA
 
   if (!listaFiltrada.length) {
     lista.innerHTML = `
       <div class="lista-vazia">
-        <p>Nenhum agendamento encontrado.</p>
+        <p>
+          Nenhum agendamento encontrado.
+        </p>
       </div>
     `;
 
     return;
   }
 
+  // RENDERIZAR
+
   lista.innerHTML = listaFiltrada
     .map((agendamento) => {
       const barbearia = agendamento.barbearias;
-
       const servico = agendamento.servicos;
-
       const profissional = agendamento.profissionais;
-
       const data = new Date(agendamento.data_hora);
+
+      // PODE CANCELAR?
 
       const podeCancelar =
         (agendamento.status === "pendente" ||
           agendamento.status === "confirmado") &&
         data > new Date();
 
+      // CARD
+
       return `
-          <article class="item-agendamento">
+            <article class="item-agendamento">
 
-            <div class="item-agendamento-topo">
+              <div
+                class="item-agendamento-topo"
+              >
 
-              <div>
-                <h3>
-                  ${escapeHTML(barbearia?.nome || "Barbearia")}
-                </h3>
+                <div>
 
-                <p>
-                  ${escapeHTML(servico?.nome || "Serviço")}
-                </p>
+                  <h3>
+                    ${escapeHTML(barbearia?.nome || "Barbearia")}
+                  </h3>
+
+                  <p>
+                    ${escapeHTML(servico?.nome || "Serviço")}
+                  </p>
+
+                </div>
+
+                <span
+                  class="status status-${escapeHTML(agendamento.status)}"
+                >
+                  ${escapeHTML(textoStatus(agendamento.status))}
+                </span>
+
               </div>
 
-              <span class="status status-${escapeHTML(agendamento.status)}">
-                ${escapeHTML(textoStatus(agendamento.status))}
-              </span>
+              <div
+                class="item-agendamento-detalhes"
+              >
 
-            </div>
+                <p>
+                  📅
+                  <strong>
+                    ${formatarData(data)}
+                  </strong>
+                </p>
 
-            <div class="item-agendamento-detalhes">
+                <p>
+                  🕐
+                  <strong>
+                    ${formatarHora(data)}
+                  </strong>
+                </p>
 
-              <p>
-                📅
-                <strong>
-                  ${formatarData(data)}
-                </strong>
-              </p>
+                <p>
+                  ⏱️
+                  ${Number(servico?.duracao) || 30}
+                  minutos
+                </p>
 
-              <p>
-                🕐
-                <strong>
-                  ${formatarHora(data)}
-                </strong>
-              </p>
+                <p>
+                  💰
+                  ${formatarPreco(servico?.preco)}
+                </p>
 
-              <p>
-                ⏱️
-                ${Number(servico?.duracao) || 30}
-                minutos
-              </p>
+                ${
+                  profissional
+                    ? `
+                      <p>
+                        💇
+                        ${escapeHTML(profissional.nome)}
+                      </p>
+                    `
+                    : ""
+                }
 
-              <p>
-                💰
-                ${formatarPreco(servico?.preco)}
-              </p>
+                ${
+                  barbearia?.cidade
+                    ? `
+                      <p>
+                        📍
+                        ${escapeHTML(barbearia.cidade)}
+                      </p>
+                    `
+                    : ""
+                }
+
+              </div>
+
 
               ${
-                profissional
+                podeCancelar
                   ? `
-                    <p>
-                      💇
-                      ${escapeHTML(profissional.nome)}
-                    </p>
-                  `
-                  : ""
-              }
-
-              ${
-                barbearia?.cidade
-                  ? `
-                    <p>
-                      📍
-                      ${escapeHTML(barbearia.cidade)}
-                    </p>
-                  `
-                  : ""
-              }
-
-            </div>
-
-            ${
-              podeCancelar
-                ? `
-                  <div class="item-agendamento-acoes">
-
-                    <button
-                      type="button"
-                      class="btn-secundario btn-cancelar-agendamento"
-                      data-id="${escapeHTML(agendamento.id)}"
+                    <div
+                      class="item-agendamento-acoes"
                     >
-                      Cancelar agendamento
-                    </button>
 
-                  </div>
-                `
-                : ""
-            }
+                      <button
+                        type="button"
+                        class="btn-secundario btn-cancelar-agendamento"
+                        data-id="${escapeHTML(agendamento.id)}"
+                      >
+                        Cancelar agendamento
+                      </button>
 
-          </article>
-        `;
+                    </div>
+                  `
+                  : ""
+              }
+
+            </article>
+          `;
     })
     .join("");
 }
 
-// CANCELAR AGENDAMENTO
+// 10.4 — CANCELAR AGENDAMENTO
 
 async function cancelarAgendamento(id) {
-  if (!id) return;
+  if (!id) {
+    return;
+  }
+
+  // LOCALIZAR AGENDAMENTO
 
   const agendamento = agendamentos.find(
     (item) => String(item.id) === String(id),
@@ -1623,6 +1773,8 @@ async function cancelarAgendamento(id) {
   if (!agendamento) {
     return;
   }
+
+  // VALIDAR STATUS
 
   if (!["pendente", "confirmado"].includes(agendamento.status)) {
     mostrarMensagem(
@@ -1634,6 +1786,8 @@ async function cancelarAgendamento(id) {
     return;
   }
 
+  // VALIDAR DATA
+
   const data = new Date(agendamento.data_hora);
 
   if (data <= new Date()) {
@@ -1642,13 +1796,25 @@ async function cancelarAgendamento(id) {
     return;
   }
 
+  // CONFIRMAR CANCELAMENTO
+
   const confirmou = confirm(
     "Tem certeza que deseja cancelar este agendamento?",
   );
 
-  if (!confirmou) return;
+  if (!confirmou) {
+    return;
+  }
 
   try {
+    mostrarMensagem(
+      "mensagem-agendamento",
+      "Cancelando agendamento...",
+      "info",
+    );
+
+    // ATUALIZAR STATUS
+
     const { error } = await supabaseClient
       .from("agendamentos")
       .update({
@@ -1661,377 +1827,1944 @@ async function cancelarAgendamento(id) {
       throw error;
     }
 
+    // RECARREGAR
+
     await carregarAgendamentos();
 
-    alert("Agendamento cancelado com sucesso.");
+    // SUCESSO
+
+    mostrarMensagem(
+      "mensagem-agendamento",
+      "Agendamento cancelado com sucesso! ✅",
+      "sucesso",
+    );
   } catch (erro) {
     mostrarErroConsole("Erro ao cancelar agendamento", erro);
 
-    alert("Não foi possível cancelar o agendamento.");
+    mostrarMensagem(
+      "mensagem-agendamento",
+      "Não foi possível cancelar o agendamento.",
+      "erro",
+    );
   }
 }
 
-// DASHBOARD
+// 11. NOTIFICAÇÕES
 
-async function carregarDashboard() {
-  if (!usuarioAtual) return;
+// Estado local das notificações
+let notificacoesCliente = [];
 
-  await carregarAgendamentos();
+// 11.1 — CHAVE DAS NOTIFICAÇÕES
 
-  atualizarTotalFavoritos();
-}
-
-function atualizarResumoDashboard() {
-  const total = document.getElementById("total-agendamentos");
-
-  const proximo = document.getElementById("proximo-agendamento");
-
-  const agora = new Date();
-
-  const validos = agendamentos.filter(
-    (agendamento) => agendamento.status !== "cancelado",
-  );
-
-  if (total) {
-    total.textContent = validos.length;
-  }
-
-  const proximos = agendamentos
-    .filter((agendamento) => {
-      const data = new Date(agendamento.data_hora);
-
-      return (
-        data > agora &&
-        agendamento.status !== "cancelado" &&
-        agendamento.status !== "concluido"
-      );
-    })
-    .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
-
-  const proximoAgendamento = proximos[0];
-
-  if (proximo) {
-    if (proximoAgendamento) {
-      proximo.textContent = formatarDataHora(proximoAgendamento.data_hora);
-    } else {
-      proximo.textContent = "Nenhum";
-    }
-  }
-
-  renderizarProximoAgendamento(proximoAgendamento);
-}
-
-function renderizarProximoAgendamento(agendamento) {
-  const card = document.getElementById("card-proximo-agendamento");
-
-  if (!card) return;
-
-  if (!agendamento) {
-    card.innerHTML = `
-      <div class="lista-vazia">
-        <p>
-          Você não possui próximos agendamentos.
-        </p>
-      </div>
-    `;
-
-    return;
-  }
-
-  const barbearia = agendamento.barbearias;
-
-  const servico = agendamento.servicos;
-
-  const profissional = agendamento.profissionais;
-
-  card.innerHTML = `
-    <article class="item-agendamento">
-
-      <div class="item-agendamento-topo">
-
-        <div>
-          <h3>
-            ${escapeHTML(barbearia?.nome || "Barbearia")}
-          </h3>
-
-          <p>
-            ${escapeHTML(servico?.nome || "Serviço")}
-          </p>
-        </div>
-
-        <span class="status status-${escapeHTML(agendamento.status)}">
-          ${escapeHTML(textoStatus(agendamento.status))}
-        </span>
-
-      </div>
-
-      <div class="item-agendamento-detalhes">
-
-        <p>
-          📅
-          ${formatarData(agendamento.data_hora)}
-        </p>
-
-        <p>
-          🕐
-          ${formatarHora(agendamento.data_hora)}
-        </p>
-
-        <p>
-          💰
-          ${formatarPreco(servico?.preco)}
-        </p>
-
-        ${
-          profissional
-            ? `
-              <p>
-                💇
-                ${escapeHTML(profissional.nome)}
-              </p>
-            `
-            : ""
-        }
-
-      </div>
-
-    </article>
-  `;
-}
-
-// FAVORITOS
-
-function obterChaveFavoritos() {
+function obterChaveNotificacoes() {
   if (!usuarioAtual) {
     return null;
   }
 
-  return `barberhub_favoritos_${usuarioAtual.id}`;
+  return `barberhub_notificacoes_${usuarioAtual.id}`;
 }
 
-function obterFavoritosLocal() {
-  const chave = obterChaveFavoritos();
+// 11.2 — OBTER NOTIFICAÇÕES LIDAS
 
-  if (!chave) return [];
+function obterNotificacoesLidas() {
+  const chave = obterChaveNotificacoes();
+
+  if (!chave) {
+    return [];
+  }
 
   try {
-    const favoritos = localStorage.getItem(chave);
+    const dados = localStorage.getItem(chave);
 
-    if (!favoritos) {
+    if (!dados) {
       return [];
     }
 
-    const lista = JSON.parse(favoritos);
+    const lista = JSON.parse(dados);
 
     return Array.isArray(lista) ? lista : [];
   } catch (erro) {
-    mostrarErroConsole("Erro ao carregar favoritos", erro);
+    mostrarErroConsole("Erro ao carregar notificações lidas", erro);
 
     return [];
   }
 }
 
-function salvarFavoritosLocal(favoritos) {
-  const chave = obterChaveFavoritos();
+// 11.3 — SALVAR NOTIFICAÇÕES LIDAS
 
-  if (!chave) return;
+function salvarNotificacoesLidas(notificacoesLidas) {
+  const chave = obterChaveNotificacoes();
+
+  if (!chave) {
+    return;
+  }
 
   try {
-    localStorage.setItem(chave, JSON.stringify(favoritos));
+    localStorage.setItem(chave, JSON.stringify(notificacoesLidas));
   } catch (erro) {
-    mostrarErroConsole("Erro ao salvar favoritos", erro);
+    mostrarErroConsole("Erro ao salvar notificações lidas", erro);
   }
 }
 
-function ehFavorito(barbeariaId) {
-  const favoritos = obterFavoritosLocal();
+// 11.4 — VERIFICAR SE ESTÁ LIDA
 
-  return favoritos.some((id) => String(id) === String(barbeariaId));
+function notificacaoEstaLida(notificacaoId) {
+  const lidas = obterNotificacoesLidas();
+
+  return lidas.includes(notificacaoId);
 }
 
-function alternarFavorito(barbeariaId) {
-  let favoritos = obterFavoritosLocal();
+// 11.5 — MARCAR COMO LIDA
 
-  const existe = favoritos.some((id) => String(id) === String(barbeariaId));
-
-  if (existe) {
-    favoritos = favoritos.filter((id) => String(id) !== String(barbeariaId));
-  } else {
-    favoritos.push(barbeariaId);
+function marcarNotificacaoComoLida(notificacaoId) {
+  if (!notificacaoId) {
+    return;
   }
 
-  salvarFavoritosLocal(favoritos);
+  let lidas = obterNotificacoesLidas();
 
-  atualizarTotalFavoritos();
-
-  renderizarBarbearias(barbearias);
-}
-
-function atualizarTotalFavoritos() {
-  const elemento = document.getElementById("total-favoritos");
-
-  if (!elemento) return;
-
-  elemento.textContent = obterFavoritosLocal().length;
-}
-
-async function carregarFavoritos() {
-  if (!barbearias.length) {
-    await carregarBarbearias();
+  if (!lidas.includes(notificacaoId)) {
+    lidas.push(notificacaoId);
   }
 
-  renderizarBarbearias(barbearias);
+  salvarNotificacoesLidas(lidas);
 
-  atualizarTotalFavoritos();
+  renderizarNotificacoesCliente();
 }
 
-// RENDER BARBEARIAS
+// 11.6 — MARCAR TODAS COMO LIDAS
 
-function renderizarBarbearias(listaBarbearias, elementoLista = null) {
-  const lista = elementoLista || document.getElementById("lista-favoritos");
+function marcarTodasNotificacoesComoLidas() {
+  const ids = notificacoesCliente.map((notificacao) => notificacao.id);
 
-  if (!lista) return;
+  salvarNotificacoesLidas(ids);
 
-  const favoritos = obterFavoritosLocal();
+  renderizarNotificacoesCliente();
+}
 
-  const favoritas = listaBarbearias.filter((barbearia) =>
-    favoritos.some((id) => String(id) === String(barbearia.id)),
-  );
+// 11.7 — CARREGAR NOTIFICAÇÕES
 
-  if (!favoritas.length) {
+async function carregarNotificacoesCliente() {
+  if (!usuarioAtual) {
+    return [];
+  }
+
+  try {
+    // Atualiza os agendamentos antes
+    // de montar as notificações.
+    await carregarAgendamentos();
+
+    const notificacoes = [];
+
+    agendamentos.forEach((agendamento) => {
+      const barbearia = agendamento.barbearias;
+
+      const servico = agendamento.servicos;
+
+      const profissional = agendamento.profissionais;
+
+      const data = new Date(agendamento.data_hora);
+
+      // SEGURANÇA DA DATA
+
+      if (Number.isNaN(data.getTime())) {
+        return;
+      }
+
+      const nomeBarbearia = barbearia?.nome || "Barbearia";
+
+      const nomeServico = servico?.nome || "Serviço";
+
+      const dataFormatada = formatarData(data);
+
+      const horaFormatada = formatarHora(data);
+
+      // PENDENTE
+
+      if (agendamento.status === "pendente") {
+        notificacoes.push({
+          id: `agendamento-${agendamento.id}-pendente`,
+
+          tipo: "pendente",
+
+          icone: "📅",
+
+          titulo: "Agendamento realizado",
+
+          mensagem: `Seu agendamento de ${nomeServico} na ${nomeBarbearia} está aguardando confirmação.`,
+
+          detalhes: `${dataFormatada} às ${horaFormatada}`,
+
+          timestamp: agendamento.created_at || agendamento.data_hora,
+
+          agendamentoId: agendamento.id,
+        });
+      }
+
+      // CONFIRMADO
+
+      if (agendamento.status === "confirmado") {
+        notificacoes.push({
+          id: `agendamento-${agendamento.id}-confirmado`,
+
+          tipo: "confirmado",
+
+          icone: "✅",
+
+          titulo: "Agendamento confirmado",
+
+          mensagem: `Seu horário na ${nomeBarbearia} foi confirmado.`,
+
+          detalhes: `${nomeServico} · ${dataFormatada} às ${horaFormatada}`,
+
+          timestamp: agendamento.data_hora,
+
+          agendamentoId: agendamento.id,
+        });
+      }
+
+      // CANCELADO
+
+      if (agendamento.status === "cancelado") {
+        notificacoes.push({
+          id: `agendamento-${agendamento.id}-cancelado`,
+
+          tipo: "cancelado",
+
+          icone: "❌",
+
+          titulo: "Agendamento cancelado",
+
+          mensagem: `Seu agendamento na ${nomeBarbearia} foi cancelado.`,
+
+          detalhes: `${nomeServico} · ${dataFormatada} às ${horaFormatada}`,
+
+          timestamp: agendamento.data_hora,
+
+          agendamentoId: agendamento.id,
+        });
+      }
+
+      // CONCLUÍDO
+
+      if (agendamento.status === "concluido") {
+        notificacoes.push({
+          id: `agendamento-${agendamento.id}-concluido`,
+
+          tipo: "concluido",
+
+          icone: "🎉",
+
+          titulo: "Atendimento concluído",
+
+          mensagem: `Seu atendimento na ${nomeBarbearia} foi concluído.`,
+
+          detalhes: `${nomeServico} · ${dataFormatada} às ${horaFormatada}`,
+
+          timestamp: agendamento.data_hora,
+
+          agendamentoId: agendamento.id,
+        });
+      }
+
+      // PRÓXIMO AGENDAMENTO
+
+      if (
+        data > new Date() &&
+        (agendamento.status === "pendente" ||
+          agendamento.status === "confirmado")
+      ) {
+        notificacoes.push({
+          id: `proximo-${agendamento.id}`,
+
+          tipo: "proximo",
+
+          icone: "⏰",
+
+          titulo: "Você tem um horário marcado",
+
+          mensagem: `Seu próximo atendimento será na ${nomeBarbearia}.`,
+
+          detalhes: `${nomeServico} · ${dataFormatada} às ${horaFormatada}`,
+
+          timestamp: agendamento.data_hora,
+
+          agendamentoId: agendamento.id,
+        });
+      }
+    });
+
+    // REMOVER DUPLICADAS
+
+    const mapa = new Map();
+
+    notificacoes.forEach((notificacao) => {
+      mapa.set(notificacao.id, notificacao);
+    });
+
+    notificacoesCliente = Array.from(mapa.values());
+
+    // ORDENAR
+
+    notificacoesCliente.sort(
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
+    );
+
+    // RENDERIZAR
+
+    renderizarNotificacoesCliente();
+
+    return notificacoesCliente;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao carregar notificações", erro);
+
+    notificacoesCliente = [];
+
+    renderizarNotificacoesCliente();
+
+    return [];
+  }
+}
+
+// 11.8 — TEXTO DO TIPO DE NOTIFICAÇÃO
+
+function classeNotificacao(tipo) {
+  const tipos = {
+    pendente: "notificacao-pendente",
+
+    confirmado: "notificacao-confirmado",
+
+    cancelado: "notificacao-cancelado",
+
+    concluido: "notificacao-concluido",
+
+    proximo: "notificacao-proximo",
+  };
+
+  return tipos[tipo] || "notificacao-info";
+}
+
+// 11.9 — RENDERIZAR NOTIFICAÇÕES
+
+function renderizarNotificacoesCliente() {
+  const lista = document.getElementById("lista-notificacoes-cliente");
+
+  if (!lista) {
+    return;
+  }
+
+  // NENHUMA NOTIFICAÇÃO
+
+  if (!notificacoesCliente.length) {
     lista.innerHTML = `
       <div class="lista-vazia">
-        <p>
-          Você ainda não possui barbearias favoritas.
-        </p>
 
         <p>
-          Use a busca para encontrar uma barbearia.
+          🔔 Você não possui notificações.
         </p>
+
+        <small>
+          Quando houver novidades ou atualizações dos seus
+          agendamentos, elas aparecerão aqui.
+        </small>
+
       </div>
     `;
 
     return;
   }
+
+  // CONTADOR DE NÃO LIDAS
+
+  const totalNaoLidas = notificacoesCliente.filter(
+    (notificacao) => !notificacaoEstaLida(notificacao.id),
+  ).length;
+
+  // BOTÃO MARCAR TODAS
+
+  const botaoTodas =
+    totalNaoLidas > 0
+      ? `
+        <div
+          class="notificacoes-acoes"
+        >
+
+          <button
+            type="button"
+            class="btn-secundario"
+            id="btn-marcar-todas-notificacoes"
+          >
+            ✅ Marcar todas como lidas
+          </button>
+
+        </div>
+      `
+      : "";
+
+  // LISTA
+
+  const itens = notificacoesCliente
+    .map((notificacao) => {
+      const lida = notificacaoEstaLida(notificacao.id);
+
+      return `
+            <article
+              class="item-notificacao ${
+                lida ? "item-notificacao--lida" : "item-notificacao--nao-lida"
+              } ${classeNotificacao(notificacao.tipo)}"
+            >
+
+              <div
+                class="item-notificacao-icone"
+              >
+                ${notificacao.icone}
+              </div>
+
+              <div
+                class="item-notificacao-conteudo"
+              >
+
+                <div
+                  class="item-notificacao-topo"
+                >
+
+                  <div>
+
+                    <h3>
+                      ${escapeHTML(notificacao.titulo)}
+                    </h3>
+
+                    ${
+                      !lida
+                        ? `
+                          <span
+                            class="notificacao-badge"
+                          >
+                            Nova
+                          </span>
+                        `
+                        : ""
+                    }
+
+                  </div>
+
+                </div>
+
+                <p>
+                  ${escapeHTML(notificacao.mensagem)}
+                </p>
+
+                <small>
+                  ${escapeHTML(notificacao.detalhes)}
+                </small>
+
+              </div>
+
+              ${
+                !lida
+                  ? `
+                    <div
+                      class="item-notificacao-acoes"
+                    >
+
+                      <button
+                        type="button"
+                        class="btn-secundario btn-marcar-notificacao"
+                        data-id="${escapeHTML(notificacao.id)}"
+                      >
+                        Marcar como lida
+                      </button>
+
+                    </div>
+                  `
+                  : ""
+              }
+
+            </article>
+          `;
+    })
+    .join("");
+
+  lista.innerHTML = `
+    ${botaoTodas}
+
+    <div
+      class="lista-notificacoes"
+    >
+      ${itens}
+    </div>
+  `;
+
+  // MARCAR TODAS
+
+  const btnTodas = document.getElementById("btn-marcar-todas-notificacoes");
+
+  if (btnTodas) {
+    btnTodas.addEventListener("click", marcarTodasNotificacoesComoLidas);
+  }
+}
+
+// 11.10 — EVENTO DE MARCAR COMO LIDA
+
+function configurarEventosNotificacoes() {
+  const lista = document.getElementById("lista-notificacoes-cliente");
+
+  if (!lista) {
+    return;
+  }
+
+  // Evita registrar o mesmo evento várias vezes
+  if (lista.dataset.notificacoesConfiguradas === "true") {
+    return;
+  }
+
+  lista.dataset.notificacoesConfiguradas = "true";
+
+  lista.addEventListener("click", (evento) => {
+    const botao = evento.target.closest(".btn-marcar-notificacao");
+
+    if (!botao) {
+      return;
+    }
+
+    const notificacaoId = botao.dataset.id;
+
+    marcarNotificacaoComoLida(notificacaoId);
+  });
+}
+
+// ============================================================
+// 12. PRODUTOS
+// ============================================================
+
+// Estado dos produtos exibidos ao cliente
+let produtosCliente = [];
+
+// ============================================================
+// 12.1 — CARREGAR PRODUTOS
+// ============================================================
+
+async function carregarProdutosCliente() {
+  const lista = document.getElementById("lista-produtos-cliente");
+
+  if (!lista) {
+    return [];
+  }
+
+  lista.innerHTML = `
+    <div class="lista-vazia">
+      <p>🛍️ Carregando produtos...</p>
+    </div>
+  `;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("produtos")
+      .select(
+        `
+          id,
+          barbearia_id,
+          nome,
+          preco,
+          estoque,
+          foto_url,
+
+          barbearias (
+            id,
+            nome,
+            cidade,
+            telefone,
+            logo_url
+          )
+        `,
+      )
+      .order("nome", {
+        ascending: true,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    produtosCliente = data || [];
+
+    renderizarProdutosCliente();
+
+    return produtosCliente;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao carregar produtos do cliente", erro);
+
+    produtosCliente = [];
+
+    lista.innerHTML = `
+      <div class="lista-vazia">
+        <p>
+          Não foi possível carregar os produtos.
+        </p>
+      </div>
+    `;
+
+    return [];
+  }
+}
+
+// ============================================================
+// 12.2 — AGRUPAR PRODUTOS POR BARBEARIA
+// ============================================================
+
+function agruparProdutosPorBarbearia(produtos) {
+  const grupos = new Map();
+
+  produtos.forEach((produto) => {
+    const barbearia = produto.barbearias;
+
+    if (!barbearia?.id) {
+      return;
+    }
+
+    if (!grupos.has(barbearia.id)) {
+      grupos.set(barbearia.id, {
+        barbearia,
+        produtos: [],
+      });
+    }
+
+    grupos.get(barbearia.id).produtos.push(produto);
+  });
+
+  return Array.from(grupos.values());
+}
+
+// ============================================================
+// 12.3 — CRIAR PEDIDO DO PRODUTO
+// ============================================================
+
+async function comprarProdutoCliente(produtoId) {
+  // ----------------------------------------------------------
+  // VERIFICAR USUÁRIO
+  // ----------------------------------------------------------
+
+  if (!usuarioAtual) {
+    alert("Sua sessão expirou. Faça login novamente.");
+
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // VALIDAR PRODUTO
+  // ----------------------------------------------------------
+
+  if (!produtoId) {
+    return;
+  }
+
+  const produto = produtosCliente.find(
+    (item) => String(item.id) === String(produtoId),
+  );
+
+  if (!produto) {
+    alert("Produto não encontrado.");
+
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // VERIFICAR ESTOQUE
+  // ----------------------------------------------------------
+
+  const estoque = Number(produto.estoque) || 0;
+
+  if (estoque <= 0) {
+    alert("Este produto está esgotado.");
+
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // VERIFICAR BARBEARIA
+  // ----------------------------------------------------------
+
+  const barbearia = produto.barbearias;
+
+  if (!barbearia) {
+    alert("Barbearia do produto não encontrada.");
+
+    return;
+  }
+
+  if (!produto.barbearia_id) {
+    alert("O produto não está vinculado a uma barbearia.");
+
+    return;
+  }
+
+  if (!barbearia.telefone) {
+    alert("Esta barbearia não possui telefone cadastrado.");
+
+    return;
+  }
+
+  try {
+    // --------------------------------------------------------
+    // CRIAR PEDIDO
+    // --------------------------------------------------------
+
+    const { data: pedido, error } = await supabaseClient
+      .from("pedidos")
+      .insert({
+        cliente_id: usuarioAtual.id,
+
+        barbearia_id: produto.barbearia_id,
+
+        produto_id: produto.id,
+
+        quantidade: 1,
+
+        preco_unitario: produto.preco,
+
+        status: "pendente",
+      })
+      .select(
+        `
+          id,
+          cliente_id,
+          barbearia_id,
+          produto_id,
+          quantidade,
+          preco_unitario,
+          status,
+          created_at
+        `,
+      )
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    console.log("[BarberHub] Pedido criado:", pedido);
+
+    // --------------------------------------------------------
+    // NOME DO CLIENTE
+    // --------------------------------------------------------
+
+    const nomeClienteAtual =
+      perfilAtual?.nome || usuarioAtual.email || "Cliente";
+
+    // --------------------------------------------------------
+    // MONTAR MENSAGEM
+    // --------------------------------------------------------
+
+    const mensagem = `Olá! 👋
+
+Tenho um novo pedido pelo BarberHub.
+
+🆔 Pedido: ${pedido.id}
+
+👤 Cliente: ${nomeClienteAtual}
+
+💈 Barbearia: ${barbearia.nome}
+
+🛍️ Produto: ${produto.nome}
+
+📦 Quantidade: 1
+
+💰 Valor unitário: ${formatarPreco(produto.preco)}
+
+💰 Total: ${formatarPreco(Number(produto.preco) || 0)}
+
+📌 Status: Pendente
+
+Gostaria de confirmar a compra e saber como realizar o pagamento.
+
+Pedido iniciado pelo BarberHub.`;
+
+    // --------------------------------------------------------
+    // ABRIR WHATSAPP
+    // --------------------------------------------------------
+
+    const abriu = abrirWhatsApp(barbearia.telefone, mensagem);
+
+    if (!abriu) {
+      // O pedido foi criado,
+      // mesmo que o WhatsApp não abra.
+      mostrarMensagem(
+        "mensagem-produto",
+        "Pedido criado, mas não foi possível abrir o WhatsApp.",
+        "erro",
+      );
+
+      return;
+    }
+
+    // --------------------------------------------------------
+    // MENSAGEM DE SUCESSO
+    // --------------------------------------------------------
+
+    mostrarMensagem(
+      "mensagem-produto",
+      "Pedido criado com sucesso! A barbearia receberá sua solicitação. ✅",
+      "sucesso",
+    );
+  } catch (erro) {
+    mostrarErroConsole("Erro ao criar pedido", erro);
+
+    // --------------------------------------------------------
+    // ERRO DE RLS
+    // --------------------------------------------------------
+
+    if (erro?.code === "42501") {
+      mostrarMensagem(
+        "mensagem-produto",
+        "Você não tem permissão para criar este pedido.",
+        "erro",
+      );
+
+      return;
+    }
+
+    mostrarMensagem(
+      "mensagem-produto",
+      "Não foi possível registrar seu pedido.",
+      "erro",
+    );
+  }
+}
+
+// ============================================================
+// 12.4 — RENDERIZAR PRODUTOS
+// ============================================================
+
+function renderizarProdutosCliente() {
+  const lista = document.getElementById("lista-produtos-cliente");
+
+  if (!lista) {
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // SOMENTE PRODUTOS DISPONÍVEIS
+  // ----------------------------------------------------------
+
+  const produtosDisponiveis = produtosCliente.filter(
+    (produto) => Number(produto.estoque) > 0,
+  );
+
+  // ----------------------------------------------------------
+  // NENHUM PRODUTO
+  // ----------------------------------------------------------
+
+  if (!produtosDisponiveis.length) {
+    lista.innerHTML = `
+      <div class="lista-vazia">
+
+        <p>
+          🛍️ Nenhum produto disponível no momento.
+        </p>
+
+        <small>
+          As barbearias ainda não possuem produtos disponíveis
+          para venda.
+        </small>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // AGRUPAR
+  // ----------------------------------------------------------
+
+  const grupos = agruparProdutosPorBarbearia(produtosDisponiveis);
+
+  // ----------------------------------------------------------
+  // RENDERIZAR
+  // ----------------------------------------------------------
+
+  lista.innerHTML = grupos
+    .map((grupo) => {
+      const barbearia = grupo.barbearia;
+
+      const logo = barbearia.logo_url || "../assets/barber.png";
+
+      const produtos = grupo.produtos
+        .map((produto) => {
+          const foto = produto.foto_url || "../assets/barber.png";
+
+          const estoque = Number(produto.estoque) || 0;
+
+          return `
+                    <article
+                      class="item-produto-cliente"
+                    >
+
+                      <div
+                        class="item-produto-cliente-imagem"
+                      >
+
+                        <img
+                          src="${escapeHTML(foto)}"
+                          alt="${escapeHTML(produto.nome || "Produto")}"
+                          onerror="this.src='../assets/barber.png'"
+                        />
+
+                      </div>
+
+
+                      <div
+                        class="item-produto-cliente-conteudo"
+                      >
+
+                        <h4>
+                          ${escapeHTML(produto.nome || "Produto")}
+                        </h4>
+
+                        <strong>
+                          ${formatarPreco(produto.preco)}
+                        </strong>
+
+                        <small>
+                          ✅ Disponível
+                        </small>
+
+                        <span
+                          class="produto-estoque"
+                        >
+                          ${estoque}
+                          ${
+                            estoque === 1
+                              ? " unidade disponível"
+                              : " unidades disponíveis"
+                          }
+                        </span>
+
+                        <button
+                          type="button"
+                          class="btn-principal btn-comprar-produto"
+                          onclick="comprarProdutoCliente('${escapeHTML(
+                            produto.id,
+                          )}')"
+                        >
+                          🛒 Comprar
+                        </button>
+
+                      </div>
+
+                    </article>
+                  `;
+        })
+        .join("");
+
+      return `
+            <section
+              class="produtos-barbearia"
+            >
+
+              <div
+                class="produtos-barbearia-cabecalho"
+              >
+
+                <div
+                  class="produtos-barbearia-logo"
+                >
+
+                  <img
+                    src="${escapeHTML(logo)}"
+                    alt="Logo ${escapeHTML(barbearia.nome || "Barbearia")}"
+                    onerror="this.src='../assets/barber.png'"
+                  />
+
+                </div>
+
+
+                <div
+                  class="produtos-barbearia-info"
+                >
+
+                  <h3>
+                    ${escapeHTML(barbearia.nome || "Barbearia")}
+                  </h3>
+
+                  ${
+                    barbearia.cidade
+                      ? `
+                        <p>
+                          📍
+                          ${escapeHTML(barbearia.cidade)}
+                        </p>
+                      `
+                      : ""
+                  }
+
+                </div>
+
+              </div>
+
+
+              <div
+                class="produtos-barbearia-lista"
+              >
+
+                ${produtos}
+
+              </div>
+
+            </section>
+          `;
+    })
+    .join("");
+}
+
+// ============================================================
+// 12.5 — ATUALIZAR PRODUTOS
+// ============================================================
+
+async function atualizarProdutosCliente() {
+  await carregarProdutosCliente();
+}
+
+// 13. AVALIAÇÕES
+
+// Estado das avaliações do cliente
+let avaliacoesCliente = [];
+
+// 13.1 — CARREGAR AVALIAÇÕES DO CLIENTE
+
+async function carregarAvaliacoesCliente() {
+  if (!usuarioAtual) {
+    return [];
+  }
+
+  try {
+    // CARREGAR AGENDAMENTOS
+
+    await carregarAgendamentos();
+
+    // BUSCAR AVALIAÇÕES
+
+    const { data, error } = await supabaseClient
+      .from("avaliacoes")
+      .select(
+        `
+          id,
+          cliente_id,
+          barbearia_id,
+          agendamento_id,
+          nota,
+          comentario,
+          created_at,
+
+          barbearias (
+            id,
+            nome,
+            cidade,
+            logo_url
+          )
+        `,
+      )
+      .eq("cliente_id", usuarioAtual.id)
+      .order("created_at", {
+        ascending: false,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    avaliacoesCliente = data || [];
+
+    // RENDERIZAR
+
+    renderizarAvaliacoesPendentes();
+
+    renderizarMeusComentarios();
+
+    return avaliacoesCliente;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao carregar avaliações do cliente", erro);
+
+    avaliacoesCliente = [];
+
+    renderizarAvaliacoesPendentes();
+
+    renderizarMeusComentarios();
+
+    return [];
+  }
+}
+
+// 13.2 — VERIFICAR SE AGENDAMENTO JÁ FOI AVALIADO
+
+function agendamentoFoiAvaliado(agendamentoId) {
+  return avaliacoesCliente.some(
+    (avaliacao) => String(avaliacao.agendamento_id) === String(agendamentoId),
+  );
+}
+
+// 13.3 — OBTER AGENDAMENTOS PENDENTES DE AVALIAÇÃO
+
+function obterAgendamentosPendentesAvaliacao() {
+  return agendamentos.filter(
+    (agendamento) =>
+      agendamento.status === "concluido" &&
+      !agendamentoFoiAvaliado(agendamento.id),
+  );
+}
+
+// 13.4 — RENDERIZAR AVALIAÇÕES PENDENTES
+
+function renderizarAvaliacoesPendentes() {
+  const lista = document.getElementById("lista-avaliacoes-pendentes");
+
+  if (!lista) {
+    return;
+  }
+
+  const pendentes = obterAgendamentosPendentesAvaliacao();
+
+  // NENHUMA PENDENTE
+
+  if (!pendentes.length) {
+    lista.innerHTML = `
+      <div class="lista-vazia">
+
+        <p>
+          ⭐ Você não possui atendimentos pendentes de avaliação.
+        </p>
+
+        <small>
+          Os atendimentos concluídos aparecerão aqui até
+          serem avaliados.
+        </small>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  // RENDERIZAR
+
+  lista.innerHTML = pendentes
+    .map((agendamento) => {
+      const barbearia = agendamento.barbearias;
+
+      const servico = agendamento.servicos;
+
+      const profissional = agendamento.profissionais;
+
+      return `
+            <article
+              class="item-avaliacao"
+            >
+
+              <div
+                class="item-avaliacao-topo"
+              >
+
+                <div>
+
+                  <h3>
+                    ${escapeHTML(barbearia?.nome || "Barbearia")}
+                  </h3>
+
+                  <p>
+                    ${escapeHTML(servico?.nome || "Serviço")}
+                  </p>
+
+                </div>
+
+                ${
+                  profissional
+                    ? `
+                      <span>
+                        💇
+                        ${escapeHTML(profissional.nome)}
+                      </span>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <div
+                class="item-avaliacao-detalhes"
+              >
+
+                <p>
+                  📅
+                  ${formatarData(agendamento.data_hora)}
+                </p>
+
+                <p>
+                  🕐
+                  ${formatarHora(agendamento.data_hora)}
+                </p>
+
+              </div>
+
+              <div
+                class="avaliacao-formulario"
+              >
+
+                <div class="form-campo">
+
+                  <label
+                    for="nota-${escapeHTML(agendamento.id)}"
+                  >
+                    Sua nota
+                  </label>
+
+                  <select
+                    id="nota-${escapeHTML(agendamento.id)}"
+                    class="campo-nota-avaliacao"
+                  >
+
+                    <option value="">
+                      Selecione uma nota
+                    </option>
+
+                    <option value="5">
+                      ⭐⭐⭐⭐⭐ — Excelente
+                    </option>
+
+                    <option value="4">
+                      ⭐⭐⭐⭐ — Muito bom
+                    </option>
+
+                    <option value="3">
+                      ⭐⭐⭐ — Bom
+                    </option>
+
+                    <option value="2">
+                      ⭐⭐ — Regular
+                    </option>
+
+                    <option value="1">
+                      ⭐ — Ruim
+                    </option>
+
+                  </select>
+
+                </div>
+
+                <div class="form-campo">
+
+                  <label
+                    for="comentario-${escapeHTML(agendamento.id)}"
+                  >
+                    Comentário
+                  </label>
+
+                  <textarea
+                    id="comentario-${escapeHTML(agendamento.id)}"
+                    placeholder="Conte como foi sua experiência..."
+                    maxlength="500"
+                  ></textarea>
+
+                </div>
+
+                <div
+                  class="form-item-botoes"
+                >
+
+                  <button
+                    type="button"
+                    class="btn-principal btn-enviar-avaliacao"
+                    data-agendamento-id="${escapeHTML(agendamento.id)}"
+                  >
+                    ⭐ Enviar avaliação
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+          `;
+    })
+    .join("");
+}
+
+// 13.5 — RENDERIZAR MEUS COMENTÁRIOS
+
+function renderizarMeusComentarios() {
+  const lista = document.getElementById("lista-meus-comentarios");
+
+  if (!lista) {
+    return;
+  }
+
+  if (!avaliacoesCliente.length) {
+    lista.innerHTML = `
+      <div class="lista-vazia">
+
+        <p>
+          💬 Você ainda não enviou nenhuma avaliação.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  lista.innerHTML = avaliacoesCliente
+    .map((avaliacao) => {
+      const barbearia = avaliacao.barbearias;
+
+      const nota = Number(avaliacao.nota) || 0;
+
+      const notaLimitada = Math.max(0, Math.min(5, nota));
+
+      const estrelas = "⭐".repeat(notaLimitada);
+
+      return `
+            <article
+              class="item-comentario-cliente"
+            >
+
+              <div
+                class="item-comentario-topo"
+              >
+
+                <div>
+
+                  <h3>
+                    ${escapeHTML(barbearia?.nome || "Barbearia")}
+                  </h3>
+
+                  <span>
+                    ${estrelas}
+                  </span>
+
+                </div>
+
+                <small>
+                  ${formatarData(avaliacao.created_at)}
+                </small>
+
+              </div>
+
+              <p>
+                ${
+                  avaliacao.comentario
+                    ? escapeHTML(avaliacao.comentario)
+                    : "Sem comentário."
+                }
+              </p>
+
+            </article>
+          `;
+    })
+    .join("");
+}
+
+// 13.6 — ENVIAR AVALIAÇÃO
+
+async function enviarAvaliacao(agendamentoId) {
+  if (!usuarioAtual) {
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Sua sessão expirou. Faça login novamente.",
+      "erro",
+    );
+
+    return;
+  }
+
+  if (!agendamentoId) {
+    return;
+  }
+
+  // LOCALIZAR AGENDAMENTO
+
+  const agendamento = agendamentos.find(
+    (item) => String(item.id) === String(agendamentoId),
+  );
+
+  if (!agendamento) {
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Atendimento não encontrado.",
+      "erro",
+    );
+
+    return;
+  }
+
+  // VERIFICAR STATUS
+
+  if (agendamento.status !== "concluido") {
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Você só pode avaliar atendimentos concluídos.",
+      "erro",
+    );
+
+    return;
+  }
+
+  // VERIFICAR DUPLICIDADE
+
+  if (agendamentoFoiAvaliado(agendamentoId)) {
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Esse atendimento já foi avaliado.",
+      "erro",
+    );
+
+    return;
+  }
+
+  // CAMPOS
+
+  const campoNota = document.getElementById(`nota-${agendamentoId}`);
+
+  const campoComentario = document.getElementById(
+    `comentario-${agendamentoId}`,
+  );
+
+  const nota = Number(campoNota?.value);
+
+  const comentario = campoComentario?.value.trim() || null;
+
+  // VALIDAR NOTA
+
+  if (!Number.isInteger(nota) || nota < 1 || nota > 5) {
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Selecione uma nota de 1 a 5 estrelas.",
+      "erro",
+    );
+
+    campoNota?.focus();
+
+    return;
+  }
+
+  try {
+    // --------------------------------------------------------
+    // BOTÃO
+    // --------------------------------------------------------
+
+    const botao = document.querySelector(
+      `.btn-enviar-avaliacao[data-agendamento-id="${agendamentoId}"]`,
+    );
+
+    if (botao) {
+      botao.disabled = true;
+      botao.textContent = "Enviando...";
+    }
+
+    // --------------------------------------------------------
+    // INSERIR AVALIAÇÃO
+    // --------------------------------------------------------
+
+    const { data, error } = await supabaseClient
+      .from("avaliacoes")
+      .insert({
+        cliente_id: usuarioAtual.id,
+
+        barbearia_id: agendamento.barbearia_id,
+
+        agendamento_id: agendamento.id,
+
+        nota,
+
+        comentario,
+      })
+      .select(
+        `
+          id,
+          cliente_id,
+          barbearia_id,
+          agendamento_id,
+          nota,
+          comentario,
+          created_at,
+
+          barbearias (
+            id,
+            nome,
+            cidade,
+            logo_url
+          )
+        `,
+      )
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    console.log("Avaliação criada:", data);
+
+    // --------------------------------------------------------
+    // SUCESSO
+    // --------------------------------------------------------
+
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Avaliação enviada com sucesso! ⭐",
+      "sucesso",
+    );
+
+    // --------------------------------------------------------
+    // ATUALIZAR TELA
+    // --------------------------------------------------------
+
+    await carregarAvaliacoesCliente();
+  } catch (erro) {
+    mostrarErroConsole("Erro ao enviar avaliação", erro);
+
+    // Mensagem específica para duplicidade
+    if (erro?.code === "23505") {
+      mostrarMensagem(
+        "mensagem-avaliacao",
+        "Esse atendimento já possui uma avaliação.",
+        "erro",
+      );
+
+      await carregarAvaliacoesCliente();
+
+      return;
+    }
+
+    mostrarMensagem(
+      "mensagem-avaliacao",
+      "Não foi possível enviar sua avaliação.",
+      "erro",
+    );
+  } finally {
+    const botao = document.querySelector(
+      `.btn-enviar-avaliacao[data-agendamento-id="${agendamentoId}"]`,
+    );
+
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "⭐ Enviar avaliação";
+    }
+  }
+}
+
+// 13.7 — EVENTOS DAS AVALIAÇÕES
+
+function configurarEventosAvaliacoes() {
+  const lista = document.getElementById("lista-avaliacoes-pendentes");
+
+  if (!lista) {
+    return;
+  }
+
+  if (lista.dataset.avaliacoesConfiguradas === "true") {
+    return;
+  }
+
+  lista.dataset.avaliacoesConfiguradas = "true";
+
+  lista.addEventListener("click", (evento) => {
+    const botao = evento.target.closest(".btn-enviar-avaliacao");
+
+    if (!botao) {
+      return;
+    }
+
+    const agendamentoId = botao.dataset.agendamentoId;
+
+    enviarAvaliacao(agendamentoId);
+  });
+}
+
+// 14. FAVORITOS
+
+// 14.1 — VERIFICAR SE É FAVORITO
+
+function ehFavorito(barbeariaId) {
+  if (!barbeariaId) {
+    return false;
+  }
+
+  return favoritosCliente.some((id) => String(id) === String(barbeariaId));
+}
+
+// 14.2 — CARREGAR FAVORITOS
+
+async function carregarFavoritos() {
+  if (!usuarioAtual) {
+    favoritosCliente = [];
+
+    atualizarTotalFavoritos();
+
+    renderizarBarbearias(barbearias);
+
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("favoritos")
+      .select("barbearia_id")
+      .eq("cliente_id", usuarioAtual.id);
+
+    if (error) {
+      throw error;
+    }
+
+    favoritosCliente = (data || [])
+      .map((item) => item.barbearia_id)
+      .filter(Boolean);
+
+    atualizarTotalFavoritos();
+
+    renderizarBarbearias(barbearias);
+
+    return favoritosCliente;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao carregar favoritos", erro);
+
+    favoritosCliente = [];
+
+    atualizarTotalFavoritos();
+
+    renderizarBarbearias(barbearias);
+
+    return [];
+  }
+}
+
+// 14.3 — ATUALIZAR CONTADOR
+
+function atualizarTotalFavoritos() {
+  const elemento = document.getElementById("total-favoritos");
+
+  if (!elemento) {
+    return;
+  }
+
+  elemento.textContent = favoritosCliente.length;
+}
+
+// 14.4 — ADICIONAR FAVORITO
+
+async function adicionarFavorito(barbeariaId) {
+  if (!usuarioAtual) {
+    mostrarMensagem(
+      "mensagem-agendamento",
+      "Sua sessão expirou. Faça login novamente.",
+      "erro",
+    );
+
+    return false;
+  }
+
+  if (!barbeariaId) {
+    return false;
+  }
+
+  // Já é favorito
+  if (ehFavorito(barbeariaId)) {
+    return true;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("favoritos")
+      .insert({
+        cliente_id: usuarioAtual.id,
+
+        barbearia_id: barbeariaId,
+      })
+      .select("barbearia_id");
+
+    if (error) {
+      throw error;
+    }
+
+    console.log("Favorito adicionado:", data);
+
+    favoritosCliente.push(barbeariaId);
+
+    atualizarTotalFavoritos();
+
+    return true;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao adicionar favorito", erro);
+
+    return false;
+  }
+}
+
+// 14.5 — REMOVER FAVORITO
+
+async function removerFavorito(barbeariaId) {
+  if (!usuarioAtual) {
+    return false;
+  }
+
+  if (!barbeariaId) {
+    return false;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("favoritos")
+      .delete()
+      .eq("cliente_id", usuarioAtual.id)
+      .eq("barbearia_id", barbeariaId);
+
+    if (error) {
+      throw error;
+    }
+
+    favoritosCliente = favoritosCliente.filter(
+      (id) => String(id) !== String(barbeariaId),
+    );
+
+    atualizarTotalFavoritos();
+
+    return true;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao remover favorito", erro);
+
+    return false;
+  }
+}
+
+// 14.6 — ALTERNAR FAVORITO
+
+async function alternarFavorito(barbeariaId) {
+  if (!barbeariaId) {
+    return;
+  }
+
+  const favoritoAtual = ehFavorito(barbeariaId);
+
+  // REMOVER
+
+  if (favoritoAtual) {
+    const sucesso = await removerFavorito(barbeariaId);
+
+    if (!sucesso) {
+      alert("Não foi possível remover esta barbearia dos favoritos.");
+
+      return;
+    }
+  }
+
+  // ADICIONAR
+  else {
+    const sucesso = await adicionarFavorito(barbeariaId);
+
+    if (!sucesso) {
+      alert("Não foi possível adicionar esta barbearia aos favoritos.");
+
+      return;
+    }
+  }
+
+  // ATUALIZAR TELA
+
+  atualizarTotalFavoritos();
+
+  renderizarBarbearias(barbearias);
+}
+
+// 14.7 — RENDERIZAR BARBEARIAS FAVORITAS
+
+function renderizarBarbearias(listaBarbearias, elementoLista = null) {
+  const lista = elementoLista || document.getElementById("lista-favoritos");
+
+  if (!lista) {
+    return;
+  }
+
+  // SOMENTE FAVORITOS
+
+  const favoritas = listaBarbearias.filter((barbearia) =>
+    ehFavorito(barbearia.id),
+  );
+
+  // NENHUM FAVORITO
+
+  if (!favoritas.length) {
+    lista.innerHTML = `
+      <div class="lista-vazia">
+
+        <p>
+          ❤️ Você ainda não possui barbearias favoritas.
+        </p>
+
+        <small>
+          Adicione uma barbearia aos favoritos para encontrá-la
+          rapidamente aqui.
+        </small>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  // RENDERIZAR
 
   lista.innerHTML = favoritas
     .map((barbearia) => {
       const logo = barbearia.logo_url || "../assets/barber.png";
 
       return `
-          <article class="item-barbearia">
+            <article
+              class="item-barbearia"
+            >
 
-            <div class="item-barbearia-imagem">
+              <div
+                class="item-barbearia-imagem"
+              >
 
-              <img
-                src="${escapeHTML(logo)}"
-                alt="Logo ${escapeHTML(barbearia.nome)}"
-                onerror="this.src='../assets/barber.png'"
-              />
-
-            </div>
-
-            <div class="item-barbearia-conteudo">
-
-              <h3>
-                ${escapeHTML(barbearia.nome)}
-              </h3>
-
-              ${
-                barbearia.cidade
-                  ? `
-                    <p>
-                      📍
-                      ${escapeHTML(barbearia.cidade)}
-                    </p>
-                  `
-                  : ""
-              }
-
-              ${
-                barbearia.endereco
-                  ? `
-                    <p>
-                      🏠
-                      ${escapeHTML(barbearia.endereco)}
-                    </p>
-                  `
-                  : ""
-              }
-
-              ${
-                barbearia.telefone
-                  ? `
-                    <p>
-                      📱
-                      ${escapeHTML(barbearia.telefone)}
-                    </p>
-                  `
-                  : ""
-              }
-
-              <div class="item-barbearia-acoes">
-
-                <button
-                  type="button"
-                  class="btn-principal"
-                  onclick="selecionarBarbeariaParaAgendamento('${escapeHTML(
-                    barbearia.id,
-                  )}')"
-                >
-                  📅 Agendar
-                </button>
-
-                <button
-                  type="button"
-                  class="btn-secundario"
-                  onclick="alternarFavorito('${escapeHTML(barbearia.id)}')"
-                >
-                  ❤️ Remover
-                </button>
+                <img
+                  src="${escapeHTML(logo)}"
+                  alt="Logo ${escapeHTML(barbearia.nome || "Barbearia")}"
+                  onerror="this.src='../assets/barber.png'"
+                />
 
               </div>
 
-            </div>
 
-          </article>
-        `;
+              <div
+                class="item-barbearia-conteudo"
+              >
+
+                <h3>
+                  ${escapeHTML(barbearia.nome || "Barbearia")}
+                </h3>
+
+
+                ${
+                  barbearia.cidade
+                    ? `
+                      <p>
+                        📍
+                        ${escapeHTML(barbearia.cidade)}
+                      </p>
+                    `
+                    : ""
+                }
+
+
+                ${
+                  barbearia.endereco
+                    ? `
+                      <p>
+                        🏠
+                        ${escapeHTML(barbearia.endereco)}
+                      </p>
+                    `
+                    : ""
+                }
+
+
+                ${
+                  barbearia.telefone
+                    ? `
+                      <p>
+                        📱
+                        ${escapeHTML(barbearia.telefone)}
+                      </p>
+                    `
+                    : ""
+                }
+
+
+                <div
+                  class="item-barbearia-acoes"
+                >
+
+                  <button
+                    type="button"
+                    class="btn-principal"
+                    onclick="selecionarBarbeariaParaAgendamento('${escapeHTML(
+                      barbearia.id,
+                    )}')"
+                  >
+                    📅 Agendar
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="btn-secundario"
+                    onclick="alternarFavorito('${escapeHTML(barbearia.id)}')"
+                  >
+                    ❤️ Remover
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+          `;
     })
     .join("");
 }
 
-// SELECIONAR BARBEARIA PELOS FAVORITOS
+// 14.8 — SELECIONAR BARBEARIA PARA AGENDAMENTO
 
 async function selecionarBarbeariaParaAgendamento(barbeariaId) {
+  if (!barbeariaId) {
+    return;
+  }
+
   mudarAba("agendamento");
 
   const select = document.getElementById("agendamento-barbearia");
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
+
+  // SELECIONAR BARBEARIA
 
   select.value = barbeariaId;
 
+  // CARREGAR SERVIÇOS
+
   await carregarServicos(barbeariaId);
+
+  // CARREGAR PROFISSIONAIS
+
   await carregarProfissionais(barbeariaId);
+
+  // CARREGAR HORÁRIOS
+
   await carregarHorariosFuncionamento(barbeariaId);
+
+  // CALCULAR HORÁRIOS
+
   await carregarHorariosDisponiveis();
 }
 
-// BUSCA DE BARBEARIAS
+// 14.9 — BUSCAR DENTRO DOS FAVORITOS
 
 function configurarBuscaBarbearia() {
   const campo = document.getElementById("busca-barbearia");
 
-  if (!campo) return;
+  if (!campo) {
+    return;
+  }
 
   campo.addEventListener("input", () => {
     const termo = campo.value.trim().toLowerCase();
 
-    const favoritos = obterFavoritosLocal();
+    // PRIMEIRO: SOMENTE FAVORITOS
 
     const listaFavoritos = barbearias.filter((barbearia) =>
-      favoritos.some((id) => String(id) === String(barbearia.id)),
+      ehFavorito(barbearia.id),
     );
+
+    // SEGUNDO: FILTRAR PELO TEXTO
 
     const filtradas = listaFavoritos.filter((barbearia) => {
       const texto = [barbearia.nome, barbearia.cidade, barbearia.endereco]
@@ -2046,17 +3779,35 @@ function configurarBuscaBarbearia() {
   });
 }
 
-// PERFIL
+// 15. MEU PERFIL
+
+// 15.1 — SALVAR DADOS DO PERFIL
 
 async function salvarPerfil() {
-  if (!usuarioAtual) return;
+  if (!usuarioAtual) {
+    mostrarMensagem(
+      "mensagem-perfil",
+      "Sua sessão expirou. Faça login novamente.",
+      "erro",
+    );
 
-  const nome = document.getElementById("perfil-nome")?.value.trim();
+    return;
+  }
 
-  const telefone = document.getElementById("perfil-telefone")?.value.trim();
+  const campoNome = document.getElementById("perfil-nome");
+
+  const campoTelefone = document.getElementById("perfil-telefone");
+
+  const nome = campoNome?.value.trim();
+
+  const telefone = campoTelefone?.value.trim();
+
+  // VALIDAR NOME
 
   if (!nome) {
     mostrarMensagem("mensagem-perfil", "Informe seu nome.", "erro");
+
+    campoNome?.focus();
 
     return;
   }
@@ -2064,30 +3815,48 @@ async function salvarPerfil() {
   const botao = document.getElementById("btn-salvar-perfil");
 
   try {
+    // BLOQUEAR BOTÃO
+
     if (botao) {
       botao.disabled = true;
       botao.textContent = "Salvando...";
     }
 
+    // ATUALIZAR PROFILE
+
     const { data, error } = await supabaseClient
       .from("profiles")
       .update({
         nome,
-        telefone,
+        telefone: telefone || null,
       })
       .eq("id", usuarioAtual.id)
-      .select()
+      .select(
+        `
+          id,
+          nome,
+          telefone,
+          tipo,
+          created_at
+        `,
+      )
       .single();
 
     if (error) {
       throw error;
     }
 
+    // ATUALIZAR ESTADO LOCAL
+
     perfilAtual = data;
+
+    // ATUALIZAR NOME DA TELA INICIAL
 
     if (nomeCliente) {
       nomeCliente.textContent = nome;
     }
+
+    // MENSAGEM
 
     mostrarMensagem(
       "mensagem-perfil",
@@ -2103,6 +3872,8 @@ async function salvarPerfil() {
       "erro",
     );
   } finally {
+    // RESTAURAR BOTÃO
+
     if (botao) {
       botao.disabled = false;
       botao.textContent = "Salvar dados";
@@ -2110,14 +3881,28 @@ async function salvarPerfil() {
   }
 }
 
-// ALTERAR SENHA
+// 15.2 — ALTERAR SENHA
 
 async function alterarSenha() {
+  if (!usuarioAtual) {
+    mostrarMensagem(
+      "mensagem-perfil",
+      "Sua sessão expirou. Faça login novamente.",
+      "erro",
+    );
+
+    return;
+  }
+
+  // NOVA SENHA
+
   const novaSenha = prompt("Digite sua nova senha:");
 
   if (novaSenha === null) {
     return;
   }
+
+  // VALIDAR TAMANHO
 
   if (novaSenha.length < 6) {
     alert("A senha precisa ter pelo menos 6 caracteres.");
@@ -2125,7 +3910,13 @@ async function alterarSenha() {
     return;
   }
 
+  // CONFIRMAR SENHA
+
   const confirmar = prompt("Digite novamente a nova senha:");
+
+  if (confirmar === null) {
+    return;
+  }
 
   if (confirmar !== novaSenha) {
     alert("As senhas não são iguais.");
@@ -2134,6 +3925,8 @@ async function alterarSenha() {
   }
 
   try {
+    // ATUALIZAR SENHA NO SUPABASE AUTH
+
     const { error } = await supabaseClient.auth.updateUser({
       password: novaSenha,
     });
@@ -2141,6 +3934,8 @@ async function alterarSenha() {
     if (error) {
       throw error;
     }
+
+    // SUCESSO
 
     mostrarMensagem(
       "mensagem-perfil",
@@ -2158,24 +3953,228 @@ async function alterarSenha() {
   }
 }
 
-// SAIR
+// 16. NAVEGAÇÃO
 
-async function sair() {
-  try {
-    await supabaseClient.auth.signOut();
-  } catch (erro) {
-    mostrarErroConsole("Erro ao sair", erro);
-  } finally {
-    window.location.href = CONFIG.LOGIN_URL;
+// 16.1 — MUDAR ABA
+
+function mudarAba(aba) {
+  // VALIDAR ABA
+
+  if (!aba) {
+    return;
+  }
+
+  // ESCONDER TODAS AS SESSÕES
+
+  const conteudos = document.querySelectorAll(".painel-conteudo");
+
+  conteudos.forEach((conteudo) => {
+    conteudo.classList.add("oculto");
+  });
+
+  // MOSTRAR SESSÃO SELECIONADA
+
+  const conteudoAtivo = document.getElementById(`conteudo-${aba}`);
+
+  if (conteudoAtivo) {
+    conteudoAtivo.classList.remove("oculto");
+  }
+
+  // ATUALIZAR MENU DESKTOP
+
+  document.querySelectorAll(".menu-item[data-aba]").forEach((item) => {
+    item.classList.toggle("ativo", item.dataset.aba === aba);
+  });
+
+  // ATUALIZAR MENU MOBILE INFERIOR
+
+  document.querySelectorAll(".mobile-bottom-item[data-aba]").forEach((item) => {
+    item.classList.toggle("ativo", item.dataset.aba === aba);
+
+    item.classList.toggle(
+      "mobile-bottom-item--ativo",
+      item.dataset.aba === aba,
+    );
+  });
+
+  // TÍTULO E DESCRIÇÃO
+
+  const titulo = document.getElementById("titulo-painel");
+
+  const descricao = document.getElementById("descricao-painel");
+
+  const dadosAbas = {
+    inicio: {
+      titulo: "Início",
+      descricao: "Acompanhe sua conta e seus próximos horários.",
+    },
+
+    agendamento: {
+      titulo: "Agendar horário",
+      descricao: "Escolha a barbearia, serviço, profissional e horário.",
+    },
+
+    agendamentos: {
+      titulo: "Meus agendamentos",
+      descricao: "Consulte seus horários marcados no BarberHub.",
+    },
+
+    notificacoes: {
+      titulo: "Notificações",
+      descricao:
+        "Acompanhe novidades, confirmações e atualizações dos seus agendamentos.",
+    },
+
+    produtos: {
+      titulo: "Ver produtos",
+      descricao: "Veja os produtos disponíveis nas suas barbearias.",
+    },
+
+    avaliacoes: {
+      titulo: "Avaliações",
+      descricao: "Avalie seus atendimentos e acompanhe seus comentários.",
+    },
+
+    favoritos: {
+      titulo: "Favoritos",
+      descricao: "Encontre rapidamente suas barbearias favoritas.",
+    },
+
+    perfil: {
+      titulo: "Meu perfil",
+      descricao: "Consulte e altere seus dados pessoais.",
+    },
+  };
+
+  const dados = dadosAbas[aba];
+
+  if (dados) {
+    if (titulo) {
+      titulo.textContent = dados.titulo;
+    }
+
+    if (descricao) {
+      descricao.textContent = dados.descricao;
+    }
+  }
+
+  // CARREGAR DADOS DA SESSÃO
+
+  switch (aba) {
+    // INÍCIO
+
+    case "inicio":
+      carregarDashboard();
+      break;
+
+    // AGENDAMENTO
+
+    case "agendamento":
+      carregarDadosAgendamento();
+      break;
+
+    // MEUS AGENDAMENTOS
+
+    case "agendamentos":
+      carregarAgendamentos();
+      break;
+
+    // NOTIFICAÇÕES
+
+    case "notificacoes":
+      carregarNotificacoesCliente();
+      break;
+
+    // PRODUTOS
+
+    case "produtos":
+      carregarProdutosCliente();
+      break;
+
+    // AVALIAÇÕES
+
+    case "avaliacoes":
+      carregarAvaliacoesCliente();
+      break;
+
+    // FAVORITOS
+
+    case "favoritos":
+      carregarFavoritos();
+      break;
+
+    // PERFIL
+
+    case "perfil":
+      carregarCliente();
+      break;
+
+    default:
+      console.warn(`[BarberHub] Aba não reconhecida: ${aba}`);
+      break;
+  }
+
+  // FECHAR MENU MOBILE
+
+  fecharMenuMobile();
+}
+
+// 17. MENU MOBILE
+
+// 17.1 — ABRIR MENU MOBILE
+
+function abrirMenuMobile() {
+  const menu = document.getElementById("menu-mobile");
+
+  const botao = document.getElementById("btn-menu-mobile");
+
+  if (menu) {
+    menu.classList.add("aberto");
+  }
+
+  if (botao) {
+    botao.setAttribute("aria-expanded", "true");
   }
 }
 
-// EVENTOS
+// 17.2 — FECHAR MENU MOBILE
+
+function fecharMenuMobile() {
+  const menu = document.getElementById("menu-mobile");
+
+  const botao = document.getElementById("btn-menu-mobile");
+
+  if (menu) {
+    menu.classList.remove("aberto");
+  }
+
+  if (botao) {
+    botao.setAttribute("aria-expanded", "false");
+  }
+}
+
+// 17.3 — ALTERNAR MENU MOBILE
+
+function alternarMenuMobile() {
+  const menu = document.getElementById("menu-mobile");
+
+  if (!menu) {
+    return;
+  }
+
+  if (menu.classList.contains("aberto")) {
+    fecharMenuMobile();
+  } else {
+    abrirMenuMobile();
+  }
+}
+
+// 18. EVENTOS
+
+// 18.1 — CONFIGURAR EVENTOS
 
 function configurarEventos() {
-  // ----------------------------------------------
-  // MENU MOBILE
-  // ----------------------------------------------
+  // 18.2 — MENU MOBILE
 
   const btnMenuMobile = document.getElementById("btn-menu-mobile");
 
@@ -2189,12 +4188,22 @@ function configurarEventos() {
     btnMenuBottom.addEventListener("click", alternarMenuMobile);
   }
 
+  const btnFecharMenu = document.getElementById("btn-fechar-menu");
+
+  if (btnFecharMenu) {
+    btnFecharMenu.addEventListener("click", fecharMenuMobile);
+  }
+
+  // 18.3 — FECHAR MENU AO CLICAR FORA
+
   document.addEventListener("click", (evento) => {
     const menu = document.getElementById("menu-mobile");
 
     const botao = document.getElementById("btn-menu-mobile");
 
-    if (!menu) return;
+    if (!menu) {
+      return;
+    }
 
     if (
       menu.classList.contains("aberto") &&
@@ -2205,9 +4214,7 @@ function configurarEventos() {
     }
   });
 
-  // ----------------------------------------------
-  // BARBEARIA
-  // ----------------------------------------------
+  // 18.4 — SELECIONAR BARBEARIA
 
   const selectBarbearia = document.getElementById("agendamento-barbearia");
 
@@ -2223,33 +4230,61 @@ function configurarEventos() {
 
       const selectHorario = document.getElementById("agendamento-horario");
 
+      // LIMPAR SERVIÇO
+
       if (selectServico) {
         selectServico.value = "";
       }
+
+      // LIMPAR PROFISSIONAL
 
       if (selectProfissional) {
         selectProfissional.value = "";
       }
 
+      // LIMPAR HORÁRIO
+
       if (selectHorario) {
         limparHorarios();
+
+        selectHorario.disabled = true;
       }
+
+      // NENHUMA BARBEARIA
 
       if (!barbeariaId) {
         return;
       }
 
-      await carregarServicos(barbeariaId);
+      try {
+        // SERVIÇOS
 
-      await carregarProfissionais(barbeariaId);
+        await carregarServicos(barbeariaId);
 
-      await carregarHorariosFuncionamento(barbeariaId);
+        // PROFISSIONAIS
+
+        await carregarProfissionais(barbeariaId);
+
+        // HORÁRIOS
+
+        await carregarHorariosFuncionamento(barbeariaId);
+
+        // LIMPAR MENSAGEM
+
+        limparMensagem("mensagem-agendamento");
+      } catch (erro) {
+        mostrarErroConsole("Erro ao atualizar dados da barbearia", erro);
+
+        mostrarMensagem(
+          "mensagem-agendamento",
+          "Não foi possível carregar os dados desta barbearia.",
+          "erro",
+        );
+      }
     });
   }
 
-  // ----------------------------------------------
-  // SERVIÇO
-  // ----------------------------------------------
+  // 18.5 — SELECIONAR SERVIÇO
 
   const selectServico = document.getElementById("agendamento-servico");
 
@@ -2257,9 +4292,7 @@ function configurarEventos() {
     selectServico.addEventListener("change", carregarHorariosDisponiveis);
   }
 
-  // ----------------------------------------------
-  // PROFISSIONAL
-  // ----------------------------------------------
+  // 18.6 — SELECIONAR PROFISSIONAL
 
   const selectProfissional = document.getElementById(
     "agendamento-profissional",
@@ -2269,9 +4302,7 @@ function configurarEventos() {
     selectProfissional.addEventListener("change", carregarHorariosDisponiveis);
   }
 
-  // ----------------------------------------------
-  // DATA
-  // ----------------------------------------------
+  // 18.7 — SELECIONAR DATA
 
   const campoData = document.getElementById("agendamento-data");
 
@@ -2279,9 +4310,7 @@ function configurarEventos() {
     campoData.addEventListener("change", carregarHorariosDisponiveis);
   }
 
-  // ----------------------------------------------
-  // CONFIRMAR AGENDAMENTO
-  // ----------------------------------------------
+  // 18.8 — CONFIRMAR AGENDAMENTO
 
   const botaoAgendamento = document.getElementById("btn-confirmar-agendamento");
 
@@ -2289,9 +4318,7 @@ function configurarEventos() {
     botaoAgendamento.addEventListener("click", confirmarAgendamento);
   }
 
-  // ----------------------------------------------
-  // CANCELAR AGENDAMENTO
-  // ----------------------------------------------
+  // 18.9 — CANCELAR AGENDAMENTO
 
   const listaAgendamentos = document.getElementById("lista-meus-agendamentos");
 
@@ -2299,7 +4326,9 @@ function configurarEventos() {
     listaAgendamentos.addEventListener("click", (evento) => {
       const botao = evento.target.closest(".btn-cancelar-agendamento");
 
-      if (!botao) return;
+      if (!botao) {
+        return;
+      }
 
       const id = botao.dataset.id;
 
@@ -2307,27 +4336,47 @@ function configurarEventos() {
     });
   }
 
-  // ----------------------------------------------
-  // FILTROS
-  // ----------------------------------------------
+  // 18.10 — FILTROS DE AGENDAMENTOS
 
-  document.querySelectorAll("[data-filtro]").forEach((botao) => {
-    botao.addEventListener("click", () => {
-      filtroAgendamentosAtual = botao.dataset.filtro;
+  document
+    .querySelectorAll("#conteudo-agendamentos [data-filtro]")
+    .forEach((botao) => {
+      botao.addEventListener("click", () => {
+        const filtro = botao.dataset.filtro;
 
-      document.querySelectorAll("[data-filtro]").forEach((item) => {
-        item.classList.remove("ativo");
+        if (!filtro) {
+          return;
+        }
+
+        filtroAgendamentosAtual = filtro;
+
+        // REMOVER ATIVO DOS FILTROS
+
+        document
+          .querySelectorAll("#conteudo-agendamentos [data-filtro]")
+          .forEach((item) => {
+            item.classList.remove("ativo");
+          });
+
+        // ATIVAR FILTRO CLICADO
+
+        botao.classList.add("ativo");
+
+        // RENDERIZAR
+
+        renderizarAgendamentos();
       });
-
-      botao.classList.add("ativo");
-
-      renderizarAgendamentos();
     });
-  });
 
-  // ----------------------------------------------
-  // PERFIL
-  // ----------------------------------------------
+  // 18.11 — NOTIFICAÇÕES
+
+  configurarEventosNotificacoes();
+
+  // 18.12 — AVALIAÇÕES
+
+  configurarEventosAvaliacoes();
+
+  // 18.13 — FORMULÁRIO DE PERFIL
 
   const formularioPerfil = document.getElementById("form-perfil");
 
@@ -2339,9 +4388,7 @@ function configurarEventos() {
     });
   }
 
-  // ----------------------------------------------
-  // SENHA
-  // ----------------------------------------------
+  // 18.14 — ALTERAR SENHA
 
   const botaoSenha = document.getElementById("btn-alterar-senha");
 
@@ -2349,18 +4396,42 @@ function configurarEventos() {
     botaoSenha.addEventListener("click", alterarSenha);
   }
 
-  // ----------------------------------------------
-  // BUSCA
-  // ----------------------------------------------
+  // 18.15 — BUSCA DE FAVORITOS
 
   configurarBuscaBarbearia();
 }
 
-// INICIALIZAÇÃO
+// 19. SAIR
+
+// 19.1 — ENCERRAR SESSÃO
+
+async function sair() {
+  try {
+    mostrarTelaCarregamento();
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+  } catch (erro) {
+    mostrarErroConsole("Erro ao sair", erro);
+  } finally {
+    window.location.href = CONFIG.LOGIN_URL;
+  }
+}
+
+// 20. INICIALIZAÇÃO
+
+// 20.1 — INICIAR PÁGINA
 
 async function iniciarPagina() {
   try {
+    // MOSTRAR CARREGAMENTO
+
     mostrarTelaCarregamento();
+
+    // VERIFICAR SESSÃO
 
     const sessao = await verificarSessao();
 
@@ -2368,11 +4439,23 @@ async function iniciarPagina() {
       return;
     }
 
+    // CARREGAR PERFIL
+
     await carregarCliente();
+
+    // CARREGAR BARBEARIAS
 
     await carregarBarbearias();
 
+    // CARREGAR FAVORITOS
+
+    await carregarFavoritos();
+
+    // CONFIGURAR EVENTOS
+
     configurarEventos();
+
+    // CONFIGURAR DATA MÍNIMA
 
     const campoData = document.getElementById("agendamento-data");
 
@@ -2380,9 +4463,15 @@ async function iniciarPagina() {
       campoData.min = obterDataMinima();
     }
 
-    // Inicia na aba Início.
-    // O próprio mudarAba carrega o dashboard.
+    // GARANTIR FILTRO PADRÃO
+
+    filtroAgendamentosAtual = "proximos";
+
+    // ABRIR INÍCIO
+
     mudarAba("inicio");
+
+    // ATUALIZAR CONTADOR DE FAVORITOS
 
     atualizarTotalFavoritos();
   } catch (erro) {
@@ -2394,10 +4483,12 @@ async function iniciarPagina() {
       "erro",
     );
   } finally {
+    // ESCONDER CARREGAMENTO
+
     esconderTelaCarregamento();
   }
 }
 
-// INICIAR
+// 20.2 — INICIAR QUANDO O HTML ESTIVER PRONTO
 
 document.addEventListener("DOMContentLoaded", iniciarPagina);

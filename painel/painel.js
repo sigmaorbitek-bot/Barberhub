@@ -485,7 +485,11 @@ async function carregarServicos() {
   }
 
   servicosCache = data || [];
+
   renderizarServicos(servicosCache);
+
+  // 🔄 Atualiza o select de serviço do agendamento
+  preencherServicosAgendamento();
 
   return true;
 }
@@ -1287,9 +1291,9 @@ function prepararFormularioAgendamentoManual() {
   }
 
   preencherClientesAgendamento();
+
   preencherServicosAgendamento();
 }
-
 prepararFormularioAgendamentoManual();
 
 // 8.5 — Salvar agendamento manual
@@ -1671,20 +1675,31 @@ const formCliente = document.getElementById("form-cliente");
 
 const btnSalvarCliente = document.getElementById("btn-salvar-cliente");
 
-// 9.2 — Cadastrar cliente
+const btnCancelarCliente = document.getElementById("btn-cancelar-cliente");
+
+const campoClienteId = document.getElementById("cliente-id");
+
+// 9.2 — Cadastrar / Editar cliente
 
 if (formCliente) {
   formCliente.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    const clienteId = campoClienteId?.value.trim();
+
     const nome = document.getElementById("cliente-nome")?.value.trim();
 
     const telefone = document.getElementById("cliente-telefone")?.value.trim();
 
+    // VALIDAR NOME
+
     if (!nome) {
       mostrarMensagem("mensagem-cliente", "Informe o nome do cliente.", "erro");
+
       return;
     }
+
+    // VALIDAR BARBEARIA
 
     if (!lojaId) {
       mostrarMensagem(
@@ -1692,18 +1707,109 @@ if (formCliente) {
         "Barbearia não identificada.",
         "erro",
       );
+
       return;
     }
 
+    // BLOQUEAR BOTÃO
+
     if (btnSalvarCliente) {
       btnSalvarCliente.disabled = true;
-      btnSalvarCliente.textContent = "Cadastrando...";
+
+      btnSalvarCliente.textContent = clienteId
+        ? "Salvando..."
+        : "Cadastrando...";
     }
 
     try {
-      const {
-        data: { session },
-      } = await supabaseClient.auth.getSession();
+      // ========================================================
+      // EDIÇÃO
+      // ========================================================
+
+      if (clienteId) {
+        console.log("Tentando editar cliente:", {
+          clienteId,
+          lojaId,
+          nome,
+          telefone,
+        });
+
+        const { data, error } = await supabaseClient
+          .from("profiles")
+          .update({
+            nome,
+            telefone: telefone || null,
+          })
+          .eq("id", clienteId)
+          .select("id, nome, telefone");
+
+        console.log("Resultado da edição:", {
+          data,
+          error,
+        });
+
+        // ------------------------------------------------------
+        // TRATAR ERRO
+        // ------------------------------------------------------
+
+        if (error) {
+          console.error("Erro ao editar cliente:", error);
+
+          mostrarMensagem(
+            "mensagem-cliente",
+            `Não foi possível editar o cliente. ${error.message}`,
+            "erro",
+          );
+
+          return;
+        }
+
+        // ------------------------------------------------------
+        // NENHUMA LINHA ATUALIZADA
+        // ------------------------------------------------------
+
+        if (!data || !data.length) {
+          console.error("Nenhum cliente foi atualizado.");
+
+          mostrarMensagem(
+            "mensagem-cliente",
+            "O cliente não foi atualizado. Verifique se ele ainda pertence a esta barbearia.",
+            "erro",
+          );
+
+          return;
+        }
+
+        // ------------------------------------------------------
+        // LIMPAR FORMULÁRIO
+        // ------------------------------------------------------
+
+        cancelarEdicaoCliente();
+
+        // ------------------------------------------------------
+        // ATUALIZAR LISTA
+        // ------------------------------------------------------
+
+        await carregarClientes();
+
+        await carregarDashboard();
+
+        mostrarMensagem(
+          "mensagem-cliente",
+          "Cliente atualizado com sucesso!",
+          "sucesso",
+        );
+
+        return;
+      }
+
+      // ========================================================
+      // NOVO CLIENTE
+      // ========================================================
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+
+      const session = sessionData?.session;
 
       if (!session) {
         mostrarMensagem(
@@ -1711,8 +1817,13 @@ if (formCliente) {
           "Sua sessão expirou. Faça login novamente.",
           "erro",
         );
+
         return;
       }
+
+      // --------------------------------------------------------
+      // CADASTRAR CLIENTE
+      // --------------------------------------------------------
 
       const resposta = await supabaseClient.functions.invoke(
         "cadastrar-cliente",
@@ -1724,6 +1835,10 @@ if (formCliente) {
           },
         },
       );
+
+      // --------------------------------------------------------
+      // ERRO DA EDGE FUNCTION
+      // --------------------------------------------------------
 
       if (resposta.error) {
         console.error("Erro ao cadastrar cliente:", resposta.error);
@@ -1737,17 +1852,37 @@ if (formCliente) {
         return;
       }
 
+      // --------------------------------------------------------
+      // ERRO RETORNADO PELA EDGE FUNCTION
+      // --------------------------------------------------------
+
       if (resposta.data?.error) {
         mostrarMensagem("mensagem-cliente", resposta.data.error, "erro");
 
         return;
       }
 
-      formCliente.reset();
+      // --------------------------------------------------------
+      // LIMPAR FORMULÁRIO
+      // --------------------------------------------------------
+
+      cancelarEdicaoCliente();
+
+      // --------------------------------------------------------
+      // ATUALIZAR CLIENTES
+      // --------------------------------------------------------
 
       await carregarClientes();
 
+      // --------------------------------------------------------
+      // ATUALIZAR DASHBOARD
+      // --------------------------------------------------------
+
       await carregarDashboard();
+
+      // --------------------------------------------------------
+      // MENSAGEM
+      // --------------------------------------------------------
 
       mostrarMensagem(
         "mensagem-cliente",
@@ -1755,17 +1890,26 @@ if (formCliente) {
         "sucesso",
       );
     } catch (erro) {
-      console.error("Erro inesperado ao cadastrar cliente:", erro);
+      console.error("Erro inesperado ao salvar cliente:", erro);
 
       mostrarMensagem(
         "mensagem-cliente",
-        "Ocorreu um erro ao cadastrar o cliente.",
+        "Ocorreu um erro ao salvar o cliente.",
         "erro",
       );
     } finally {
+      // --------------------------------------------------------
+      // RESTAURAR BOTÃO
+      // --------------------------------------------------------
+
       if (btnSalvarCliente) {
+        const aindaEditando = campoClienteId?.value;
+
         btnSalvarCliente.disabled = false;
-        btnSalvarCliente.textContent = "+ Cadastrar cliente";
+
+        btnSalvarCliente.textContent = aindaEditando
+          ? "Salvar edição"
+          : "+ Cadastrar cliente";
       }
     }
   });
@@ -1780,20 +1924,22 @@ async function carregarClientes() {
 
   const mapaClientes = new Map();
 
-  // Clientes vinculados diretamente à barbearia
+  // ==========================================================
+  // CLIENTES VINCULADOS DIRETAMENTE À BARBEARIA
+  // ==========================================================
 
   const { data: clientesBarbearia, error: erroClientesBarbearia } =
     await supabaseClient
       .from("clientes_barbearias")
       .select(
         `
-      cliente_id,
-      profiles(
-        id,
-        nome,
-        telefone
-      )
-    `,
+        cliente_id,
+        profiles(
+          id,
+          nome,
+          telefone
+        )
+      `,
       )
       .eq("barbearia_id", lojaId);
 
@@ -1814,78 +1960,21 @@ async function carregarClientes() {
     });
   }
 
-  // Clientes que já possuem agendamento
-
-  const { data: agendamentos, error: erroAgendamentos } = await supabaseClient
-    .from("agendamentos")
-    .select(
-      `
-      cliente_id,
-      profiles(
-        id,
-        nome,
-        telefone
-      )
-    `,
-    )
-    .eq("barbearia_id", lojaId);
-
-  if (erroAgendamentos) {
-    console.error(
-      "Erro ao carregar clientes dos agendamentos:",
-      erroAgendamentos,
-    );
-  } else {
-    (agendamentos || []).forEach((agendamento) => {
-      const cliente = agendamento.profiles;
-
-      if (!cliente?.id) {
-        return;
-      }
-
-      mapaClientes.set(cliente.id, cliente);
-    });
-  }
-
-  // Clientes que favoritaram a barbearia
-
-  const { data: favoritos, error: erroFavoritos } = await supabaseClient
-    .from("favoritos")
-    .select(
-      `
-      cliente_id,
-      profiles(
-        id,
-        nome,
-        telefone
-      )
-    `,
-    )
-    .eq("barbearia_id", lojaId);
-
-  if (erroFavoritos) {
-    console.error("Erro ao carregar clientes dos favoritos:", erroFavoritos);
-  } else {
-    (favoritos || []).forEach((favorito) => {
-      const cliente = favorito.profiles;
-
-      if (!cliente?.id) {
-        return;
-      }
-
-      mapaClientes.set(cliente.id, cliente);
-    });
-  }
-
-  // Atualizar cache
+  // ==========================================================
+  // ATUALIZAR CACHE
+  // ==========================================================
 
   clientesCache = Array.from(mapaClientes.values());
 
-  // Renderizar clientes
+  // ==========================================================
+  // RENDERIZAR CLIENTES
+  // ==========================================================
 
   renderizarClientes(clientesCache);
 
-  // Atualizar seleção de clientes no agendamento
+  // ==========================================================
+  // ATUALIZAR CLIENTES NO AGENDAMENTO
+  // ==========================================================
 
   preencherClientesAgendamento();
 
@@ -1901,6 +1990,8 @@ function renderizarClientes(clientes) {
 
   listaClientesEl.innerHTML = "";
 
+  // NENHUM CLIENTE
+
   if (!clientes.length) {
     listaClientesEl.innerHTML = `
       <p class="em-breve">
@@ -1910,6 +2001,8 @@ function renderizarClientes(clientes) {
 
     return;
   }
+
+  // RENDERIZAR CADA CLIENTE
 
   clientes.forEach((cliente) => {
     const item = document.createElement("div");
@@ -1928,10 +2021,208 @@ function renderizarClientes(clientes) {
         </p>
 
       </div>
+
+      <div class="item-acoes">
+
+        <button
+          type="button"
+          title="Editar cliente"
+          onclick="editarCliente('${cliente.id}')"
+        >
+          ✏️
+        </button>
+
+        <button
+          type="button"
+          title="Excluir cliente"
+          onclick="excluirCliente('${cliente.id}')"
+        >
+          🗑️
+        </button>
+
+      </div>
     `;
 
     listaClientesEl.appendChild(item);
   });
+}
+
+// 9.5 — Editar cliente
+
+function editarCliente(clienteId) {
+  if (!clienteId) {
+    return;
+  }
+
+  const cliente = clientesCache.find(
+    (item) => String(item.id) === String(clienteId),
+  );
+
+  if (!cliente) {
+    alert("Cliente não encontrado.");
+
+    return;
+  }
+
+  // PREENCHER FORMULÁRIO
+
+  if (campoClienteId) {
+    campoClienteId.value = cliente.id;
+  }
+
+  const campoNome = document.getElementById("cliente-nome");
+
+  const campoTelefone = document.getElementById("cliente-telefone");
+
+  if (campoNome) {
+    campoNome.value = cliente.nome || "";
+  }
+
+  if (campoTelefone) {
+    campoTelefone.value = cliente.telefone || "";
+  }
+
+  // ALTERAR BOTÃO
+
+  if (btnSalvarCliente) {
+    btnSalvarCliente.disabled = false;
+
+    btnSalvarCliente.textContent = "Salvar edição";
+  }
+
+  // MOSTRAR CANCELAR
+
+  if (btnCancelarCliente) {
+    btnCancelarCliente.hidden = false;
+  }
+
+  // LEVAR ATÉ O FORMULÁRIO
+
+  formCliente?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+
+  // FOCAR NOME
+
+  campoNome?.focus();
+}
+
+// 9.6 — Cancelar edição
+
+function cancelarEdicaoCliente() {
+  if (!formCliente) {
+    return;
+  }
+
+  formCliente.reset();
+
+  if (campoClienteId) {
+    campoClienteId.value = "";
+  }
+
+  if (btnSalvarCliente) {
+    btnSalvarCliente.disabled = false;
+
+    btnSalvarCliente.textContent = "+ Cadastrar cliente";
+  }
+
+  if (btnCancelarCliente) {
+    btnCancelarCliente.hidden = true;
+  }
+}
+
+// 9.7 — Botão cancelar
+
+if (btnCancelarCliente) {
+  btnCancelarCliente.addEventListener("click", cancelarEdicaoCliente);
+}
+
+// 9.8 — Excluir cliente
+
+async function excluirCliente(clienteId) {
+  if (!clienteId) {
+    return;
+  }
+
+  const cliente = clientesCache.find(
+    (item) => String(item.id) === String(clienteId),
+  );
+
+  if (!cliente) {
+    alert("Cliente não encontrado.");
+
+    return;
+  }
+
+  // CONFIRMAR
+
+  const confirmar = confirm(
+    `Deseja excluir o cliente "${cliente.nome || "Cliente"}" da barbearia?`,
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  // LOG
+
+  console.log("Tentando excluir cliente:", {
+    clienteId,
+    lojaId,
+  });
+
+  // EXCLUIR VÍNCULO
+
+  const { data, error } = await supabaseClient
+    .from("clientes_barbearias")
+    .delete()
+    .eq("cliente_id", clienteId)
+    .eq("barbearia_id", lojaId)
+    .select();
+
+  console.log("Resultado da exclusão:", {
+    data,
+    error,
+  });
+
+  // TRATAR ERRO
+
+  if (error) {
+    console.error("Erro ao excluir cliente:", error);
+
+    alert(`Não foi possível excluir o cliente.\n\n${error.message}`);
+
+    return;
+  }
+
+  // NENHUMA LINHA EXCLUÍDA
+
+  if (!data || !data.length) {
+    console.error("Nenhuma linha foi excluída.");
+
+    alert(
+      "O cliente não foi removido. Verifique se ele ainda está vinculado a esta barbearia.",
+    );
+
+    return;
+  }
+
+  // SUCESSO
+
+  console.log("Cliente excluído com sucesso:", data);
+
+  // ATUALIZAR
+
+  await carregarClientes();
+
+  await carregarDashboard();
+
+  mostrarMensagem(
+    "mensagem-cliente",
+    "Cliente removido da barbearia com sucesso!",
+    "sucesso",
+  );
 }
 
 // 10. PROFISSIONAIS / BARBEIROS
@@ -2519,14 +2810,10 @@ function renderizarProximosAgendamentos(agendamentos) {
 
   proximos.forEach((agendamento) => {
     const dataHora = new Date(agendamento.data_hora);
-
     const nomeCliente =
       agendamento.profiles?.nome || agendamento.cliente_nome || "Cliente";
-
     const nomeServico = agendamento.servicos?.nome || "Serviço";
-
     const nomeProfissional = agendamento.profissionais?.nome || "";
-
     const item = document.createElement("div");
 
     item.classList.add("item-lista");
@@ -2584,9 +2871,7 @@ const DIAS_SEMANA = [
 // 12.1 — Elementos da seção
 
 const listaHorariosEl = document.getElementById("lista-horarios");
-
 const formHorarios = document.getElementById("form-horarios");
-
 const btnSalvarHorarios = document.getElementById("btn-salvar-horarios");
 
 // 12.2 — Carregar horários
@@ -2943,7 +3228,6 @@ function renderizarHorarios(horarios, horariosProfissionais, profissionais) {
 
         </div>
 
-
         <div class="horario-campos">
 
           <div class="horario-campo">
@@ -2961,7 +3245,6 @@ function renderizarHorarios(horarios, horariosProfissionais, profissionais) {
 
           </div>
 
-
           <div class="horario-campo">
 
             <label for="${prefixo}-fim">
@@ -2976,7 +3259,6 @@ function renderizarHorarios(horarios, horariosProfissionais, profissionais) {
             >
 
           </div>
-
 
           <div class="horario-campo">
 
@@ -3693,7 +3975,6 @@ function atualizarResumoAvaliacoes() {
 // 14. NOTIFICAÇÕES
 
 const totalNotificacoesEl = document.getElementById("total-notificacoes");
-
 const listaNotificacoesEl = document.getElementById("lista-notificacoes");
 
 // SOM DE NOVA NOTIFICAÇÃO
@@ -3778,7 +4059,6 @@ function renderizarNotificacoes(notificacoes) {
   }
 
   const lista = Array.isArray(notificacoes) ? notificacoes : [];
-
   const naoLidas = lista.filter((notificacao) => !notificacao.lida);
 
   // CONTADOR
@@ -3808,9 +4088,7 @@ function renderizarNotificacoes(notificacoes) {
         : "";
 
       const classeEstado = notificacao.lida ? "lida" : "nao-lida";
-
       const titulo = notificacao.titulo || "Notificação";
-
       const mensagem = notificacao.mensagem || "";
 
       return `
@@ -4067,11 +4345,8 @@ function atualizarContadorNotificacoes() {
 // 15. FINANCEIRO
 
 const listaFinanceiroEl = document.getElementById("lista-financeiro");
-
 const formGasto = document.getElementById("form-gasto");
-
 const btnSalvarGasto = document.getElementById("btn-salvar-gasto");
-
 const btnCancelarGasto = document.getElementById("btn-cancelar-gasto");
 
 // CARREGAR FINANCEIRO
@@ -4086,13 +4361,9 @@ async function carregarFinanceiro() {
 
     const ano = agora.getFullYear();
     const mes = agora.getMonth();
-
     const inicioMesDate = new Date(ano, mes, 1, 0, 0, 0, 0);
-
     const inicioProximoMesDate = new Date(ano, mes + 1, 1, 0, 0, 0, 0);
-
     const inicioMes = obterDataLocalISO(inicioMesDate);
-
     const inicioProximoMes = obterDataLocalISO(inicioProximoMesDate);
 
     // GASTOS
@@ -4179,9 +4450,7 @@ async function carregarFinanceiro() {
     //
 
     const elementoEntradas = document.getElementById("financeiro-entradas");
-
     const elementoSaidas = document.getElementById("financeiro-saidas");
-
     const elementoLucro = document.getElementById("financeiro-lucro");
 
     if (elementoEntradas) {
@@ -4301,15 +4570,10 @@ if (formGasto) {
     // CAMPOS
 
     const descricao = document.getElementById("gasto-descricao")?.value.trim();
-
     const valor = parseFloat(document.getElementById("gasto-valor")?.value);
-
     const categoria = document.getElementById("gasto-categoria")?.value.trim();
-
     const dataGasto = document.getElementById("gasto-data")?.value;
-
     const pagamento = document.getElementById("gasto-pagamento")?.value;
-
     const observacao = document
       .getElementById("gasto-observacao")
       ?.value.trim();
@@ -4434,17 +4698,11 @@ function editarGasto(id) {
   }
 
   const campoId = document.getElementById("gasto-id");
-
   const campoDescricao = document.getElementById("gasto-descricao");
-
   const campoValor = document.getElementById("gasto-valor");
-
   const campoCategoria = document.getElementById("gasto-categoria");
-
   const campoData = document.getElementById("gasto-data");
-
   const campoPagamento = document.getElementById("gasto-pagamento");
-
   const campoObservacao = document.getElementById("gasto-observacao");
 
   if (campoId) {
@@ -4574,11 +4832,8 @@ async function carregarConfiguracoes() {
     //
 
     const configNome = document.getElementById("config-nome");
-
     const configTelefone = document.getElementById("config-telefone");
-
     const configCidade = document.getElementById("config-cidade");
-
     const configEndereco = document.getElementById("config-endereco");
 
     if (configNome) {
@@ -4600,13 +4855,9 @@ async function carregarConfiguracoes() {
     //
     // DADOS DO USUÁRIO
     //
-
     const usuarioNome = document.getElementById("config-usuario-nome");
-
     const usuarioTelefone = document.getElementById("config-usuario-telefone");
-
     const usuarioEmail = document.getElementById("config-usuario-email");
-
     const { data: perfil, error } = await supabaseClient
       .from("profiles")
       .select(
@@ -4659,11 +4910,8 @@ if (formConfiguracaoBarbearia) {
     }
 
     const nome = document.getElementById("config-nome")?.value.trim();
-
     const telefone = document.getElementById("config-telefone")?.value.trim();
-
     const cidade = document.getElementById("config-cidade")?.value.trim();
-
     const endereco = document.getElementById("config-endereco")?.value.trim();
 
     // VALIDAÇÃO
