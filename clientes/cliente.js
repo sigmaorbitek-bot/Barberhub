@@ -2333,16 +2333,12 @@ function configurarEventosNotificacoes() {
   });
 }
 
-// ============================================================
 // 12. PRODUTOS
-// ============================================================
 
 // Estado dos produtos exibidos ao cliente
 let produtosCliente = [];
 
-// ============================================================
 // 12.1 — CARREGAR PRODUTOS
-// ============================================================
 
 async function carregarProdutosCliente() {
   const lista = document.getElementById("lista-produtos-cliente");
@@ -2362,21 +2358,20 @@ async function carregarProdutosCliente() {
       .from("produtos")
       .select(
         `
+        id,
+        barbearia_id,
+        nome,
+        preco,
+        estoque,
+        foto_url,
+        barbearias (
           id,
-          barbearia_id,
           nome,
-          preco,
-          estoque,
-          foto_url,
-
-          barbearias (
-            id,
-            nome,
-            cidade,
-            telefone,
-            logo_url
-          )
-        `,
+          cidade,
+          telefone,
+          logo_url
+        )
+      `,
       )
       .order("nome", {
         ascending: true,
@@ -2408,9 +2403,7 @@ async function carregarProdutosCliente() {
   }
 }
 
-// ============================================================
 // 12.2 — AGRUPAR PRODUTOS POR BARBEARIA
-// ============================================================
 
 function agruparProdutosPorBarbearia(produtos) {
   const grupos = new Map();
@@ -2435,24 +2428,36 @@ function agruparProdutosPorBarbearia(produtos) {
   return Array.from(grupos.values());
 }
 
-// ============================================================
 // 12.3 — CRIAR PEDIDO DO PRODUTO
-// ============================================================
 
 async function comprarProdutoCliente(produtoId) {
-  // ----------------------------------------------------------
-  // VERIFICAR USUÁRIO
-  // ----------------------------------------------------------
+  // VALIDAR SESSÃO
 
   if (!usuarioAtual) {
     alert("Sua sessão expirou. Faça login novamente.");
-
     return;
   }
 
-  // ----------------------------------------------------------
+  // CONFIRMAR USUÁRIO AUTENTICADO
+
+  const {
+    data: { user },
+    error: erroSessao,
+  } = await supabaseClient.auth.getUser();
+
+  console.log("[BarberHub] VERIFICAÇÃO DA SESSÃO", {
+    usuarioAtual_id: usuarioAtual?.id,
+    auth_user_id: user?.id,
+    iguais: usuarioAtual?.id === user?.id,
+    erro: erroSessao,
+  });
+
+  if (erroSessao || !user) {
+    alert("Sua sessão expirou. Faça login novamente.");
+    return;
+  }
+
   // VALIDAR PRODUTO
-  // ----------------------------------------------------------
 
   if (!produtoId) {
     return;
@@ -2464,96 +2469,65 @@ async function comprarProdutoCliente(produtoId) {
 
   if (!produto) {
     alert("Produto não encontrado.");
-
     return;
   }
 
-  // ----------------------------------------------------------
-  // VERIFICAR ESTOQUE
-  // ----------------------------------------------------------
+  // VERIFICAR ESTOQUE LOCAL
 
   const estoque = Number(produto.estoque) || 0;
 
   if (estoque <= 0) {
     alert("Este produto está esgotado.");
-
     return;
   }
 
-  // ----------------------------------------------------------
   // VERIFICAR BARBEARIA
-  // ----------------------------------------------------------
 
   const barbearia = produto.barbearias;
 
   if (!barbearia) {
     alert("Barbearia do produto não encontrada.");
-
     return;
   }
 
   if (!produto.barbearia_id) {
     alert("O produto não está vinculado a uma barbearia.");
-
     return;
   }
 
   if (!barbearia.telefone) {
     alert("Esta barbearia não possui telefone cadastrado.");
-
     return;
   }
 
   try {
-    // --------------------------------------------------------
-    // CRIAR PEDIDO
-    // --------------------------------------------------------
+    // CRIAR PEDIDO ATRAVÉS DA RPC
 
-    const { data: pedido, error } = await supabaseClient
-      .from("pedidos")
-      .insert({
-        cliente_id: usuarioAtual.id,
-
-        barbearia_id: produto.barbearia_id,
-
-        produto_id: produto.id,
-
-        quantidade: 1,
-
-        preco_unitario: produto.preco,
-
-        status: "pendente",
-      })
-      .select(
-        `
-          id,
-          cliente_id,
-          barbearia_id,
-          produto_id,
-          quantidade,
-          preco_unitario,
-          status,
-          created_at
-        `,
-      )
-      .single();
+    const { data: pedido, error } = await supabaseClient.rpc("criar_pedido", {
+      p_produto_id: produto.id,
+      p_quantidade: 1,
+    });
 
     if (error) {
       throw error;
     }
 
+    if (!pedido) {
+      throw new Error("A função criar_pedido não retornou o pedido criado.");
+    }
+
     console.log("[BarberHub] Pedido criado:", pedido);
 
-    // --------------------------------------------------------
+    // ATUALIZAR ESTOQUE LOCAL
+
+    produto.estoque = Math.max(0, estoque - 1);
+
     // NOME DO CLIENTE
-    // --------------------------------------------------------
 
     const nomeClienteAtual =
       perfilAtual?.nome || usuarioAtual.email || "Cliente";
 
-    // --------------------------------------------------------
     // MONTAR MENSAGEM
-    // --------------------------------------------------------
 
     const mensagem = `Olá! 👋
 
@@ -2579,15 +2553,13 @@ Gostaria de confirmar a compra e saber como realizar o pagamento.
 
 Pedido iniciado pelo BarberHub.`;
 
-    // --------------------------------------------------------
     // ABRIR WHATSAPP
-    // --------------------------------------------------------
 
     const abriu = abrirWhatsApp(barbearia.telefone, mensagem);
 
     if (!abriu) {
-      // O pedido foi criado,
-      // mesmo que o WhatsApp não abra.
+      renderizarProdutosCliente();
+
       mostrarMensagem(
         "mensagem-produto",
         "Pedido criado, mas não foi possível abrir o WhatsApp.",
@@ -2597,9 +2569,11 @@ Pedido iniciado pelo BarberHub.`;
       return;
     }
 
-    // --------------------------------------------------------
+    // ATUALIZAR TELA
+
+    renderizarProdutosCliente();
+
     // MENSAGEM DE SUCESSO
-    // --------------------------------------------------------
 
     mostrarMensagem(
       "mensagem-produto",
@@ -2609,9 +2583,45 @@ Pedido iniciado pelo BarberHub.`;
   } catch (erro) {
     mostrarErroConsole("Erro ao criar pedido", erro);
 
-    // --------------------------------------------------------
+    // ERRO DE ESTOQUE
+
+    if (erro?.message?.toLowerCase().includes("estoque insuficiente")) {
+      await carregarProdutosCliente();
+
+      mostrarMensagem(
+        "mensagem-produto",
+        "Este produto acabou de ficar sem estoque.",
+        "erro",
+      );
+
+      return;
+    }
+
+    // ERRO DE AUTENTICAÇÃO
+
+    if (erro?.message?.toLowerCase().includes("não autenticado")) {
+      mostrarMensagem(
+        "mensagem-produto",
+        "Sua sessão expirou. Faça login novamente.",
+        "erro",
+      );
+
+      return;
+    }
+
+    // ERRO DE CLIENTE
+
+    if (erro?.message?.toLowerCase().includes("não é um cliente")) {
+      mostrarMensagem(
+        "mensagem-produto",
+        "Sua conta não possui permissão de cliente.",
+        "erro",
+      );
+
+      return;
+    }
+
     // ERRO DE RLS
-    // --------------------------------------------------------
 
     if (erro?.code === "42501") {
       mostrarMensagem(
@@ -2623,6 +2633,8 @@ Pedido iniciado pelo BarberHub.`;
       return;
     }
 
+    // ERRO GENÉRICO
+
     mostrarMensagem(
       "mensagem-produto",
       "Não foi possível registrar seu pedido.",
@@ -2631,9 +2643,7 @@ Pedido iniciado pelo BarberHub.`;
   }
 }
 
-// ============================================================
 // 12.4 — RENDERIZAR PRODUTOS
-// ============================================================
 
 function renderizarProdutosCliente() {
   const lista = document.getElementById("lista-produtos-cliente");
@@ -2642,22 +2652,17 @@ function renderizarProdutosCliente() {
     return;
   }
 
-  // ----------------------------------------------------------
   // SOMENTE PRODUTOS DISPONÍVEIS
-  // ----------------------------------------------------------
 
   const produtosDisponiveis = produtosCliente.filter(
     (produto) => Number(produto.estoque) > 0,
   );
 
-  // ----------------------------------------------------------
   // NENHUM PRODUTO
-  // ----------------------------------------------------------
 
   if (!produtosDisponiveis.length) {
     lista.innerHTML = `
       <div class="lista-vazia">
-
         <p>
           🛍️ Nenhum produto disponível no momento.
         </p>
@@ -2666,22 +2671,17 @@ function renderizarProdutosCliente() {
           As barbearias ainda não possuem produtos disponíveis
           para venda.
         </small>
-
       </div>
     `;
 
     return;
   }
 
-  // ----------------------------------------------------------
-  // AGRUPAR
-  // ----------------------------------------------------------
+  // AGRUPAR POR BARBEARIA
 
   const grupos = agruparProdutosPorBarbearia(produtosDisponiveis);
 
-  // ----------------------------------------------------------
   // RENDERIZAR
-  // ----------------------------------------------------------
 
   lista.innerHTML = grupos
     .map((grupo) => {
@@ -2696,130 +2696,107 @@ function renderizarProdutosCliente() {
           const estoque = Number(produto.estoque) || 0;
 
           return `
-                    <article
-                      class="item-produto-cliente"
-                    >
+              <article
+                class="item-produto-cliente"
+              >
+                <div
+                  class="item-produto-cliente-imagem"
+                >
+                  <img
+                    src="${escapeHTML(foto)}"
+                    alt="${escapeHTML(produto.nome || "Produto")}"
+                    onerror="this.src='../assets/barber.png'"
+                  />
+                </div>
 
-                      <div
-                        class="item-produto-cliente-imagem"
-                      >
+                <div
+                  class="item-produto-cliente-conteudo"
+                >
+                  <h4>
+                    ${escapeHTML(produto.nome || "Produto")}
+                  </h4>
 
-                        <img
-                          src="${escapeHTML(foto)}"
-                          alt="${escapeHTML(produto.nome || "Produto")}"
-                          onerror="this.src='../assets/barber.png'"
-                        />
+                  <strong>
+                    ${formatarPreco(produto.preco)}
+                  </strong>
 
-                      </div>
+                  <small>
+                    ✅ Disponível
+                  </small>
 
+                  <span
+                    class="produto-estoque"
+                  >
+                    ${estoque}
+                    ${
+                      estoque === 1
+                        ? " unidade disponível"
+                        : " unidades disponíveis"
+                    }
+                  </span>
 
-                      <div
-                        class="item-produto-cliente-conteudo"
-                      >
-
-                        <h4>
-                          ${escapeHTML(produto.nome || "Produto")}
-                        </h4>
-
-                        <strong>
-                          ${formatarPreco(produto.preco)}
-                        </strong>
-
-                        <small>
-                          ✅ Disponível
-                        </small>
-
-                        <span
-                          class="produto-estoque"
-                        >
-                          ${estoque}
-                          ${
-                            estoque === 1
-                              ? " unidade disponível"
-                              : " unidades disponíveis"
-                          }
-                        </span>
-
-                        <button
-                          type="button"
-                          class="btn-principal btn-comprar-produto"
-                          onclick="comprarProdutoCliente('${escapeHTML(
-                            produto.id,
-                          )}')"
-                        >
-                          🛒 Comprar
-                        </button>
-
-                      </div>
-
-                    </article>
-                  `;
+                  <button
+                    type="button"
+                    class="btn-principal btn-comprar-produto"
+                    onclick="comprarProdutoCliente('${escapeHTML(produto.id)}')"
+                  >
+                    🛒 Comprar
+                  </button>
+                </div>
+              </article>
+            `;
         })
         .join("");
 
       return `
-            <section
-              class="produtos-barbearia"
+        <section
+          class="produtos-barbearia"
+        >
+          <div
+            class="produtos-barbearia-cabecalho"
+          >
+            <div
+              class="produtos-barbearia-logo"
             >
+              <img
+                src="${escapeHTML(logo)}"
+                alt="Logo ${escapeHTML(barbearia.nome || "Barbearia")}"
+                onerror="this.src='../assets/barber.png'"
+              />
+            </div>
 
-              <div
-                class="produtos-barbearia-cabecalho"
-              >
+            <div
+              class="produtos-barbearia-info"
+            >
+              <h3>
+                ${escapeHTML(barbearia.nome || "Barbearia")}
+              </h3>
 
-                <div
-                  class="produtos-barbearia-logo"
-                >
+              ${
+                barbearia.cidade
+                  ? `
+                    <p>
+                      📍
+                      ${escapeHTML(barbearia.cidade)}
+                    </p>
+                  `
+                  : ""
+              }
+            </div>
+          </div>
 
-                  <img
-                    src="${escapeHTML(logo)}"
-                    alt="Logo ${escapeHTML(barbearia.nome || "Barbearia")}"
-                    onerror="this.src='../assets/barber.png'"
-                  />
-
-                </div>
-
-
-                <div
-                  class="produtos-barbearia-info"
-                >
-
-                  <h3>
-                    ${escapeHTML(barbearia.nome || "Barbearia")}
-                  </h3>
-
-                  ${
-                    barbearia.cidade
-                      ? `
-                        <p>
-                          📍
-                          ${escapeHTML(barbearia.cidade)}
-                        </p>
-                      `
-                      : ""
-                  }
-
-                </div>
-
-              </div>
-
-
-              <div
-                class="produtos-barbearia-lista"
-              >
-
-                ${produtos}
-
-              </div>
-
-            </section>
-          `;
+          <div
+            class="produtos-barbearia-lista"
+          >
+            ${produtos}
+          </div>
+        </section>
+      `;
     })
     .join("");
 }
 
-// ============================================================
 // 12.5 — ATUALIZAR PRODUTOS
-// ============================================================
 
 async function atualizarProdutosCliente() {
   await carregarProdutosCliente();
@@ -3246,9 +3223,7 @@ async function enviarAvaliacao(agendamentoId) {
   }
 
   try {
-    // --------------------------------------------------------
     // BOTÃO
-    // --------------------------------------------------------
 
     const botao = document.querySelector(
       `.btn-enviar-avaliacao[data-agendamento-id="${agendamentoId}"]`,
@@ -3259,9 +3234,7 @@ async function enviarAvaliacao(agendamentoId) {
       botao.textContent = "Enviando...";
     }
 
-    // --------------------------------------------------------
     // INSERIR AVALIAÇÃO
-    // --------------------------------------------------------
 
     const { data, error } = await supabaseClient
       .from("avaliacoes")
@@ -3302,9 +3275,7 @@ async function enviarAvaliacao(agendamentoId) {
 
     console.log("Avaliação criada:", data);
 
-    // --------------------------------------------------------
     // SUCESSO
-    // --------------------------------------------------------
 
     mostrarMensagem(
       "mensagem-avaliacao",
@@ -3312,9 +3283,7 @@ async function enviarAvaliacao(agendamentoId) {
       "sucesso",
     );
 
-    // --------------------------------------------------------
     // ATUALIZAR TELA
-    // --------------------------------------------------------
 
     await carregarAvaliacoesCliente();
   } catch (erro) {

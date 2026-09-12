@@ -192,23 +192,19 @@ if (btnMenuBottom) {
 
 function mudarAba(aba) {
   const botoes = document.querySelectorAll(".menu-item");
-
   const conteudos = document.querySelectorAll(".painel-conteudo");
 
   // MENU PRINCIPAL
-
   botoes.forEach((botao) => {
     botao.classList.toggle("menu-item--ativo", botao.dataset.aba === aba);
   });
 
   // CONTEÚDO DAS ABAS
-
   conteudos.forEach((conteudo) => {
     conteudo.hidden = conteudo.id !== `conteudo-${aba}`;
   });
 
   // NAVEGAÇÃO INFERIOR MOBILE
-
   document.querySelectorAll(".mobile-bottom-item").forEach((botao) => {
     botao.classList.toggle(
       "mobile-bottom-item--ativo",
@@ -217,20 +213,29 @@ function mudarAba(aba) {
   });
 
   // FECHA MENU MOBILE
-
   fecharMenuMobile();
 
   // VOLTA PARA O TOPO
-
   window.scrollTo({
     top: 0,
     behavior: "smooth",
   });
 
   // CARREGAMENTOS ESPECÍFICOS
-
   if (aba === "visao-geral") {
     carregarDashboard();
+  }
+
+  if (aba === "servicos") {
+    carregarServicos();
+  }
+
+  if (aba === "produtos") {
+    carregarProdutos();
+  }
+
+  if (aba === "pedidos") {
+    carregarPedidos();
   }
 
   if (aba === "agendamentos") {
@@ -251,6 +256,10 @@ function mudarAba(aba) {
 
   if (aba === "financeiro") {
     carregarFinanceiro();
+  }
+
+  if (aba === "avaliacoes") {
+    carregarAvaliacoes();
   }
 
   if (aba === "configuracoes") {
@@ -686,11 +695,8 @@ function editarServico(id) {
 
   // Preencher formulário
   document.getElementById("servico-id").value = servico.id;
-
   document.getElementById("servico-nome").value = servico.nome || "";
-
   document.getElementById("servico-preco").value = servico.preco ?? "";
-
   document.getElementById("servico-duracao").value = servico.duracao ?? "";
 
   // Alterar botão
@@ -767,25 +773,34 @@ async function excluirServico(id) {
 
 // 7. PRODUTOS E ESTOQUE
 
-// 7.1 — Elementos da seção
+// 7.1 — ELEMENTOS DA SEÇÃO
 
 const formProduto = document.getElementById("form-produto");
+
 const listaProdutosEl = document.getElementById("lista-produtos");
+
 const btnSalvarProduto = document.getElementById("btn-salvar-produto");
+
 const btnCancelarProduto = document.getElementById("btn-cancelar-produto");
+
 const inputFotoProduto = document.getElementById("produto-foto");
+
 const previewProduto = document.getElementById("preview-produto");
+
 const previewProdutoImg = document.getElementById("preview-produto-img");
 
-// 7.2 — Storage: envio de arquivos
+// 7.2 — STORAGE: ENVIO DE ARQUIVOS
 
 async function enviarArquivoStorage(arquivo, pasta) {
   if (!arquivo || !sessaoAtual?.user?.id) {
     return null;
   }
+
   const extensao = arquivo.name.split(".").pop()?.toLowerCase() || "jpg";
 
-  const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}.${extensao}`;
+  const nomeArquivo = `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}.${extensao}`;
 
   const caminho = `${sessaoAtual.user.id}/${pasta}/${nomeArquivo}`;
 
@@ -799,8 +814,6 @@ async function enviarArquivoStorage(arquivo, pasta) {
   if (error) {
     console.error("Erro ao enviar arquivo:", error);
 
-    alert("Não foi possível enviar a imagem.");
-
     return null;
   }
 
@@ -810,7 +823,8 @@ async function enviarArquivoStorage(arquivo, pasta) {
 
   return data?.publicUrl || null;
 }
-// 7.3 — Carregar produtos
+
+// 7.3 — CARREGAR PRODUTOS
 
 async function carregarProdutos() {
   if (!listaProdutosEl || !lojaId) {
@@ -819,7 +833,17 @@ async function carregarProdutos() {
 
   const { data, error } = await supabaseClient
     .from("produtos")
-    .select("*")
+    .select(
+      `
+        id,
+        barbearia_id,
+        nome,
+        preco,
+        estoque,
+        foto_url,
+        created_at
+      `,
+    )
     .eq("barbearia_id", lojaId)
     .order("created_at", {
       ascending: true,
@@ -829,10 +853,10 @@ async function carregarProdutos() {
     console.error("Erro ao carregar produtos:", error);
 
     listaProdutosEl.innerHTML = `
-            <p class="em-breve">
-                Não foi possível carregar os produtos.
-            </p>
-        `;
+      <p class="em-breve">
+        Não foi possível carregar os produtos.
+      </p>
+    `;
 
     return false;
   }
@@ -844,7 +868,7 @@ async function carregarProdutos() {
   return true;
 }
 
-// 7.4 — Renderizar produtos
+// 7.4 — RENDERIZAR PRODUTOS
 
 function renderizarProdutos(produtos) {
   if (!listaProdutosEl) {
@@ -855,77 +879,83 @@ function renderizarProdutos(produtos) {
 
   if (!produtos.length) {
     listaProdutosEl.innerHTML = `
-            <p class="em-breve">
-                Nenhum produto cadastrado.
-            </p>
-        `;
+      <p class="em-breve">
+        Nenhum produto cadastrado.
+      </p>
+    `;
 
     return;
   }
 
   produtos.forEach((produto) => {
     const item = document.createElement("div");
+
     item.classList.add("item-lista");
 
+    const estoque = Number(produto.estoque) || 0;
+
     item.innerHTML = `
-            <div class="item-info item-info--com-foto">
+      <div class="item-info item-info--com-foto">
 
-                ${
-                  produto.foto_url
-                    ? `
-                            <img
-                                src="${escaparHtml(produto.foto_url)}"
-                                alt="${escaparHtml(produto.nome)}"
-                                class="produto-thumb"
-                            >
-                        `
-                    : `
-                            <div class="produto-thumb produto-thumb--vazia">
-                                🧴
-                            </div>
-                        `
-                }
-                <div>
+        ${
+          produto.foto_url
+            ? `
+              <img
+                src="${escaparHtml(produto.foto_url)}"
+                alt="${escaparHtml(produto.nome || "Produto")}"
+                class="produto-thumb"
+                onerror="this.style.display='none'"
+              >
+            `
+            : `
+              <div
+                class="produto-thumb produto-thumb--vazia"
+              >
+                🛍️ 
+              </div>
+            `
+        }
 
-                    <h3>
-                        ${escaparHtml(produto.nome || "Produto")}
-                    </h3>
+        <div>
+          <h3>
+            ${escaparHtml(produto.nome || "Produto")}
+          </h3>
 
-                    <p>
-                        ${formatarMoeda(produto.preco)}
-                        ·
-                        Estoque: ${Number(produto.estoque || 0)}
-                    </p>
+          <p>
+            ${formatarMoeda(produto.preco)}
+            ·
+            Estoque: ${estoque}
+          </p>
+        </div>
 
-                </div>
+      </div>
 
-            </div>
+      <div class="item-acoes">
 
-            <div class="item-acoes">
+        <button
+          type="button"
+          title="Editar produto"
+          onclick="editarProduto('${escaparHtml(produto.id)}')"
+        >
+          ✏️
+        </button>
 
-                <button
-                    type="button"
-                    title="Editar"
-                    onclick="editarProduto('${produto.id}')"
-                >
-                    ✏️
-                </button>
+        <button
+          type="button"
+          title="Excluir produto"
+          onclick="excluirProduto('${escaparHtml(produto.id)}')"
+        >
+          🗑️
+        </button>
 
-                <button
-                    type="button"
-                    title="Excluir"
-                    onclick="excluirProduto('${produto.id}')"
-                >
-                    🗑️
-                </button>
+      </div>
+    `;
 
-            </div>
-        `;
     listaProdutosEl.appendChild(item);
   });
 }
 
-// 7.5 — Pré-visualização da foto
+// 7.5 — PRÉ-VISUALIZAÇÃO DA FOTO
 
 if (inputFotoProduto) {
   inputFotoProduto.addEventListener("change", () => {
@@ -949,13 +979,17 @@ if (inputFotoProduto) {
   });
 }
 
-// 7.6 — Salvar produto
+// 7.6 — SALVAR PRODUTO
 
 if (formProduto) {
   formProduto.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    // IDENTIFICAÇÃO
+
     const id = document.getElementById("produto-id")?.value;
+
+    // DADOS
 
     const nome = document.getElementById("produto-nome")?.value.trim();
 
@@ -968,9 +1002,22 @@ if (formProduto) {
 
     const arquivoFoto = document.getElementById("produto-foto")?.files?.[0];
 
-    const fotoAtual = document.getElementById("produto-foto-atual")?.value;
+    const fotoAtual =
+      document.getElementById("produto-foto-atual")?.value || "";
 
-    // Validação
+    // VALIDAR BARBEARIA
+
+    if (!lojaId) {
+      mostrarMensagem(
+        "mensagem-produto",
+        "Nenhuma barbearia foi selecionada.",
+        "erro",
+      );
+
+      return;
+    }
+
+    // VALIDAR CAMPOS
 
     if (
       !nome ||
@@ -988,61 +1035,76 @@ if (formProduto) {
       return;
     }
 
-    // Estado do botão
+    // ESTADO DO BOTÃO
 
     if (btnSalvarProduto) {
       btnSalvarProduto.disabled = true;
+
       btnSalvarProduto.textContent = "Salvando...";
     }
 
-    // Foto
+    try {
+      // FOTO
 
-    let fotoUrl = fotoAtual || null;
+      let fotoUrl = fotoAtual || null;
 
-    if (arquivoFoto) {
-      const novaFoto = await enviarArquivoStorage(arquivoFoto, "produtos");
+      if (arquivoFoto) {
+        const novaFoto = await enviarArquivoStorage(arquivoFoto, "produtos");
 
-      if (novaFoto) {
+        if (!novaFoto) {
+          throw new Error("Não foi possível enviar a imagem do produto.");
+        }
+
         fotoUrl = novaFoto;
       }
-    }
 
-    // Dados do produto
+      // DADOS DO PRODUTO
 
-    const dadosProduto = {
-      nome,
-      preco,
-      estoque,
-      foto_url: fotoUrl,
-    };
+      const dadosProduto = {
+        nome,
+        preco,
+        estoque,
+        foto_url: fotoUrl,
+      };
 
-    // Atualizar produto existente
+      // ATUALIZAR PRODUTO
 
-    let erro = null;
+      if (id) {
+        const { error } = await supabaseClient
+          .from("produtos")
+          .update(dadosProduto)
+          .eq("id", id)
+          .eq("barbearia_id", lojaId);
 
-    if (id) {
-      const resposta = await supabaseClient
-        .from("produtos")
-        .update(dadosProduto)
-        .eq("id", id)
-        .eq("barbearia_id", lojaId);
+        if (error) {
+          throw error;
+        }
+      }
 
-      erro = resposta.error;
-    }
+      // CRIAR PRODUTO
+      else {
+        const { error } = await supabaseClient.from("produtos").insert({
+          barbearia_id: lojaId,
+          ...dadosProduto,
+        });
 
-    // Criar novo produto
-    else {
-      const resposta = await supabaseClient.from("produtos").insert({
-        barbearia_id: lojaId,
-        ...dadosProduto,
-      });
+        if (error) {
+          throw error;
+        }
+      }
 
-      erro = resposta.error;
-    }
+      // FINALIZAÇÃO
 
-    // Tratamento de erro
+      cancelarEdicaoProduto();
 
-    if (erro) {
+      await carregarProdutos();
+
+      mostrarMensagem(
+        "mensagem-produto",
+        "Produto salvo com sucesso! ✅",
+        "sucesso",
+      );
+    } catch (erro) {
       console.error("Erro ao salvar produto:", erro);
 
       mostrarMensagem(
@@ -1050,7 +1112,7 @@ if (formProduto) {
         "Não foi possível salvar o produto.",
         "erro",
       );
-
+    } finally {
       if (btnSalvarProduto) {
         btnSalvarProduto.disabled = false;
 
@@ -1058,46 +1120,51 @@ if (formProduto) {
           ? "Salvar edição"
           : "+ Adicionar produto";
       }
-
-      return;
     }
-
-    // Finalização
-
-    cancelarEdicaoProduto();
-
-    await carregarProdutos();
-
-    mostrarMensagem(
-      "mensagem-produto",
-      "Produto salvo com sucesso!",
-      "sucesso",
-    );
   });
 }
 
-// 7.7 — Editar produto
+// 7.7 — EDITAR PRODUTO
 
 function editarProduto(id) {
   const produto = produtosCache.find((item) => String(item.id) === String(id));
 
   if (!produto) {
     alert("Produto não encontrado.");
-
     return;
   }
 
-  document.getElementById("produto-id").value = produto.id;
+  const campoId = document.getElementById("produto-id");
+  const campoNome = document.getElementById("produto-nome");
+  const campoPreco = document.getElementById("produto-preco");
+  const campoEstoque = document.getElementById("produto-estoque");
+  const campoFotoAtual = document.getElementById("produto-foto-atual");
 
-  document.getElementById("produto-nome").value = produto.nome || "";
+  if (campoId) {
+    campoId.value = produto.id;
+  }
 
-  document.getElementById("produto-preco").value = produto.preco ?? "";
+  if (campoNome) {
+    campoNome.value = produto.nome || "";
+  }
 
-  document.getElementById("produto-estoque").value = produto.estoque ?? 0;
+  if (campoPreco) {
+    campoPreco.value = produto.preco ?? "";
+  }
 
-  document.getElementById("produto-foto-atual").value = produto.foto_url || "";
+  if (campoEstoque) {
+    campoEstoque.value = produto.estoque ?? 0;
+  }
 
-  document.getElementById("produto-foto").value = "";
+  if (campoFotoAtual) {
+    campoFotoAtual.value = produto.foto_url || "";
+  }
+
+  if (inputFotoProduto) {
+    inputFotoProduto.value = "";
+  }
+
+  // PREVIEW
 
   if (produto.foto_url && previewProdutoImg) {
     previewProdutoImg.src = produto.foto_url;
@@ -1105,7 +1172,11 @@ function editarProduto(id) {
     if (previewProduto) {
       previewProduto.hidden = false;
     }
+  } else if (previewProduto) {
+    previewProduto.hidden = true;
   }
+
+  // BOTÕES
 
   if (btnSalvarProduto) {
     btnSalvarProduto.textContent = "Salvar edição";
@@ -1117,10 +1188,11 @@ function editarProduto(id) {
 
   formProduto?.scrollIntoView({
     behavior: "smooth",
+    block: "center",
   });
 }
 
-// 7.8 — Cancelar edição
+// 7.8 — CANCELAR EDIÇÃO
 
 function cancelarEdicaoProduto() {
   if (!formProduto) {
@@ -1160,16 +1232,26 @@ function cancelarEdicaoProduto() {
   }
 }
 
-// 7.9 — Botão cancelar
+// 7.9 — BOTÃO CANCELAR
 
 if (btnCancelarProduto) {
   btnCancelarProduto.addEventListener("click", cancelarEdicaoProduto);
 }
 
-// 7.10 — Excluir produto
+// 7.10 — EXCLUIR PRODUTO
 
 async function excluirProduto(id) {
-  if (!confirm("Remover este produto?")) {
+  if (!id) {
+    return;
+  }
+
+  const produto = produtosCache.find((item) => String(item.id) === String(id));
+
+  const nomeProduto = produto?.nome || "este produto";
+
+  const confirmou = confirm(`Remover "${nomeProduto}"?`);
+
+  if (!confirmou) {
     return;
   }
 
@@ -1188,6 +1270,376 @@ async function excluirProduto(id) {
   }
 
   await carregarProdutos();
+
+  mostrarMensagem(
+    "mensagem-produto",
+    "Produto removido com sucesso. ✅",
+    "sucesso",
+  );
+}
+
+// 8. PEDIDOS DE PRODUTOS
+
+// 8.1 — ELEMENTOS DA SEÇÃO
+
+const listaPedidosEl = document.getElementById("lista-pedidos");
+const mensagemPedidosEl = document.getElementById("mensagem-pedidos");
+
+let pedidosCache = [];
+let filtroPedidosAtual = "todos";
+
+// 8.2 — CARREGAR PEDIDOS
+
+async function carregarPedidos() {
+  if (!listaPedidosEl || !lojaId) {
+    return false;
+  }
+
+  listaPedidosEl.innerHTML = `
+    <p class="em-breve">
+      Carregando pedidos...
+    </p>
+  `;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("pedidos")
+      .select(
+        `
+        id,
+        cliente_id,
+        barbearia_id,
+        produto_id,
+        quantidade,
+        preco_unitario,
+        status,
+        created_at,
+        atualizado_at,
+        profiles:cliente_id (
+          id,
+          nome,
+          telefone
+        ),
+        produtos:produto_id (
+          id,
+          nome,
+          preco,
+          foto_url
+        )
+      `,
+      )
+      .eq("barbearia_id", lojaId)
+      .order("created_at", {
+        ascending: false,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    pedidosCache = data || [];
+
+    renderizarPedidos();
+
+    return true;
+  } catch (erro) {
+    console.error("Erro ao carregar pedidos:", erro);
+
+    listaPedidosEl.innerHTML = `
+      <p class="em-breve">
+        Não foi possível carregar os pedidos.
+      </p>
+    `;
+
+    return false;
+  }
+}
+
+// 8.3 — FILTRAR E RENDERIZAR
+
+function renderizarPedidos() {
+  if (!listaPedidosEl) {
+    return;
+  }
+
+  let pedidos = [...pedidosCache];
+
+  if (filtroPedidosAtual !== "todos") {
+    pedidos = pedidos.filter((pedido) => pedido.status === filtroPedidosAtual);
+  }
+
+  listaPedidosEl.innerHTML = "";
+
+  if (!pedidos.length) {
+    listaPedidosEl.innerHTML = `
+      <p class="em-breve">
+        Nenhum pedido encontrado.
+      </p>
+    `;
+
+    return;
+  }
+
+  pedidos.forEach((pedido) => {
+    const item = document.createElement("div");
+
+    item.classList.add("item-lista");
+
+    const cliente = pedido.profiles;
+    const produto = pedido.produtos;
+
+    const quantidade = Number(pedido.quantidade) || 0;
+    const precoUnitario = Number(pedido.preco_unitario) || 0;
+    const total = quantidade * precoUnitario;
+
+    const status = pedido.status || "pendente";
+
+    const dataPedido = pedido.created_at
+      ? new Date(pedido.created_at).toLocaleString("pt-BR")
+      : "Data não informada";
+
+    const telefone = cliente?.telefone || "Telefone não informado";
+
+    item.innerHTML = `
+      <div class="item-info item-info--com-foto">
+
+        ${
+          produto?.foto_url
+            ? `
+              <img
+                src="${escaparHtml(produto.foto_url)}"
+                alt="${escaparHtml(produto.nome || "Produto")}"
+                class="produto-thumb"
+                onerror="this.style.display='none'"
+              >
+            `
+            : `
+              <div class="produto-thumb produto-thumb--vazia">
+                🛍️
+              </div>
+            `
+        }
+
+        <div>
+          <h3>
+            ${escaparHtml(produto?.nome || "Produto")}
+          </h3>
+
+          <p>
+            Cliente:
+            ${escaparHtml(cliente?.nome || "Cliente")}
+          </p>
+
+          <p>
+            ${escaparHtml(telefone)}
+          </p>
+
+          <p>
+            Quantidade: ${quantidade}
+            ·
+            Total: ${formatarMoeda(total)}
+          </p>
+
+          <p>
+            Pedido:
+            ${dataPedido}
+          </p>
+
+          <p>
+            Status:
+            <strong>
+              ${formatarStatusPedido(status)}
+            </strong>
+          </p>
+        </div>
+
+      </div>
+
+      <div class="item-acoes">
+
+        ${
+          status === "pendente"
+            ? `
+              <button
+                type="button"
+                title="Confirmar pedido"
+                onclick="confirmarPedido('${pedido.id}')"
+              >
+                ✅
+              </button>
+
+              <button
+                type="button"
+                title="Cancelar pedido"
+                onclick="cancelarPedido('${pedido.id}')"
+              >
+                ❌
+              </button>
+            `
+            : ""
+        }
+
+      </div>
+    `;
+
+    listaPedidosEl.appendChild(item);
+  });
+}
+
+// 8.4 — STATUS
+
+function formatarStatusPedido(status) {
+  const statusMap = {
+    pendente: "Pendente",
+    confirmado: "Confirmado",
+    cancelado: "Cancelado",
+  };
+
+  return statusMap[status] || status;
+}
+
+// 8.5 — FILTROS
+
+document.querySelectorAll(".filtro-pedido").forEach((botao) => {
+  botao.addEventListener("click", () => {
+    filtroPedidosAtual = botao.dataset.filtroPedido || "todos";
+
+    document.querySelectorAll(".filtro-pedido").forEach((item) => {
+      item.classList.toggle("filtro--ativo", item === botao);
+    });
+
+    renderizarPedidos();
+  });
+});
+
+// 8.6 — CONFIRMAR PEDIDO
+
+async function confirmarPedido(id) {
+  if (!id) {
+    return;
+  }
+
+  const pedido = pedidosCache.find((item) => String(item.id) === String(id));
+
+  if (!pedido) {
+    mostrarMensagem("mensagem-pedidos", "Pedido não encontrado.", "erro");
+
+    return;
+  }
+
+  if (pedido.status !== "pendente") {
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Somente pedidos pendentes podem ser confirmados.",
+      "erro",
+    );
+
+    return;
+  }
+
+  const confirmou = confirm("Confirmar este pedido?");
+
+  if (!confirmou) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("pedidos")
+      .update({
+        status: "confirmado",
+        atualizado_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("barbearia_id", lojaId)
+      .eq("status", "pendente");
+
+    if (error) {
+      throw error;
+    }
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Pedido confirmado com sucesso! ✅",
+      "sucesso",
+    );
+
+    await carregarPedidos();
+  } catch (erro) {
+    console.error("Erro ao confirmar pedido:", erro);
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Não foi possível confirmar o pedido.",
+      "erro",
+    );
+  }
+}
+
+// 8.7 — CANCELAR PEDIDO
+
+async function cancelarPedido(id) {
+  if (!id) {
+    return;
+  }
+
+  const pedido = pedidosCache.find((item) => String(item.id) === String(id));
+
+  if (!pedido) {
+    mostrarMensagem("mensagem-pedidos", "Pedido não encontrado.", "erro");
+
+    return;
+  }
+
+  if (pedido.status !== "pendente") {
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Somente pedidos pendentes podem ser cancelados.",
+      "erro",
+    );
+
+    return;
+  }
+
+  const confirmou = confirm(
+    "Cancelar este pedido?\n\nO estoque será devolvido automaticamente.",
+  );
+
+  if (!confirmou) {
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient.rpc("cancelar_pedido", {
+      p_pedido_id: id,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    console.log("[BarberHub] Pedido cancelado:", data);
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Pedido cancelado e estoque devolvido. ✅",
+      "sucesso",
+    );
+
+    await carregarPedidos();
+
+    // Atualiza também os produtos caso o usuário
+    // volte para a aba de estoque.
+    await carregarProdutos();
+  } catch (erro) {
+    console.error("Erro ao cancelar pedido:", erro);
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Não foi possível cancelar o pedido.",
+      "erro",
+    );
+  }
 }
 
 // 8. AGENDAMENTOS
@@ -1670,13 +2122,9 @@ document.querySelectorAll(".filtro-agendamento").forEach((botao) => {
 // 9.1 — Elementos da seção
 
 const listaClientesEl = document.getElementById("lista-clientes");
-
 const formCliente = document.getElementById("form-cliente");
-
 const btnSalvarCliente = document.getElementById("btn-salvar-cliente");
-
 const btnCancelarCliente = document.getElementById("btn-cancelar-cliente");
-
 const campoClienteId = document.getElementById("cliente-id");
 
 // 9.2 — Cadastrar / Editar cliente
@@ -1686,20 +2134,15 @@ if (formCliente) {
     event.preventDefault();
 
     const clienteId = campoClienteId?.value.trim();
-
     const nome = document.getElementById("cliente-nome")?.value.trim();
-
     const telefone = document.getElementById("cliente-telefone")?.value.trim();
 
-    // VALIDAR NOME
+    // Validações
 
     if (!nome) {
       mostrarMensagem("mensagem-cliente", "Informe o nome do cliente.", "erro");
-
       return;
     }
-
-    // VALIDAR BARBEARIA
 
     if (!lojaId) {
       mostrarMensagem(
@@ -1707,33 +2150,51 @@ if (formCliente) {
         "Barbearia não identificada.",
         "erro",
       );
-
       return;
     }
 
-    // BLOQUEAR BOTÃO
-
     if (btnSalvarCliente) {
       btnSalvarCliente.disabled = true;
-
       btnSalvarCliente.textContent = clienteId
         ? "Salvando..."
         : "Cadastrando...";
     }
 
     try {
-      // ========================================================
-      // EDIÇÃO
-      // ========================================================
+      // EDITAR CLIENTE
 
       if (clienteId) {
-        console.log("Tentando editar cliente:", {
-          clienteId,
-          lojaId,
-          nome,
-          telefone,
-        });
+        // Primeiro confirma que o cliente pertence à barbearia
+        const { data: vinculo, error: erroVinculo } = await supabaseClient
+          .from("clientes_barbearias")
+          .select("cliente_id")
+          .eq("cliente_id", clienteId)
+          .eq("barbearia_id", lojaId)
+          .maybeSingle();
 
+        if (erroVinculo) {
+          console.error("Erro ao verificar vínculo do cliente:", erroVinculo);
+
+          mostrarMensagem(
+            "mensagem-cliente",
+            "Não foi possível verificar o cliente.",
+            "erro",
+          );
+
+          return;
+        }
+
+        if (!vinculo) {
+          mostrarMensagem(
+            "mensagem-cliente",
+            "Este cliente não pertence a esta barbearia.",
+            "erro",
+          );
+
+          return;
+        }
+
+        // Atualiza apenas o perfil do cliente já validado
         const { data, error } = await supabaseClient
           .from("profiles")
           .update({
@@ -1741,16 +2202,9 @@ if (formCliente) {
             telefone: telefone || null,
           })
           .eq("id", clienteId)
-          .select("id, nome, telefone");
-
-        console.log("Resultado da edição:", {
-          data,
-          error,
-        });
-
-        // ------------------------------------------------------
-        // TRATAR ERRO
-        // ------------------------------------------------------
+          .eq("tipo", "cliente")
+          .select("id, nome, telefone")
+          .maybeSingle();
 
         if (error) {
           console.error("Erro ao editar cliente:", error);
@@ -1764,34 +2218,19 @@ if (formCliente) {
           return;
         }
 
-        // ------------------------------------------------------
-        // NENHUMA LINHA ATUALIZADA
-        // ------------------------------------------------------
-
-        if (!data || !data.length) {
-          console.error("Nenhum cliente foi atualizado.");
-
+        if (!data) {
           mostrarMensagem(
             "mensagem-cliente",
-            "O cliente não foi atualizado. Verifique se ele ainda pertence a esta barbearia.",
+            "O cliente não foi atualizado.",
             "erro",
           );
 
           return;
         }
 
-        // ------------------------------------------------------
-        // LIMPAR FORMULÁRIO
-        // ------------------------------------------------------
-
         cancelarEdicaoCliente();
 
-        // ------------------------------------------------------
-        // ATUALIZAR LISTA
-        // ------------------------------------------------------
-
         await carregarClientes();
-
         await carregarDashboard();
 
         mostrarMensagem(
@@ -1803,15 +2242,12 @@ if (formCliente) {
         return;
       }
 
-      // ========================================================
       // NOVO CLIENTE
-      // ========================================================
 
-      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const { data: sessionData, error: erroSessao } =
+        await supabaseClient.auth.getSession();
 
-      const session = sessionData?.session;
-
-      if (!session) {
+      if (erroSessao || !sessionData?.session) {
         mostrarMensagem(
           "mensagem-cliente",
           "Sua sessão expirou. Faça login novamente.",
@@ -1820,10 +2256,6 @@ if (formCliente) {
 
         return;
       }
-
-      // --------------------------------------------------------
-      // CADASTRAR CLIENTE
-      // --------------------------------------------------------
 
       const resposta = await supabaseClient.functions.invoke(
         "cadastrar-cliente",
@@ -1835,10 +2267,6 @@ if (formCliente) {
           },
         },
       );
-
-      // --------------------------------------------------------
-      // ERRO DA EDGE FUNCTION
-      // --------------------------------------------------------
 
       if (resposta.error) {
         console.error("Erro ao cadastrar cliente:", resposta.error);
@@ -1852,37 +2280,16 @@ if (formCliente) {
         return;
       }
 
-      // --------------------------------------------------------
-      // ERRO RETORNADO PELA EDGE FUNCTION
-      // --------------------------------------------------------
-
       if (resposta.data?.error) {
         mostrarMensagem("mensagem-cliente", resposta.data.error, "erro");
 
         return;
       }
 
-      // --------------------------------------------------------
-      // LIMPAR FORMULÁRIO
-      // --------------------------------------------------------
-
       cancelarEdicaoCliente();
 
-      // --------------------------------------------------------
-      // ATUALIZAR CLIENTES
-      // --------------------------------------------------------
-
       await carregarClientes();
-
-      // --------------------------------------------------------
-      // ATUALIZAR DASHBOARD
-      // --------------------------------------------------------
-
       await carregarDashboard();
-
-      // --------------------------------------------------------
-      // MENSAGEM
-      // --------------------------------------------------------
 
       mostrarMensagem(
         "mensagem-cliente",
@@ -1898,12 +2305,8 @@ if (formCliente) {
         "erro",
       );
     } finally {
-      // --------------------------------------------------------
-      // RESTAURAR BOTÃO
-      // --------------------------------------------------------
-
       if (btnSalvarCliente) {
-        const aindaEditando = campoClienteId?.value;
+        const aindaEditando = Boolean(campoClienteId?.value);
 
         btnSalvarCliente.disabled = false;
 
@@ -1915,7 +2318,7 @@ if (formCliente) {
   });
 }
 
-// 9.3 — Carregar clientes
+// 9.3 — Carregar clientes da barbearia
 
 async function carregarClientes() {
   if (!listaClientesEl || !lojaId) {
@@ -1924,57 +2327,45 @@ async function carregarClientes() {
 
   const mapaClientes = new Map();
 
-  // ==========================================================
-  // CLIENTES VINCULADOS DIRETAMENTE À BARBEARIA
-  // ==========================================================
-
-  const { data: clientesBarbearia, error: erroClientesBarbearia } =
-    await supabaseClient
-      .from("clientes_barbearias")
-      .select(
-        `
-        cliente_id,
-        profiles(
-          id,
-          nome,
-          telefone
-        )
-      `,
+  const { data, error } = await supabaseClient
+    .from("clientes_barbearias")
+    .select(
+      `
+      cliente_id,
+      profiles (
+        id,
+        nome,
+        telefone
       )
-      .eq("barbearia_id", lojaId);
+    `,
+    )
+    .eq("barbearia_id", lojaId);
 
-  if (erroClientesBarbearia) {
-    console.error(
-      "Erro ao carregar clientes da barbearia:",
-      erroClientesBarbearia,
-    );
-  } else {
-    (clientesBarbearia || []).forEach((registro) => {
-      const cliente = registro.profiles;
+  if (error) {
+    console.error("Erro ao carregar clientes:", error);
 
-      if (!cliente?.id) {
-        return;
-      }
+    listaClientesEl.innerHTML = `
+      <p class="em-breve">
+        Não foi possível carregar os clientes.
+      </p>
+    `;
 
-      mapaClientes.set(cliente.id, cliente);
-    });
+    return false;
   }
 
-  // ==========================================================
-  // ATUALIZAR CACHE
-  // ==========================================================
+  (data || []).forEach((registro) => {
+    const cliente = registro?.profiles;
+
+    if (!cliente?.id) {
+      return;
+    }
+
+    mapaClientes.set(cliente.id, cliente);
+  });
 
   clientesCache = Array.from(mapaClientes.values());
 
-  // ==========================================================
-  // RENDERIZAR CLIENTES
-  // ==========================================================
-
   renderizarClientes(clientesCache);
-
-  // ==========================================================
-  // ATUALIZAR CLIENTES NO AGENDAMENTO
-  // ==========================================================
 
   preencherClientesAgendamento();
 
@@ -1990,8 +2381,6 @@ function renderizarClientes(clientes) {
 
   listaClientesEl.innerHTML = "";
 
-  // NENHUM CLIENTE
-
   if (!clientes.length) {
     listaClientesEl.innerHTML = `
       <p class="em-breve">
@@ -2002,8 +2391,6 @@ function renderizarClientes(clientes) {
     return;
   }
 
-  // RENDERIZAR CADA CLIENTE
-
   clientes.forEach((cliente) => {
     const item = document.createElement("div");
 
@@ -2011,7 +2398,6 @@ function renderizarClientes(clientes) {
 
     item.innerHTML = `
       <div class="item-info">
-
         <h3>
           ${escaparHtml(cliente.nome || "Cliente")}
         </h3>
@@ -2020,26 +2406,27 @@ function renderizarClientes(clientes) {
           ${escaparHtml(cliente.telefone || "Telefone não informado")}
         </p>
 
+        <small>
+          ID: ${escaparHtml(cliente.id)}
+        </small>
       </div>
 
       <div class="item-acoes">
-
         <button
           type="button"
           title="Editar cliente"
-          onclick="editarCliente('${cliente.id}')"
+          onclick="editarCliente('${escaparHtml(cliente.id)}')"
         >
           ✏️
         </button>
 
         <button
           type="button"
-          title="Excluir cliente"
-          onclick="excluirCliente('${cliente.id}')"
+          title="Remover cliente da barbearia"
+          onclick="excluirCliente('${escaparHtml(cliente.id)}')"
         >
           🗑️
         </button>
-
       </div>
     `;
 
@@ -2060,11 +2447,8 @@ function editarCliente(clienteId) {
 
   if (!cliente) {
     alert("Cliente não encontrado.");
-
     return;
   }
-
-  // PREENCHER FORMULÁRIO
 
   if (campoClienteId) {
     campoClienteId.value = cliente.id;
@@ -2082,28 +2466,19 @@ function editarCliente(clienteId) {
     campoTelefone.value = cliente.telefone || "";
   }
 
-  // ALTERAR BOTÃO
-
   if (btnSalvarCliente) {
     btnSalvarCliente.disabled = false;
-
     btnSalvarCliente.textContent = "Salvar edição";
   }
-
-  // MOSTRAR CANCELAR
 
   if (btnCancelarCliente) {
     btnCancelarCliente.hidden = false;
   }
 
-  // LEVAR ATÉ O FORMULÁRIO
-
   formCliente?.scrollIntoView({
     behavior: "smooth",
     block: "start",
   });
-
-  // FOCAR NOME
 
   campoNome?.focus();
 }
@@ -2123,7 +2498,6 @@ function cancelarEdicaoCliente() {
 
   if (btnSalvarCliente) {
     btnSalvarCliente.disabled = false;
-
     btnSalvarCliente.textContent = "+ Cadastrar cliente";
   }
 
@@ -2138,10 +2512,10 @@ if (btnCancelarCliente) {
   btnCancelarCliente.addEventListener("click", cancelarEdicaoCliente);
 }
 
-// 9.8 — Excluir cliente
+// 9.8 — Remover cliente da barbearia
 
 async function excluirCliente(clienteId) {
-  if (!clienteId) {
+  if (!clienteId || !lojaId) {
     return;
   }
 
@@ -2151,78 +2525,54 @@ async function excluirCliente(clienteId) {
 
   if (!cliente) {
     alert("Cliente não encontrado.");
-
     return;
   }
 
-  // CONFIRMAR
-
   const confirmar = confirm(
-    `Deseja excluir o cliente "${cliente.nome || "Cliente"}" da barbearia?`,
+    `Deseja remover "${cliente.nome || "Cliente"}" desta barbearia?`,
   );
 
   if (!confirmar) {
     return;
   }
 
-  // LOG
+  try {
+    const { data, error } = await supabaseClient
+      .from("clientes_barbearias")
+      .delete()
+      .eq("cliente_id", clienteId)
+      .eq("barbearia_id", lojaId)
+      .select("cliente_id, barbearia_id");
 
-  console.log("Tentando excluir cliente:", {
-    clienteId,
-    lojaId,
-  });
+    if (error) {
+      console.error("Erro ao remover cliente:", error);
 
-  // EXCLUIR VÍNCULO
+      alert(`Não foi possível remover o cliente.\n\n${error.message}`);
 
-  const { data, error } = await supabaseClient
-    .from("clientes_barbearias")
-    .delete()
-    .eq("cliente_id", clienteId)
-    .eq("barbearia_id", lojaId)
-    .select();
+      return;
+    }
 
-  console.log("Resultado da exclusão:", {
-    data,
-    error,
-  });
+    if (!data?.length) {
+      alert(
+        "O cliente não foi removido. Verifique se ele ainda está vinculado a esta barbearia.",
+      );
 
-  // TRATAR ERRO
+      return;
+    }
 
-  if (error) {
-    console.error("Erro ao excluir cliente:", error);
+    await carregarClientes();
+    await carregarDashboard();
 
-    alert(`Não foi possível excluir o cliente.\n\n${error.message}`);
-
-    return;
-  }
-
-  // NENHUMA LINHA EXCLUÍDA
-
-  if (!data || !data.length) {
-    console.error("Nenhuma linha foi excluída.");
-
-    alert(
-      "O cliente não foi removido. Verifique se ele ainda está vinculado a esta barbearia.",
+    mostrarMensagem(
+      "mensagem-cliente",
+      "Cliente removido da barbearia com sucesso!",
+      "sucesso",
     );
+  } catch (erro) {
+    console.error("Erro inesperado ao remover cliente:", erro);
 
-    return;
+    alert("Ocorreu um erro ao remover o cliente.");
   }
-
-  // SUCESSO
-
-  console.log("Cliente excluído com sucesso:", data);
-
-  // ATUALIZAR
-
-  await carregarClientes();
-
-  await carregarDashboard();
-
-  mostrarMensagem(
-    "mensagem-cliente",
-    "Cliente removido da barbearia com sucesso!",
-    "sucesso",
-  );
 }
 
 // 10. PROFISSIONAIS / BARBEIROS
@@ -3974,8 +4324,27 @@ function atualizarResumoAvaliacoes() {
 
 // 14. NOTIFICAÇÕES
 
+// CONTADOR DA DASHBOARD
 const totalNotificacoesEl = document.getElementById("total-notificacoes");
+
+// LISTA DA DASHBOARD
 const listaNotificacoesEl = document.getElementById("lista-notificacoes");
+
+// BOTÃO DESKTOP
+const btnNotificacoesEl = document.getElementById("btn-notificacoes");
+
+// BADGE DESKTOP
+const badgeNotificacoesEl = document.getElementById("badge-notificacoes");
+
+// BOTÃO MOBILE
+const btnNotificacoesMobileEl = document.getElementById(
+  "btn-notificacoes-mobile",
+);
+
+// BADGE MOBILE
+const badgeNotificacoesMobileEl = document.getElementById(
+  "badge-notificacoes-mobile",
+);
 
 // SOM DE NOVA NOTIFICAÇÃO
 
@@ -4005,14 +4374,14 @@ async function carregarNotificacoes() {
       .from("notificacoes")
       .select(
         `
-        id,
-        tipo,
-        titulo,
-        mensagem,
-        referencia_id,
-        lida,
-        created_at
-      `,
+      id,
+      tipo,
+      titulo,
+      mensagem,
+      referencia_id,
+      lida,
+      created_at
+    `,
       )
       .eq("barbearia_id", lojaId)
       .order("created_at", {
@@ -4027,9 +4396,7 @@ async function carregarNotificacoes() {
 
     const novasNotificacoes = data || [];
 
-    // TOCAR SOM SOMENTE QUANDO APARECER
-    // UMA NOVA NOTIFICAÇÃO DEPOIS DA PRIMEIRA CARGA
-
+    // SOMENTE QUANDO SURGIR UMA NOVA NOTIFICAÇÃO
     if (
       quantidadeNotificacoesAnterior > 0 &&
       novasNotificacoes.length > quantidadeNotificacoesAnterior
@@ -4059,22 +4426,18 @@ function renderizarNotificacoes(notificacoes) {
   }
 
   const lista = Array.isArray(notificacoes) ? notificacoes : [];
-  const naoLidas = lista.filter((notificacao) => !notificacao.lida);
 
-  // CONTADOR
-
-  if (totalNotificacoesEl) {
-    totalNotificacoesEl.textContent = naoLidas.length;
-  }
+  // ATUALIZA TODOS OS CONTADORES
+  atualizarContadorNotificacoes();
 
   // LISTA VAZIA
 
   if (!lista.length) {
     listaNotificacoesEl.innerHTML = `
-      <div class="item-vazio">
-        <p>🔔 Nenhuma notificação.</p>
-      </div>
-    `;
+  <div class="item-vazio">
+    <p>🔔 Nenhuma notificação.</p>
+  </div>
+`;
 
     return;
   }
@@ -4088,48 +4451,50 @@ function renderizarNotificacoes(notificacoes) {
         : "";
 
       const classeEstado = notificacao.lida ? "lida" : "nao-lida";
+
       const titulo = notificacao.titulo || "Notificação";
+
       const mensagem = notificacao.mensagem || "";
 
       return `
-        <div
-          class="item-lista notificacao-item ${classeEstado}"
-          data-notificacao-id="${escaparHtml(String(notificacao.id))}"
-        >
+      <div
+        class="item-lista notificacao-item ${classeEstado}"
+        data-notificacao-id="${escaparHtml(String(notificacao.id))}"
+      >
 
-          <div class="notificacao-cabecalho">
+        <div class="notificacao-cabecalho">
 
-            <strong>
-              ${escaparHtml(titulo)}
-            </strong>
+          <strong>
+            ${escaparHtml(titulo)}
+          </strong>
 
-            <span>
-              ${escaparHtml(dataFormatada)}
-            </span>
-
-          </div>
-
-          <p>
-            ${escaparHtml(mensagem)}
-          </p>
-
-          ${
-            !notificacao.lida
-              ? `
-                <button
-                  type="button"
-                  onclick="marcarNotificacaoComoLida('${String(
-                    notificacao.id,
-                  )}')"
-                >
-                  Marcar como lida
-                </button>
-              `
-              : ""
-          }
+          <span>
+            ${escaparHtml(dataFormatada)}
+          </span>
 
         </div>
-      `;
+
+
+        <p>
+          ${escaparHtml(mensagem)}
+        </p>
+
+
+        ${
+          !notificacao.lida
+            ? `
+              <button
+                type="button"
+                onclick="marcarNotificacaoComoLida('${String(notificacao.id)}')"
+              >
+                Marcar como lida
+              </button>
+            `
+            : ""
+        }
+
+      </div>
+    `;
     })
     .join("");
 }
@@ -4255,7 +4620,6 @@ function obterMensagemStatusAgendamento(
   const mensagens = {
     confirmado: {
       titulo: "Agendamento confirmado",
-
       mensagem:
         `${clienteNome}, seu agendamento de ` +
         `${servicoNome} foi confirmado.`,
@@ -4263,14 +4627,12 @@ function obterMensagemStatusAgendamento(
 
     cancelado: {
       titulo: "Agendamento cancelado",
-
       mensagem:
         `${clienteNome}, seu agendamento de ` + `${servicoNome} foi cancelado.`,
     },
 
     concluido: {
       titulo: "Atendimento concluído",
-
       mensagem:
         `${clienteNome}, seu atendimento de ` + `${servicoNome} foi concluído.`,
     },
@@ -4290,7 +4652,7 @@ async function notificarAlteracaoStatusAgendamento(
     return;
   }
 
-  // NÃO FAZ NADA SE O STATUS NÃO MUDOU
+  // STATUS NÃO MUDOU
 
   if (statusAnterior === novoStatus) {
     return;
@@ -4329,17 +4691,66 @@ async function notificarAlteracaoStatusAgendamento(
 // ATUALIZAR CONTADOR DE NOTIFICAÇÕES
 
 function atualizarContadorNotificacoes() {
-  if (!totalNotificacoesEl) {
-    return;
-  }
-
   const lista = Array.isArray(notificacoesCache) ? notificacoesCache : [];
 
   const quantidadeNaoLidas = lista.filter(
     (notificacao) => !notificacao.lida,
   ).length;
 
-  totalNotificacoesEl.textContent = quantidadeNaoLidas;
+  // DASHBOARD
+
+  if (totalNotificacoesEl) {
+    totalNotificacoesEl.textContent = quantidadeNaoLidas;
+  }
+
+  // DESKTOP
+
+  if (badgeNotificacoesEl) {
+    badgeNotificacoesEl.textContent =
+      quantidadeNaoLidas > 99 ? "99+" : quantidadeNaoLidas;
+
+    badgeNotificacoesEl.hidden = quantidadeNaoLidas === 0;
+  }
+
+  // MOBILE
+
+  if (badgeNotificacoesMobileEl) {
+    badgeNotificacoesMobileEl.textContent =
+      quantidadeNaoLidas > 99 ? "99+" : quantidadeNaoLidas;
+
+    badgeNotificacoesMobileEl.hidden = quantidadeNaoLidas === 0;
+  }
+}
+
+// ABRIR NOTIFICAÇÕES
+
+function abrirNotificacoes() {
+  mudarAba("visao-geral");
+
+  setTimeout(() => {
+    const secaoNotificacoes = document.getElementById("lista-notificacoes");
+
+    if (!secaoNotificacoes) {
+      return;
+    }
+
+    secaoNotificacoes.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 100);
+}
+
+// BOTÃO DESKTOP
+
+if (btnNotificacoesEl) {
+  btnNotificacoesEl.addEventListener("click", abrirNotificacoes);
+}
+
+// BOTÃO MOBILE
+
+if (btnNotificacoesMobileEl) {
+  btnNotificacoesMobileEl.addEventListener("click", abrirNotificacoes);
 }
 
 // 15. FINANCEIRO

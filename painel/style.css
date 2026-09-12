@@ -293,12 +293,12 @@ button:disabled {
 
 .sidebar-top {
   display: flex;
-
   align-items: center;
+  gap: 10px;
 
-  gap: 12px;
+  width: 100%;
 
-  padding: 24px 20px;
+  padding: 4px 6px 20px;
 
   border-bottom: 1px solid var(--border-color);
 }
@@ -310,23 +310,362 @@ button:disabled {
 .sidebar-logo {
   width: 48px;
   height: 48px;
-
   flex-shrink: 0;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   overflow: hidden;
-
   border-radius: var(--radius-md);
-
   background: var(--bg-secondary);
-
   border: 1px solid var(--border-light);
-
   box-shadow: 0 0 20px rgba(0, 123, 255, 0.08);
+}
+
+/* =========================================================
+AÇÕES DO TOPO
+🔔 NOTIFICAÇÕES
+💬 COMENTÁRIOS
+========================================================= */
+
+.sidebar-acoes {
+display: flex;
+align-items: center;
+gap: 5px;
+
+margin-left: auto;
+}
+
+/* BOTÃO */
+
+.sidebar-acao {
+position: relative;
+
+width: 35px;
+height: 35px;
+
+flex-shrink: 0;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border: 1px solid var(--border-light);
+border-radius: 8px;
+
+background: #151515;
+color: var(--text-secondary);
+
+font-size: 0.95rem;
+
+cursor: pointer;
+
+transition:
+color var(--transition-fast),
+background var(--transition-fast),
+border-color var(--transition-fast),
+transform var(--transition-fast),
+box-shadow var(--transition-fast);
+}
+
+/* HOVER */
+
+.sidebar-acao {
+color: var(--gold);
+
+background: #1c1c1c;
+
+border-color:
+rgba(212, 175, 55, 0.5);
+
+transform: translateY(-1px);
+
+box-shadow:
+0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* CLICK */
+
+.sidebar-acao {
+transform: translateY(0);
+}
+
+/* =========================================================
+BADGE VERMELHO
+========================================================= */
+
+.sidebar-badge {
+position: absolute;
+
+top: -6px;
+right: -6px;
+
+min-width: 17px;
+height: 17px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+padding: 0 4px;
+
+border: 2px solid #111111;
+border-radius: 999px;
+
+background: var(--red);
+color: var(--white);
+
+font-size: 0.5rem;
+font-weight: 800;
+
+line-height: 1;
+
+box-shadow:
+0 2px 7px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+HEADER MOBILE
+========================================================= */
+
+.mobile-header {
+min-height: 64px;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+padding: 8px 14px;
+
+border-bottom: 1px solid var(--border-color);
+
+background: rgba(13, 13, 13, 0.96);
+
+backdrop-filter: blur(14px);
+}
+
+.mobile-header-brand {
+min-width: 0;
+
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.mobile-logo {
+width: 42px;
+height: 42px;
+
+flex-shrink: 0;
+
+object-fit: contain;
+}
+
+.mobile-header-brand > div {
+min-width: 0;
+
+display: flex;
+flex-direction: column;
+}
+
+.mobile-header-brand strong {
+color: var(--white);
+
+font-size: 0.9rem;
+font-weight: 700;
+
+line-height: 1.1;
+}
+
+.mobile-header-brand span {
+margin-top: 3px;
+
+color: var(--text-muted);
+
+font-size: 0.64rem;
+}
+
+/* =========================================================
+AÇÕES DO HEADER MOBILE
+========================================================= */
+
+.mobile-header-acoes {
+display: flex;
+align-items: center;
+gap: 5px;
+
+margin-left: auto;
+}
+
+/* =========================================================
+BOTÕES MOBILE
+========================================================= */
+
+.mobile-header-acao,
+.mobile-menu-toggle {
+position: relative;
+
+width: 40px;
+height: 40px;
+
+flex-shrink: 0;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border: 1px solid var(--border-light);
+border-radius: var(--radius-sm);
+
+background: #151515;
+color: var(--white);
+
+font-size: 1rem;
+
+cursor: pointer;
+
+transition:
+color var(--transition-fast),
+background var(--transition-fast),
+border-color var(--transition-fast),
+transform var(--transition-fast),
+box-shadow var(--transition-fast);
+}
+
+.mobile-header-acao,
+.mobile-menu-toggle {
+color: var(--gold);
+
+background: #1d1d1d;
+
+border-color:
+rgba(212, 175, 55, 0.45);
+
+transform: translateY(-1px);
+
+box-shadow:
+0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.mobile-header-acao,
+.mobile-menu-toggle {
+transform: translateY(0);
+}
+
+/* =========================================================
+BADGE MOBILE
+========================================================= */
+
+.mobile-header-badge {
+position: absolute;
+
+top: -5px;
+right: -5px;
+
+min-width: 18px;
+height: 18px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+padding: 0 4px;
+
+border: 2px solid #0d0d0d;
+border-radius: 999px;
+
+background: var(--red);
+color: var(--white);
+
+font-size: 0.55rem;
+font-weight: 800;
+
+line-height: 1;
+
+box-shadow:
+0 2px 7px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+.painel-sidebar {
+display: none;
+}
+
+.mobile-header {
+display: flex;
+}
+
+.sidebar-acoes {
+display: none;
+}
+
+.mobile-header-acoes {
+display: flex;
+}
+
+}
+
+/* =========================================================
+DESKTOP
+========================================================= */
+
+@media (min-width: 769px) {
+
+.mobile-header {
+display: none;
+}
+
+.mobile-header-acoes {
+display: none;
+}
+
+.mobile-header-acao,
+.mobile-header-badge {
+display: none;
+}
+
+}
+
+/* =========================================================
+CELULAR PEQUENO
+========================================================= */
+
+@media (max-width: 450px) {
+
+.mobile-header {
+min-height: 60px;
+
+padding: 7px 10px;
+
+}
+
+.mobile-logo {
+width: 38px;
+height: 38px;
+}
+
+.mobile-header-brand strong {
+font-size: 0.84rem;
+}
+
+.mobile-header-brand span {
+font-size: 0.6rem;
+}
+
+.mobile-header-acoes {
+gap: 4px;
+}
+
+.mobile-header-acao,
+.mobile-menu-toggle {
+width: 37px;
+height: 37px;
+}
+
 }
 
 /* ==================================================
@@ -398,7 +737,8 @@ button:disabled {
    ITEM DO MENU
    ================================================== */
 
-.menu-item, .btn-adicionar-barbearia {
+.menu-item,
+.btn-adicionar-barbearia {
   width: 100%;
 
   min-height: 46px;
@@ -765,6 +1105,94 @@ button:disabled {
   margin-bottom: 14px;
 
   font-size: 1rem;
+}
+
+/* =========================================================
+PEDIDOS
+========================================================= */
+
+.filtros-pedidos,
+.filtros-agendamentos {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid var(--border-color);
+
+  overflow-x: auto;
+
+  scrollbar-width: thin;
+}
+
+.filtro-pedido,
+.filtro-agendamento {
+  min-height: 36px;
+
+  flex-shrink: 0;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: var(--text-secondary);
+
+  font-size: 0.76rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.filtro-pedido,
+.filtro-agendamento {
+  color: var(--white);
+
+  border-color: rgba(212, 175, 55, 0.45);
+
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.filtro-pedido.filtro--ativo,
+.filtro-agendamento.filtro--ativo {
+  color: var(--gold);
+
+  border-color: rgba(212, 175, 55, 0.65);
+
+  background: rgba(212, 175, 55, 0.1);
+}
+
+#lista-pedidos .item-lista {
+  border-left: 3px solid transparent;
+}
+
+#lista-pedidos .item-lista {
+  border-left-color: var(--gold);
+}
+
+#lista-pedidos .item-acoes button {
+  border-color: rgba(46, 125, 50, 0.45);
+}
+
+#lista-pedidos .item-acoes button:first-child {
+  background: rgba(46, 125, 50, 0.15);
+}
+
+#lista-pedidos .item-acoes button {
+  border-color: rgba(193, 18, 31, 0.45);
+}
+
+#lista-pedidos .item-acoes button:last-child {
+  background: rgba(193, 18, 31, 0.15);
 }
 
 /* ==================================================
@@ -1330,6 +1758,112 @@ button:disabled {
   border-color: var(--gold);
 
   background: rgba(212, 175, 55, 0.08);
+}
+
+.mobile-header-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* =========================================================
+BOTÕES DO HEADER MOBILE
+========================================================= */
+
+.mobile-header-acao,
+.mobile-menu-toggle {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: #151515;
+  color: var(--white);
+
+  font-size: 1.05rem;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.mobile-header-acao:hover,
+.mobile-menu-toggle:hover {
+  background: #1d1d1d;
+
+  border-color: rgba(212, 175, 55, 0.45);
+
+  color: var(--gold);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+BADGE
+========================================================= */
+
+.mobile-header-badge {
+  position: absolute;
+
+  top: -4px;
+  right: -4px;
+
+  min-width: 18px;
+  height: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 4px;
+
+  border: 2px solid #0d0d0d;
+  border-radius: 999px;
+
+  background: var(--red);
+  color: var(--white);
+
+  font-size: 0.58rem;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+/* =========================================================
+MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+  .mobile-header-acoes {
+    gap: 5px;
+  }
+
+  .mobile-header-acao,
+  .mobile-menu-toggle {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* =========================================================
+DESKTOP
+========================================================= */
+
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none !important;
+  }
 }
 
 /* ==================================================

@@ -53,15 +53,56 @@
           </div>
         </div>
 
-        <button
-          type="button"
-          class="mobile-menu-toggle"
-          id="btn-menu-mobile"
-          aria-label="Abrir menu"
-          aria-expanded="false"
-        >
-          ☰
-        </button>
+        <div class="mobile-header-acoes">
+          <!-- NOTIFICAÇÕES -->
+          <button
+            type="button"
+            class="mobile-header-acao"
+            id="btn-notificacoes-mobile"
+            aria-label="Notificações"
+            title="Notificações"
+          >
+            <span>🔔</span>
+
+            <span
+              class="mobile-header-badge"
+              id="badge-notificacoes-mobile"
+              hidden
+            >
+              0
+            </span>
+          </button>
+
+          <!-- COMENTÁRIOS -->
+          <button
+            type="button"
+            class="mobile-header-acao"
+            id="btn-comentarios-mobile"
+            aria-label="Comentários recentes"
+            title="Comentários recentes"
+          >
+            <span>💬</span>
+
+            <span
+              class="mobile-header-badge"
+              id="badge-comentarios-mobile"
+              hidden
+            >
+              0
+            </span>
+          </button>
+
+          <!-- MENU -->
+          <button
+            type="button"
+            class="mobile-menu-toggle"
+            id="btn-menu-mobile"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+        </div>
       </header>
 
       <!-- ==================================================
@@ -81,6 +122,40 @@
           <div class="sidebar-brand">
             <strong>BarberHub</strong>
             <span>Painel da barbearia</span>
+          </div>
+
+          <!-- NOTIFICAÇÕES E COMENTÁRIOS -->
+
+          <div class="sidebar-acoes">
+          
+            <button
+              type="button"
+              class="sidebar-acao"
+              id="btn-notificacoes"
+              aria-label="Notificações"
+              title="Notificações"
+            >
+              <span>🔔</span>
+
+              <span class="sidebar-badge" id="badge-notificacoes" hidden>
+                0
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="sidebar-acao"
+              id="btn-comentarios"
+              aria-label="Comentários recentes"
+              title="Comentários recentes"
+            >
+              <span>💬</span>
+
+              <span class="sidebar-badge" id="badge-comentarios" hidden>
+                0
+              </span>
+            </button>
+            
           </div>
         </div>
 
@@ -126,6 +201,16 @@
           >
             <span class="menu-icon">🛍️</span>
             <span>Produtos</span>
+          </button>
+
+          <button
+            type="button"
+            class="menu-item"
+            data-aba="pedidos"
+            onclick="mudarAba('pedidos')"
+          >
+            <span class="menu-icon">🧾</span>
+            <span>Pedidos</span>
           </button>
 
           <button
@@ -243,8 +328,17 @@
           class="mobile-menu-item"
           onclick="mudarAba('produtos')"
         >
-          <span>🧴</span>
+          <span>🛍️ </span>
           Produtos
+        </button>
+
+        <button
+          type="button"
+          class="mobile-menu-item"
+          onclick="mudarAba('pedidos')"
+        >
+          <span>🧾</span>
+          Pedidos
         </button>
 
         <button
@@ -729,6 +823,58 @@
             <p id="mensagem-produto" class="mensagem" aria-live="polite"></p>
 
             <div id="lista-produtos" class="lista-itens"></div>
+          </section>
+
+          <!-- ==================================================
+     PEDIDOS
+     ================================================== -->
+          <section id="conteudo-pedidos" class="painel-conteudo" hidden>
+            <div class="conteudo-titulo">
+              <h1>Pedidos</h1>
+              <p>Gerencie as compras de produtos realizadas pelos clientes.</p>
+            </div>
+
+            <div class="filtros-agendamentos">
+              <button
+                type="button"
+                class="filtro-pedido filtro--ativo"
+                data-filtro-pedido="todos"
+              >
+                Todos
+              </button>
+
+              <button
+                type="button"
+                class="filtro-pedido"
+                data-filtro-pedido="pendente"
+              >
+                Pendentes
+              </button>
+
+              <button
+                type="button"
+                class="filtro-pedido"
+                data-filtro-pedido="confirmado"
+              >
+                Confirmados
+              </button>
+
+              <button
+                type="button"
+                class="filtro-pedido"
+                data-filtro-pedido="cancelado"
+              >
+                Cancelados
+              </button>
+            </div>
+
+            <div
+              id="mensagem-pedidos"
+              class="mensagem"
+              aria-live="polite"
+            ></div>
+
+            <div id="lista-pedidos" class="lista-itens"></div>
           </section>
 
           <!-- ==================================================
