@@ -1,11 +1,18 @@
+// ==================================================
 // 16. RELATÓRIOS
+// ==================================================
 
 const campoDataInicial = document.getElementById("relatorio-data-inicial");
+
 const campoDataFinal = document.getElementById("relatorio-data-final");
+
 const btnGerarRelatorio = document.getElementById("btn-gerar-relatorio");
+
 const btnEnviarWhatsapp = document.getElementById("btn-enviar-whatsapp");
 
-// SELEÇÃO DO TIPO
+// ==================================================
+// 16.1 — SELEÇÃO DO TIPO DE RELATÓRIO
+// ==================================================
 
 document.querySelectorAll(".btn-relatorio[data-relatorio]").forEach((botao) => {
   botao.addEventListener("click", () => {
@@ -16,11 +23,14 @@ document.querySelectorAll(".btn-relatorio[data-relatorio]").forEach((botao) => {
       });
 
     botao.classList.add("btn-relatorio--ativo");
+
     tipoRelatorioSelecionado = botao.dataset.relatorio || "geral";
   });
 });
 
-// DATAS PADRÃO
+// ==================================================
+// 16.2 — DATAS PADRÃO
+// ==================================================
 
 function prepararDatasRelatorio() {
   if (!campoDataInicial || !campoDataFinal) {
@@ -28,6 +38,7 @@ function prepararDatasRelatorio() {
   }
 
   const hoje = new Date();
+
   const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
   if (!campoDataInicial.value) {
@@ -41,10 +52,13 @@ function prepararDatasRelatorio() {
 
 prepararDatasRelatorio();
 
-// VALIDAR PERÍODO
+// ==================================================
+// 16.3 — VALIDAR PERÍODO
+// ==================================================
 
 function obterPeriodoRelatorio() {
   const dataInicial = campoDataInicial?.value?.trim() || "";
+
   const dataFinal = campoDataFinal?.value?.trim() || "";
 
   if (!dataInicial || !dataFinal) {
@@ -62,7 +76,9 @@ function obterPeriodoRelatorio() {
   }
 
   const inicio = new Date(`${dataInicial}T00:00:00`);
+
   const fimExclusivo = new Date(`${dataFinal}T00:00:00`);
+
   fimExclusivo.setDate(fimExclusivo.getDate() + 1);
 
   if (Number.isNaN(inicio.getTime()) || Number.isNaN(fimExclusivo.getTime())) {
@@ -81,18 +97,25 @@ function obterPeriodoRelatorio() {
   };
 }
 
-// BUSCAR DADOS
+// ==================================================
+// 16.4 — BUSCAR DADOS DO RELATÓRIO
+// ==================================================
 
 async function buscarDadosRelatorio(periodo) {
   if (!lojaId) {
     throw new Error("Barbearia não identificada.");
   }
 
-  const [respostaAgendamentos, respostaGastos] = await Promise.all([
-    supabaseClient
-      .from("agendamentos")
-      .select(
-        `
+  const [respostaAgendamentos, respostaGastos, respostaPedidos] =
+    await Promise.all([
+      // ------------------------------------------
+      // AGENDAMENTOS
+      // ------------------------------------------
+
+      supabaseClient
+        .from("agendamentos")
+        .select(
+          `
         id,
         cliente_id,
         servico_id,
@@ -119,18 +142,22 @@ async function buscarDadosRelatorio(periodo) {
           nome
         )
       `,
-      )
-      .eq("barbearia_id", lojaId)
-      .gte("data_hora", periodo.inicio.toISOString())
-      .lt("data_hora", periodo.fimExclusivo.toISOString())
-      .order("data_hora", {
-        ascending: true,
-      }),
+        )
+        .eq("barbearia_id", lojaId)
+        .gte("data_hora", periodo.inicio.toISOString())
+        .lt("data_hora", periodo.fimExclusivo.toISOString())
+        .order("data_hora", {
+          ascending: true,
+        }),
 
-    supabaseClient
-      .from("gastos")
-      .select(
-        `
+      // ------------------------------------------
+      // GASTOS
+      // ------------------------------------------
+
+      supabaseClient
+        .from("gastos")
+        .select(
+          `
         id,
         descricao,
         valor,
@@ -138,14 +165,45 @@ async function buscarDadosRelatorio(periodo) {
         data_gasto,
         pagamento
       `,
-      )
-      .eq("barbearia_id", lojaId)
-      .gte("data_gasto", periodo.dataInicial)
-      .lte("data_gasto", periodo.dataFinal)
-      .order("data_gasto", {
-        ascending: true,
-      }),
-  ]);
+        )
+        .eq("barbearia_id", lojaId)
+        .gte("data_gasto", periodo.dataInicial)
+        .lte("data_gasto", periodo.dataFinal)
+        .order("data_gasto", {
+          ascending: true,
+        }),
+
+      // ------------------------------------------
+      // PEDIDOS CONFIRMADOS
+      // ------------------------------------------
+
+      supabaseClient
+        .from("pedidos")
+        .select(
+          `
+        id,
+        cliente_id,
+        produto_id,
+        quantidade,
+        preco_unitario,
+        status,
+        created_at,
+        atualizado_at,
+
+        produtos:produto_id (
+          id,
+          nome
+        )
+      `,
+        )
+        .eq("barbearia_id", lojaId)
+        .eq("status", "confirmado")
+        .gte("atualizado_at", periodo.inicio.toISOString())
+        .lt("atualizado_at", periodo.fimExclusivo.toISOString())
+        .order("atualizado_at", {
+          ascending: true,
+        }),
+    ]);
 
   if (respostaAgendamentos.error) {
     throw respostaAgendamentos.error;
@@ -155,23 +213,63 @@ async function buscarDadosRelatorio(periodo) {
     throw respostaGastos.error;
   }
 
+  if (respostaPedidos.error) {
+    throw respostaPedidos.error;
+  }
+
   return {
     agendamentos: respostaAgendamentos.data || [],
 
     gastos: respostaGastos.data || [],
+
+    pedidos: respostaPedidos.data || [],
   };
 }
 
-// CALCULAR RESUMO
+// ==================================================
+// 16.5 — CALCULAR RESUMO
+// ==================================================
 
-function calcularResumoRelatorio({ agendamentos, gastos }) {
+function calcularResumoRelatorio({ agendamentos, gastos, pedidos }) {
   const concluidos = agendamentos.filter((item) => item.status === "concluido");
+
   const cancelados = agendamentos.filter((item) => item.status === "cancelado");
-  const faturamento = concluidos.reduce((total, item) => {
+
+  // ------------------------------------------
+  // SERVIÇOS
+  // ------------------------------------------
+
+  const faturamentoServicos = concluidos.reduce((total, item) => {
     const preco = Number(item.servicos?.preco);
 
     return total + (Number.isFinite(preco) ? preco : 0);
   }, 0);
+
+  // ------------------------------------------
+  // PRODUTOS
+  // ------------------------------------------
+
+  const faturamentoProdutos = pedidos.reduce((total, pedido) => {
+    const quantidade = Number(pedido.quantidade);
+
+    const preco = Number(pedido.preco_unitario);
+
+    if (!Number.isFinite(quantidade) || !Number.isFinite(preco)) {
+      return total;
+    }
+
+    return total + quantidade * preco;
+  }, 0);
+
+  const produtosVendidos = pedidos.reduce((total, pedido) => {
+    const quantidade = Number(pedido.quantidade);
+
+    return total + (Number.isFinite(quantidade) ? quantidade : 0);
+  }, 0);
+
+  // ------------------------------------------
+  // DESPESAS
+  // ------------------------------------------
 
   const despesas = gastos.reduce((total, gasto) => {
     const valor = Number(gasto.valor);
@@ -179,17 +277,38 @@ function calcularResumoRelatorio({ agendamentos, gastos }) {
     return total + (Number.isFinite(valor) ? valor : 0);
   }, 0);
 
+  // ------------------------------------------
+  // TOTAIS
+  // ------------------------------------------
+
+  const faturamento = faturamentoServicos + faturamentoProdutos;
+
+  const lucro = faturamento - despesas;
+
   return {
     total: agendamentos.length,
+
     concluidos: concluidos.length,
+
     cancelados: cancelados.length,
+
+    produtosVendidos,
+
+    faturamentoServicos,
+
+    faturamentoProdutos,
+
     faturamento,
+
     despesas,
-    lucro: faturamento - despesas,
+
+    lucro,
   };
 }
 
-// AGRUPAR DADOS
+// ==================================================
+// 16.6 — AGRUPAR SERVIÇOS / CLIENTES / PROFISSIONAIS
+// ==================================================
 
 function agruparRelatorio(agendamentos, tipo) {
   const mapa = new Map();
@@ -200,16 +319,19 @@ function agruparRelatorio(agendamentos, tipo) {
 
     if (tipo === "servicos") {
       id = item.servico_id || "sem-servico";
+
       nome = item.servicos?.nome || "Serviço";
     }
 
     if (tipo === "clientes") {
       id = item.cliente_id || item.cliente_nome || "sem-cliente";
+
       nome = item.clientes?.nome || item.cliente_nome || "Cliente";
     }
 
     if (tipo === "profissionais") {
       id = item.profissional_id || "sem-profissional";
+
       nome = item.profissionais?.nome || "Não informado";
     }
 
@@ -228,6 +350,7 @@ function agruparRelatorio(agendamentos, tipo) {
 
     if (item.status === "concluido") {
       atual.concluidos += 1;
+
       atual.faturamento += Number(item.servicos?.preco) || 0;
     }
 
@@ -237,22 +360,67 @@ function agruparRelatorio(agendamentos, tipo) {
   return Array.from(mapa.values()).sort((a, b) => b.total - a.total);
 }
 
-// NOME DO RELATÓRIO
+// ==================================================
+// 16.7 — AGRUPAR PRODUTOS
+// ==================================================
+
+function agruparProdutosRelatorio(pedidos) {
+  const mapa = new Map();
+
+  pedidos.forEach((pedido) => {
+    const id = pedido.produto_id || pedido.produtos?.nome || "sem-produto";
+
+    const nome = pedido.produtos?.nome || "Produto";
+
+    const quantidade = Number(pedido.quantidade) || 0;
+
+    const preco = Number(pedido.preco_unitario) || 0;
+
+    const atual = mapa.get(id) || {
+      nome,
+      quantidade: 0,
+      faturamento: 0,
+    };
+
+    atual.quantidade += quantidade;
+
+    atual.faturamento += quantidade * preco;
+
+    mapa.set(id, atual);
+  });
+
+  return Array.from(mapa.values()).sort(
+    (a, b) => b.faturamento - a.faturamento,
+  );
+}
+
+// ==================================================
+// 16.8 — TÍTULO DO RELATÓRIO
+// ==================================================
 
 function obterTituloRelatorio(tipo) {
   const titulos = {
     geral: "Relatório geral",
+
     financeiro: "Relatório financeiro",
+
     servicos: "Relatório de serviços",
+
+    produtos: "Relatório de produtos",
+
     clientes: "Relatório de clientes",
+
     profissionais: "Relatório de profissionais",
+
     agendamentos: "Relatório de agendamentos",
   };
 
   return titulos[tipo] || titulos.geral;
 }
 
-// LINHAS DE AGENDAMENTOS
+// ==================================================
+// 16.9 — LINHAS DOS AGENDAMENTOS
+// ==================================================
 
 function gerarLinhasAgendamentos(agendamentos) {
   if (!agendamentos.length) {
@@ -268,8 +436,11 @@ function gerarLinhasAgendamentos(agendamentos) {
   return agendamentos
     .map((item) => {
       const cliente = item.clientes?.nome || item.cliente_nome || "Cliente";
+
       const servico = item.servicos?.nome || "Serviço";
+
       const profissional = item.profissionais?.nome || "Não informado";
+
       const status = STATUS_LABEL[item.status] || item.status || "Pendente";
 
       return `
@@ -301,15 +472,108 @@ function gerarLinhasAgendamentos(agendamentos) {
     .join("");
 }
 
-// CONTEÚDO ESPECÍFICO
+// ==================================================
+// 16.10 — LINHAS DOS PRODUTOS
+// ==================================================
+
+function gerarLinhasProdutosVendidos(pedidos) {
+  if (!pedidos.length) {
+    return `
+      <tr>
+        <td colspan="5">
+          Nenhum produto vendido neste período.
+        </td>
+      </tr>
+    `;
+  }
+
+  return pedidos
+    .map((pedido) => {
+      const produto = pedido.produtos?.nome || "Produto";
+
+      const quantidade = Number(pedido.quantidade) || 0;
+
+      const preco = Number(pedido.preco_unitario) || 0;
+
+      const total = quantidade * preco;
+
+      const dataVenda = pedido.atualizado_at || pedido.created_at;
+
+      return `
+          <tr>
+
+            <td>
+              ${escaparHtml(produto)}
+            </td>
+
+            <td>
+              ${quantidade}
+            </td>
+
+            <td>
+              ${formatarMoeda(preco)}
+            </td>
+
+            <td>
+              ${formatarMoeda(total)}
+            </td>
+
+            <td>
+              ${dataVenda ? escaparHtml(formatarDataHora(dataVenda)) : "-"}
+            </td>
+
+          </tr>
+        `;
+    })
+    .join("");
+}
+
+// ==================================================
+// 16.11 — TABELA DE PRODUTOS
+// ==================================================
+
+function gerarTabelaProdutos(pedidos) {
+  return `
+    <h2>
+      🛍️ Produtos vendidos
+    </h2>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Preço unitário</th>
+          <th>Total</th>
+          <th>Data da venda</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        ${gerarLinhasProdutosVendidos(pedidos)}
+      </tbody>
+
+    </table>
+  `;
+}
+
+// ==================================================
+// 16.12 — CONTEÚDO ESPECÍFICO
+// ==================================================
 
 function gerarConteudoRelatorio(tipo, dados, resumo) {
+  // ==========================================
+  // FINANCEIRO
+  // ==========================================
+
   if (tipo === "financeiro") {
     const linhasGastos = dados.gastos.length
       ? dados.gastos
           .map(
             (gasto) => `
                 <tr>
+
                   <td>
                     ${escaparHtml(gasto.descricao || "Gasto")}
                   </td>
@@ -326,6 +590,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
                     -
                     ${formatarMoeda(gasto.valor)}
                   </td>
+
                 </tr>
               `,
           )
@@ -342,7 +607,24 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
       <div class="resumo">
 
         <div class="card">
-          Entradas
+          Serviços
+
+          <strong>
+            ${formatarMoeda(resumo.faturamentoServicos)}
+          </strong>
+        </div>
+
+        <div class="card">
+          Produtos
+
+          <strong>
+            ${formatarMoeda(resumo.faturamentoProdutos)}
+          </strong>
+        </div>
+
+        <div class="card">
+          Entradas totais
+
           <strong>
             ${formatarMoeda(resumo.faturamento)}
           </strong>
@@ -350,6 +632,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
 
         <div class="card">
           Saídas
+
           <strong>
             ${formatarMoeda(resumo.despesas)}
           </strong>
@@ -357,6 +640,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
 
         <div class="card">
           Lucro
+
           <strong>
             ${formatarMoeda(resumo.lucro)}
           </strong>
@@ -364,11 +648,16 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
 
       </div>
 
+
+      ${gerarTabelaProdutos(dados.pedidos)}
+
+
       <h2>
-        Gastos do período
+        💸 Gastos do período
       </h2>
 
       <table>
+
         <thead>
           <tr>
             <th>Descrição</th>
@@ -381,9 +670,114 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
         <tbody>
           ${linhasGastos}
         </tbody>
+
       </table>
     `;
   }
+
+  // ==========================================
+  // PRODUTOS
+  // ==========================================
+
+  if (tipo === "produtos") {
+    const agrupados = agruparProdutosRelatorio(dados.pedidos);
+
+    const linhas = agrupados.length
+      ? agrupados
+          .map(
+            (item) => `
+                <tr>
+
+                  <td>
+                    ${escaparHtml(item.nome)}
+                  </td>
+
+                  <td>
+                    ${item.quantidade}
+                  </td>
+
+                  <td>
+                    ${formatarMoeda(item.faturamento)}
+                  </td>
+
+                </tr>
+              `,
+          )
+          .join("")
+      : `
+            <tr>
+              <td colspan="3">
+                Nenhum produto vendido neste período.
+              </td>
+            </tr>
+          `;
+
+    return `
+      <div class="resumo">
+
+        <div class="card">
+          Produtos vendidos
+
+          <strong>
+            ${resumo.produtosVendidos}
+          </strong>
+        </div>
+
+        <div class="card">
+          Pedidos confirmados
+
+          <strong>
+            ${dados.pedidos.length}
+          </strong>
+        </div>
+
+        <div class="card">
+          Faturamento com produtos
+
+          <strong>
+            ${formatarMoeda(resumo.faturamentoProdutos)}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <h2>
+        📊 Resumo por produto
+      </h2>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>
+              Produto
+            </th>
+
+            <th>
+              Quantidade vendida
+            </th>
+
+            <th>
+              Faturamento
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${linhas}
+        </tbody>
+
+      </table>
+
+
+      ${gerarTabelaProdutos(dados.pedidos)}
+    `;
+  }
+
+  // ==========================================
+  // SERVIÇOS / CLIENTES / PROFISSIONAIS
+  // ==========================================
 
   if (tipo === "servicos" || tipo === "clientes" || tipo === "profissionais") {
     const agrupados = agruparRelatorio(dados.agendamentos, tipo);
@@ -393,6 +787,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
           .map(
             (item) => `
                 <tr>
+
                   <td>
                     ${escaparHtml(item.nome)}
                   </td>
@@ -408,6 +803,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
                   <td>
                     ${formatarMoeda(item.faturamento)}
                   </td>
+
                 </tr>
               `,
           )
@@ -432,6 +828,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
 
         <div class="card">
           Agendamentos
+
           <strong>
             ${resumo.total}
           </strong>
@@ -439,23 +836,28 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
 
         <div class="card">
           Concluídos
+
           <strong>
             ${resumo.concluidos}
           </strong>
         </div>
 
         <div class="card">
-          Faturamento
+          Faturamento de serviços
+
           <strong>
-            ${formatarMoeda(resumo.faturamento)}
+            ${formatarMoeda(resumo.faturamentoServicos)}
           </strong>
         </div>
 
       </div>
 
+
       <table>
+
         <thead>
           <tr>
+
             <th>
               ${primeiraColuna}
             </th>
@@ -471,21 +873,83 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
             <th>
               Faturamento
             </th>
+
           </tr>
         </thead>
 
         <tbody>
           ${linhas}
         </tbody>
+
       </table>
     `;
   }
+
+  // ==========================================
+  // AGENDAMENTOS
+  // ==========================================
+
+  if (tipo === "agendamentos") {
+    return `
+      <div class="resumo">
+
+        <div class="card">
+          Agendamentos
+
+          <strong>
+            ${resumo.total}
+          </strong>
+        </div>
+
+        <div class="card">
+          Concluídos
+
+          <strong>
+            ${resumo.concluidos}
+          </strong>
+        </div>
+
+        <div class="card">
+          Cancelados
+
+          <strong>
+            ${resumo.cancelados}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Serviço</th>
+            <th>Profissional</th>
+            <th>Data</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${gerarLinhasAgendamentos(dados.agendamentos)}
+        </tbody>
+
+      </table>
+    `;
+  }
+
+  // ==========================================
+  // GERAL
+  // ==========================================
 
   return `
     <div class="resumo">
 
       <div class="card">
         Agendamentos
+
         <strong>
           ${resumo.total}
         </strong>
@@ -493,19 +957,50 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
 
       <div class="card">
         Concluídos
+
         <strong>
           ${resumo.concluidos}
         </strong>
       </div>
 
       <div class="card">
-        Faturamento
+        Produtos vendidos
+
+        <strong>
+          ${resumo.produtosVendidos}
+        </strong>
+      </div>
+
+      <div class="card">
+        Serviços
+
+        <strong>
+          ${formatarMoeda(resumo.faturamentoServicos)}
+        </strong>
+      </div>
+
+      <div class="card">
+        Produtos
+
+        <strong>
+          ${formatarMoeda(resumo.faturamentoProdutos)}
+        </strong>
+      </div>
+
+      <div class="card">
+        Faturamento total
+
         <strong>
           ${formatarMoeda(resumo.faturamento)}
         </strong>
       </div>
 
     </div>
+
+
+    <h2>
+      ✂️ Agendamentos
+    </h2>
 
     <table>
 
@@ -524,10 +1019,15 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
       </tbody>
 
     </table>
+
+
+    ${gerarTabelaProdutos(dados.pedidos)}
   `;
 }
 
-// GERAR RELATÓRIO
+// ==================================================
+// 16.13 — GERAR RELATÓRIO
+// ==================================================
 
 async function gerarRelatorio() {
   const periodo = obterPeriodoRelatorio();
@@ -552,11 +1052,17 @@ async function gerarRelatorio() {
 
   try {
     const dados = await buscarDadosRelatorio(periodo);
+
     const resumo = calcularResumoRelatorio(dados);
+
     const tipo = tipoRelatorioSelecionado || "geral";
+
     const titulo = obterTituloRelatorio(tipo);
+
     const nomeLoja = escaparHtml(lojaAtual.nome || "BarberHub");
+
     const conteudo = gerarConteudoRelatorio(tipo, dados, resumo);
+
     const janela = window.open("", "_blank");
 
     if (!janela) {
@@ -588,7 +1094,8 @@ async function gerarRelatorio() {
         <style>
 
           * {
-            box-sizing: border-box;
+            box-sizing:
+              border-box;
           }
 
           body {
@@ -596,81 +1103,152 @@ async function gerarRelatorio() {
               Arial,
               sans-serif;
 
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px;
-            color: #222;
-            background: #fff;
+            max-width:
+              1200px;
+
+            margin:
+              0 auto;
+
+            padding:
+              40px;
+
+            color:
+              #222;
+
+            background:
+              #fff;
           }
 
           h1 {
-            margin-bottom: 5px;
+            margin-bottom:
+              5px;
           }
 
           h2 {
-            margin-top: 32px;
+            margin-top:
+              32px;
           }
 
           .periodo {
-            color: #666;
+            color:
+              #666;
           }
 
           .resumo {
-            display: grid;
+            display:
+              grid;
+
             grid-template-columns:
               repeat(
-                3,
-                minmax(0, 1fr)
+                auto-fit,
+                minmax(
+                  170px,
+                  1fr
+                )
               );
-            gap: 15px;
-            margin: 30px 0;
+
+            gap:
+              15px;
+
+            margin:
+              30px 0;
           }
 
           .card {
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding:
+              20px;
+
+            border:
+              1px solid #ddd;
+
+            border-radius:
+              10px;
           }
 
           .card strong {
-            display: block;
-            font-size: 26px;
-            margin-top: 8px;
+            display:
+              block;
+
+            margin-top:
+              8px;
+
+            font-size:
+              26px;
           }
 
           table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            width:
+              100%;
+
+            border-collapse:
+              collapse;
+
+            margin-top:
+              20px;
           }
 
           th,
           td {
-            padding: 12px;
+            padding:
+              12px;
+
             border-bottom:
               1px solid #ddd;
-            text-align: left;
+
+            text-align:
+              left;
           }
 
           th {
-            background: #f5f5f5;
+            background:
+              #f5f5f5;
           }
 
           .botao {
-            padding: 10px 18px;
-            margin-top: 24px;
-            cursor: pointer;
+            padding:
+              10px 18px;
+
+            margin-top:
+              24px;
+
+            cursor:
+              pointer;
+          }
+
+          @media
+          (max-width: 700px) {
+
+            body {
+              padding:
+                20px;
+            }
+
+            table {
+              font-size:
+                12px;
+            }
+
+            th,
+            td {
+              padding:
+                8px;
+            }
+
           }
 
           @media print {
 
             .botao {
-              display: none;
+              display:
+                none;
             }
 
             body {
-              max-width: none;
-              padding: 0;
+              max-width:
+                none;
+
+              padding:
+                0;
             }
 
           }
@@ -691,8 +1269,11 @@ async function gerarRelatorio() {
 
         <p class="periodo">
           Período:
+
           ${escaparHtml(formatarData(periodo.dataInicial))}
+
           até
+
           ${escaparHtml(formatarData(periodo.dataFinal))}
         </p>
 
@@ -729,21 +1310,57 @@ if (btnGerarRelatorio) {
   btnGerarRelatorio.addEventListener("click", gerarRelatorio);
 }
 
-// GERAR TEXTO PARA WHATSAPP
+// ==================================================
+// 16.14 — GERAR TEXTO PARA WHATSAPP
+// ==================================================
 
 function gerarTextoRelatorioWhatsapp(tipo, dados, resumo, periodo) {
   const nomeBarbearia = lojaAtual?.nome || "BarberHub";
+
   const titulo = obterTituloRelatorio(tipo).toUpperCase();
 
   let detalhes = "";
 
+  // ------------------------------------------
+  // FINANCEIRO
+  // ------------------------------------------
+
   if (tipo === "financeiro") {
     detalhes = [
+      `✂️ Serviços: ${formatarMoeda(resumo.faturamentoServicos)}`,
+
+      `🛍️ Produtos: ${formatarMoeda(resumo.faturamentoProdutos)}`,
+
       `📈 Entradas: ${formatarMoeda(resumo.faturamento)}`,
+
       `📉 Saídas: ${formatarMoeda(resumo.despesas)}`,
+
       `💰 Lucro: ${formatarMoeda(resumo.lucro)}`,
     ].join("\n");
-  } else if (
+  }
+
+  // ------------------------------------------
+  // PRODUTOS
+  // ------------------------------------------
+  else if (tipo === "produtos") {
+    const agrupados = agruparProdutosRelatorio(dados.pedidos);
+
+    detalhes = agrupados.length
+      ? agrupados
+          .map(
+            (item, indice) =>
+              `${indice + 1}. ${item.nome}\n` +
+              `Quantidade: ${item.quantidade}\n` +
+              `Faturamento: ${formatarMoeda(item.faturamento)}`,
+          )
+          .join("\n\n")
+      : "Nenhum produto vendido neste período.";
+  }
+
+  // ------------------------------------------
+  // SERVIÇOS / CLIENTES / PROFISSIONAIS
+  // ------------------------------------------
+  else if (
     tipo === "servicos" ||
     tipo === "clientes" ||
     tipo === "profissionais"
@@ -761,7 +1378,12 @@ function gerarTextoRelatorioWhatsapp(tipo, dados, resumo, periodo) {
           )
           .join("\n\n")
       : "Nenhum dado encontrado.";
-  } else {
+  }
+
+  // ------------------------------------------
+  // AGENDAMENTOS
+  // ------------------------------------------
+  else if (tipo === "agendamentos") {
     detalhes = dados.agendamentos.length
       ? dados.agendamentos
           .map((item, indice) => {
@@ -787,6 +1409,16 @@ function gerarTextoRelatorioWhatsapp(tipo, dados, resumo, periodo) {
       : "Nenhum agendamento encontrado.";
   }
 
+  // ------------------------------------------
+  // GERAL
+  // ------------------------------------------
+  else {
+    detalhes =
+      `✂️ Serviços: ${formatarMoeda(resumo.faturamentoServicos)}\n` +
+      `🛍️ Produtos: ${formatarMoeda(resumo.faturamentoProdutos)}\n` +
+      `💰 Faturamento total: ${formatarMoeda(resumo.faturamento)}`;
+  }
+
   return `
 💈 ${nomeBarbearia}
 
@@ -802,7 +1434,14 @@ ${formatarData(periodo.dataInicial)} até ${formatarData(periodo.dataFinal)}
 📅 Agendamentos: ${resumo.total}
 ✅ Concluídos: ${resumo.concluidos}
 ❌ Cancelados: ${resumo.cancelados}
-💰 Faturamento: ${formatarMoeda(resumo.faturamento)}
+
+🛍️ Produtos vendidos: ${resumo.produtosVendidos}
+
+✂️ Serviços: ${formatarMoeda(resumo.faturamentoServicos)}
+
+🛍️ Produtos: ${formatarMoeda(resumo.faturamentoProdutos)}
+
+💰 Faturamento total: ${formatarMoeda(resumo.faturamento)}
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -811,10 +1450,12 @@ ${detalhes}
 ━━━━━━━━━━━━━━━━━━
 
 Relatório gerado pelo BarberHub.
-`.trim();
+  `.trim();
 }
 
-// ENVIAR PELO WHATSAPP
+// ==================================================
+// 16.15 — ENVIAR PELO WHATSAPP
+// ==================================================
 
 async function enviarRelatorioWhatsapp() {
   const periodo = obterPeriodoRelatorio();
@@ -853,7 +1494,9 @@ async function enviarRelatorioWhatsapp() {
 
   try {
     const dados = await buscarDadosRelatorio(periodo);
+
     const resumo = calcularResumoRelatorio(dados);
+
     const mensagem = gerarTextoRelatorioWhatsapp(
       tipoRelatorioSelecionado || "geral",
       dados,
@@ -882,10 +1525,17 @@ if (btnEnviarWhatsapp) {
   btnEnviarWhatsapp.addEventListener("click", enviarRelatorioWhatsapp);
 }
 
+// ==================================================
 // 17. INICIALIZAÇÃO DO PAINEL
+// ==================================================
 
 let painelInicializando = false;
+
 let painelInicializado = false;
+
+// ==================================================
+// 17.1 — PREPARAR INTERFACE
+// ==================================================
 
 function prepararInterfaceInicial() {
   if (menuMobile) {
@@ -901,9 +1551,15 @@ function prepararInterfaceInicial() {
   }
 
   prepararFormularioAgendamentoManual();
+
   prepararFormularioGasto();
+
   prepararDatasRelatorio();
 }
+
+// ==================================================
+// 17.2 — DADOS PRINCIPAIS
+// ==================================================
 
 async function carregarDadosPrincipaisPainel() {
   const resultados = await Promise.allSettled([
@@ -921,6 +1577,10 @@ async function carregarDadosPrincipaisPainel() {
     }
   });
 }
+
+// ==================================================
+// 17.3 — DADOS SECUNDÁRIOS
+// ==================================================
 
 async function carregarDadosSecundariosPainel() {
   const tarefas = [
@@ -945,6 +1605,10 @@ async function carregarDadosSecundariosPainel() {
     }
   });
 }
+
+// ==================================================
+// 17.4 — INICIAR PAINEL
+// ==================================================
 
 async function iniciarPainel() {
   if (painelInicializando || painelInicializado) {
@@ -977,6 +1641,7 @@ async function iniciarPainel() {
     await carregarDadosPrincipaisPainel();
 
     preencherClientesAgendamento();
+
     preencherServicosAgendamento();
 
     await carregarDadosSecundariosPainel();
@@ -997,6 +1662,10 @@ async function iniciarPainel() {
   }
 }
 
+// ==================================================
+// 17.5 — RESPONSIVIDADE
+// ==================================================
+
 function ajustarPainelAoRedimensionar() {
   const larguraDesktop = window.matchMedia("(min-width: 769px)");
 
@@ -1008,7 +1677,13 @@ function ajustarPainelAoRedimensionar() {
 }
 
 window.addEventListener("resize", ajustarPainelAoRedimensionar);
+
 window.addEventListener("orientationchange", ajustarPainelAoRedimensionar);
+
+// ==================================================
+// 17.6 — ATUALIZAR NOTIFICAÇÕES AO VOLTAR
+// ==================================================
+
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible" || !painelInicializado) {
     return;
@@ -1018,5 +1693,9 @@ document.addEventListener("visibilitychange", () => {
     carregarNotificacoes();
   }
 });
+
+// ==================================================
+// 17.7 — INICIALIZAÇÃO
+// ==================================================
 
 iniciarPainel();
