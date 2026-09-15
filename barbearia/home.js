@@ -1,25 +1,48 @@
 // ==================================================
+// BARBERHUB — MINHAS BARBEARIAS
+// ==================================================
+
+const CONFIG_BARBEARIAS = {
+  HOME_URL: "../index.html",
+
+  LOGIN_URL: "../login/index.html",
+
+  CADASTRO_URL: "../cadastro/index.html?modo=nova-barbearia",
+
+  PAINEL_URL: "../painel/index.html",
+};
+
+// ==================================================
+// ELEMENTOS
+// ==================================================
+
+const listaBarbearias = document.getElementById("lista-barbearias");
+
+// ==================================================
 // NAVEGAÇÃO
 // ==================================================
 
 function cadastrar() {
-  window.location.href = "../cadastro/index.html";
+  window.location.href = CONFIG_BARBEARIAS.CADASTRO_URL;
 }
 
 function voltar() {
-  window.location.href = "../index.html";
+  window.location.href = CONFIG_BARBEARIAS.HOME_URL;
 }
 
 async function sair() {
   try {
-    await supabaseClient.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
   } catch (erro) {
-    console.error("Erro ao sair:", erro);
+    console.error("[BarberHub] Erro ao sair:", erro);
   }
 
-  window.location.href = "../login/index.html";
+  window.location.href = CONFIG_BARBEARIAS.LOGIN_URL;
 }
-
 
 // ==================================================
 // ENTRAR NA BARBEARIA
@@ -27,267 +50,324 @@ async function sair() {
 
 function entrarNaLoja(id) {
   if (!id) {
-    console.error("ID da barbearia não informado.");
+    console.error("[BarberHub] ID da barbearia não informado.");
+
     return;
   }
 
-  // Abre o painel da barbearia selecionada
-  window.location.href = `../painel/index.html?id=${encodeURIComponent(id)}`;
+  window.location.href = `${CONFIG_BARBEARIAS.PAINEL_URL}?id=${encodeURIComponent(
+    id,
+  )}`;
 }
-
-
-// ==================================================
-// HOME BARBERHUB
-// ==================================================
-
-console.log("Home BarberHub carregado!");
-
-const listaBarbearias = document.getElementById("lista-barbearias");
-
-
-// ==================================================
-// CARREGAR BARBEARIAS DO DONO LOGADO
-// ==================================================
-
-async function carregarBarbearias() {
-
-  // --------------------------------------------------
-  // Verificar se o Supabase está disponível
-  // --------------------------------------------------
-
-  if (!supabaseClient) {
-    console.error("Supabase não está conectado.");
-
-    listaBarbearias.innerHTML = `
-      <p class="lista-vazia">
-        Não foi possível conectar ao sistema.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  // --------------------------------------------------
-  // 1. Verificar sessão
-  // --------------------------------------------------
-
-  const {
-    data: { session },
-    error: sessionError
-  } = await supabaseClient.auth.getSession();
-
-
-  if (sessionError) {
-    console.error(
-      "Erro ao verificar sessão:",
-      sessionError
-    );
-
-    listaBarbearias.innerHTML = `
-      <p class="lista-vazia">
-        Não foi possível verificar sua sessão.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  // --------------------------------------------------
-  // Se não estiver logado
-  // --------------------------------------------------
-
-  if (!session) {
-
-    console.log(
-      "Nenhuma sessão ativa — redirecionando para login."
-    );
-
-    window.location.href = "../login/index.html";
-
-    return;
-  }
-
-
-  // --------------------------------------------------
-  // 2. Buscar barbearias do usuário logado
-  // --------------------------------------------------
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("barbearias")
-    .select("*")
-    .eq("dono_id", session.user.id)
-    .order("created_at", {
-      ascending: true
-    });
-
-
-  // --------------------------------------------------
-  // 3. Verificar erro
-  // --------------------------------------------------
-
-  if (error) {
-
-    console.error(
-      "Erro ao buscar barbearias:",
-      error
-    );
-
-    listaBarbearias.innerHTML = `
-      <p class="lista-vazia">
-        Não foi possível carregar suas barbearias.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  console.log(
-    "Barbearias do dono:",
-    data
-  );
-
-
-  // --------------------------------------------------
-  // Limpar lista
-  // --------------------------------------------------
-
-  listaBarbearias.innerHTML = "";
-
-
-  // --------------------------------------------------
-  // 4. Nenhuma barbearia encontrada
-  // --------------------------------------------------
-
-  if (!data || data.length === 0) {
-
-    listaBarbearias.innerHTML = `
-      <p class="lista-vazia">
-        Você ainda não cadastrou nenhuma barbearia.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  // --------------------------------------------------
-  // 5. Criar cards das barbearias
-  // --------------------------------------------------
-
-  data.forEach((barbearia) => {
-
-    const card = document.createElement("div");
-
-    card.classList.add(
-      "card-barbearia"
-    );
-
-
-    // ------------------------------------------------
-    // Logo
-    // ------------------------------------------------
-
-    const logo =
-      barbearia.logo_url ||
-      barbearia.foto_url;
-
-
-    // ------------------------------------------------
-    // Criar estrutura do card
-    // ------------------------------------------------
-
-    card.innerHTML = `
-
-      <div class="card-logo">
-
-        ${
-          logo
-            ? `
-              <img
-                src="${escaparHtml(logo)}"
-                alt="Logo de ${escaparHtml(barbearia.nome || "Barbearia")}"
-                class="logo-barbearia"
-              >
-            `
-            : `
-              <div class="logo-sem-foto">
-                💈
-              </div>
-            `
-        }
-
-      </div>
-
-
-      <div class="info-barbearia">
-
-        <h2>
-          ${escaparHtml(barbearia.nome || "Barbearia")}
-        </h2>
-
-
-        <p>
-          📍 ${escaparHtml(
-            barbearia.cidade || "Cidade não informada"
-          )}
-        </p>
-
-
-        <p>
-          📞 ${escaparHtml(
-            barbearia.telefone || "Telefone não informado"
-          )}
-        </p>
-
-
-        <button
-          type="button"
-          class="btn-entrar-loja"
-          onclick="entrarNaLoja('${barbearia.id}')"
-        >
-          Entrar →
-        </button>
-
-      </div>
-
-    `;
-
-
-    // ------------------------------------------------
-    // Adicionar card à lista
-    // ------------------------------------------------
-
-    listaBarbearias.appendChild(card);
-
-  });
-
-}
-
 
 // ==================================================
 // ESCAPAR HTML
 // ==================================================
 
 function escaparHtml(valor) {
-
-  return String(valor)
+  return String(valor ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-
 }
 
+// ==================================================
+// ESTADO DA LISTA
+// ==================================================
+
+function mostrarEstadoLista(texto) {
+  if (!listaBarbearias) {
+    return;
+  }
+
+  listaBarbearias.innerHTML = `
+    <p class="lista-vazia">
+      ${escaparHtml(texto)}
+    </p>
+  `;
+}
 
 // ==================================================
-// INICIAR
+// BUSCAR PERFIL
 // ==================================================
 
-carregarBarbearias();
+async function buscarPerfil(usuarioId) {
+  if (!usuarioId) {
+    return null;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select(
+      `
+          id,
+          nome,
+          tipo
+        `,
+    )
+    .eq("id", usuarioId)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data || null;
+}
+
+// ==================================================
+// VALIDAR DONO LOGADO
+// ==================================================
+
+async function obterDonoLogado() {
+  const {
+    data: { session },
+    error,
+  } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const perfil = await buscarPerfil(session.user.id);
+
+  if (!perfil || perfil.tipo !== "dono") {
+    return null;
+  }
+
+  return {
+    usuario: session.user,
+
+    perfil,
+  };
+}
+
+// ==================================================
+// BUSCAR BARBEARIAS
+// ==================================================
+
+async function buscarBarbearias(usuarioId) {
+  if (!usuarioId) {
+    return [];
+  }
+
+  const { data, error } = await supabaseClient
+    .from("barbearias")
+    .select(
+      `
+          id,
+          dono_id,
+          nome,
+          cidade,
+          endereco,
+          telefone,
+          logo_url,
+          horario_abertura,
+          horario_fechamento,
+          created_at
+        `,
+    )
+    .eq("dono_id", usuarioId)
+    .order("created_at", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
+
+// ==================================================
+// CRIAR CARD
+// ==================================================
+
+function criarCardBarbearia(barbearia) {
+  const card = document.createElement("article");
+
+  card.className = "card-barbearia";
+
+  const logo = barbearia.logo_url || null;
+
+  const nome = barbearia.nome || "Barbearia";
+
+  const cidade = barbearia.cidade || "Cidade não informada";
+
+  const telefone = barbearia.telefone || "Telefone não informado";
+
+  card.innerHTML = `
+    <div class="card-logo">
+
+      ${
+        logo
+          ? `
+            <img
+              src="${escaparHtml(logo)}"
+              alt="Logo de ${escaparHtml(nome)}"
+              class="logo-barbearia"
+              loading="lazy"
+            />
+          `
+          : `
+            <div
+              class="logo-sem-foto"
+              aria-hidden="true"
+            >
+              💈
+            </div>
+          `
+      }
+
+    </div>
+
+    <div class="info-barbearia">
+
+      <h2>
+        ${escaparHtml(nome)}
+      </h2>
+
+      <p>
+        📍 ${escaparHtml(cidade)}
+      </p>
+
+      <p>
+        📞 ${escaparHtml(telefone)}
+      </p>
+
+      <button
+        type="button"
+        class="btn-entrar-loja"
+      >
+        Entrar →
+      </button>
+
+    </div>
+  `;
+
+  const botaoEntrar = card.querySelector(".btn-entrar-loja");
+
+  if (botaoEntrar) {
+    botaoEntrar.addEventListener("click", () => {
+      entrarNaLoja(barbearia.id);
+    });
+  }
+
+  return card;
+}
+
+// ==================================================
+// RENDERIZAR BARBEARIAS
+// ==================================================
+
+function renderizarBarbearias(barbearias) {
+  if (!listaBarbearias) {
+    return;
+  }
+
+  listaBarbearias.innerHTML = "";
+
+  if (!Array.isArray(barbearias) || barbearias.length === 0) {
+    mostrarEstadoLista("Você ainda não cadastrou nenhuma barbearia.");
+
+    return;
+  }
+
+  const fragmento = document.createDocumentFragment();
+
+  barbearias.forEach((barbearia) => {
+    fragmento.appendChild(criarCardBarbearia(barbearia));
+  });
+
+  listaBarbearias.appendChild(fragmento);
+}
+
+// ==================================================
+// CARREGAR PÁGINA
+// ==================================================
+
+async function carregarBarbearias() {
+  if (!listaBarbearias) {
+    console.error("[BarberHub] Elemento lista-barbearias não encontrado.");
+
+    return;
+  }
+
+  if (!supabaseClient) {
+    console.error("[BarberHub] Supabase não está conectado.");
+
+    mostrarEstadoLista("Não foi possível conectar ao sistema.");
+
+    return;
+  }
+
+  mostrarEstadoLista("Carregando suas barbearias...");
+
+  try {
+    // ================================================
+    // VERIFICAR DONO
+    // ================================================
+
+    const dono = await obterDonoLogado();
+
+    if (!dono?.usuario?.id) {
+      /*
+        Não existe sessão válida de dono.
+
+        Sai de qualquer sessão eventualmente
+        aberta como cliente antes de redirecionar.
+      */
+
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (erroLogout) {
+        console.warn(
+          "[BarberHub] Não foi possível encerrar a sessão:",
+          erroLogout,
+        );
+      }
+
+      window.location.href = CONFIG_BARBEARIAS.LOGIN_URL;
+
+      return;
+    }
+
+    // ================================================
+    // BUSCAR TODAS AS BARBEARIAS DO DONO
+    // ================================================
+
+    const barbearias = await buscarBarbearias(dono.usuario.id);
+
+    console.log("[BarberHub] Barbearias do dono:", barbearias);
+
+    // ================================================
+    // MOSTRAR NA TELA
+    // ================================================
+
+    renderizarBarbearias(barbearias);
+  } catch (erro) {
+    console.error("[BarberHub] Erro ao carregar barbearias:", erro);
+
+    mostrarEstadoLista("Não foi possível carregar suas barbearias.");
+  }
+}
+
+// ==================================================
+// INICIALIZAÇÃO
+// ==================================================
+
+async function iniciarPagina() {
+  await carregarBarbearias();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", iniciarPagina);
+} else {
+  iniciarPagina();
+}

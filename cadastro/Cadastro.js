@@ -1,60 +1,136 @@
-// ======================================================
 // BARBERHUB — CADASTRO DE BARBEARIA
-// ======================================================
 
+const CONFIG_CADASTRO = {
+  LOGIN_URL: "../login/index.html",
+  PAINEL_URL: "../painel/index.html",
+
+  SENHA_MINIMA: 6,
+  TAMANHO_MAXIMO_LOGO: 5 * 1024 * 1024,
+
+  TIPOS_LOGO: ["image/jpeg", "image/png", "image/webp"],
+
+  STORAGE_BUCKET: "barbearias",
+
+  CADASTRO_PENDENTE_KEY: "barberhub_cadastro_barbearia_pendente",
+};
+
+// ELEMENTOS
+
+const parametrosCadastro = new URLSearchParams(window.location.search);
+const MODO_NOVA_BARBEARIA = parametrosCadastro.get("modo") === "nova-barbearia";
 const form = document.getElementById("form-cadastro");
 const mensagem = document.getElementById("mensagem");
 
-// ======================================================
-// VOLTAR
-// ======================================================
+// NAVEGAÇÃO
 
 function voltar() {
-  window.location.href = "../login/index.html";
+  window.location.href = CONFIG_CADASTRO.LOGIN_URL;
 }
 
-// ======================================================
-// VERIFICAÇÃO DO SUPABASE
-// ======================================================
+// MENSAGENS
 
-if (!supabaseClient) {
-  console.error("Supabase não foi carregado.");
-
-  if (mensagem) {
-    mensagem.textContent = "Erro: não foi possível conectar ao sistema.";
-    mensagem.style.color = "#C1121F";
-  }
-}
-
-// ======================================================
-// CADASTRO
-// ======================================================
-
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  // ----------------------------------------------------
-  // Verifica conexão
-  // ----------------------------------------------------
-
-  if (!supabaseClient) {
-    mostrarMensagem("Erro de conexão com o sistema.", "erro");
+function mostrarMensagem(texto, tipo = "erro") {
+  if (!mensagem) {
     return;
   }
 
-  // ----------------------------------------------------
-  // Elementos
-  // ----------------------------------------------------
+  mensagem.textContent = texto;
 
-  const botao = form.querySelector('button[type="submit"]');
+  mensagem.classList.remove(
+    "mensagem-sucesso",
+    "mensagem-erro",
+    "mensagem-aviso",
+  );
 
-  // ----------------------------------------------------
-  // Dados do formulário
-  // ----------------------------------------------------
+  if (tipo === "sucesso") {
+    mensagem.classList.add("mensagem-sucesso");
 
+    return;
+  }
+
+  if (tipo === "aviso") {
+    mensagem.classList.add("mensagem-aviso");
+
+    return;
+  }
+
+  mensagem.classList.add("mensagem-erro");
+}
+
+function limparMensagem() {
+  if (!mensagem) {
+    return;
+  }
+
+  mensagem.textContent = "";
+
+  mensagem.classList.remove(
+    "mensagem-sucesso",
+    "mensagem-erro",
+    "mensagem-aviso",
+  );
+}
+
+// HELPERS
+
+function normalizarTelefone(telefone) {
+  return String(telefone || "")
+    .replace(/\D/g, "")
+    .trim();
+}
+
+function gerarIdBarbearia() {
+  return `barbearia-${crypto.randomUUID()}`;
+}
+
+function traduzirErroSupabase(error) {
+  if (!error) {
+    return "Ocorreu um erro.";
+  }
+
+  const texto = error.message?.toLowerCase() || "";
+
+  if (
+    texto.includes("already registered") ||
+    texto.includes("already exists") ||
+    texto.includes("user already registered")
+  ) {
+    return "Este e-mail já está cadastrado.";
+  }
+
+  if (texto.includes("invalid email")) {
+    return "Digite um e-mail válido.";
+  }
+
+  if (
+    texto.includes("password") &&
+    (texto.includes("weak") || texto.includes("short"))
+  ) {
+    return "A senha escolhida é muito fraca.";
+  }
+
+  if (texto.includes("rate limit") || texto.includes("too many")) {
+    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+  }
+
+  if (
+    texto.includes("row-level security") ||
+    texto.includes("violates row-level security")
+  ) {
+    return "O banco bloqueou esta operação por segurança.";
+  }
+
+  return error.message || "Não foi possível realizar o cadastro.";
+}
+
+// DADOS DO FORMULÁRIO
+
+function obterDadosFormulario() {
   const nome = document.getElementById("nome")?.value.trim() || "";
 
-  const telefone = document.getElementById("telefone")?.value.trim() || "";
+  const telefone = normalizarTelefone(
+    document.getElementById("telefone")?.value,
+  );
 
   const cidade = document.getElementById("cidade")?.value.trim() || "";
 
@@ -76,417 +152,760 @@ form.addEventListener("submit", async (event) => {
 
   const arquivoLogo = document.getElementById("foto")?.files?.[0] || null;
 
-  // ----------------------------------------------------
-  // Dias de funcionamento
-  // ----------------------------------------------------
-
   const diasSelecionados = Array.from(
     document.querySelectorAll('input[name="dias"]:checked'),
   ).map((checkbox) => checkbox.value);
 
-  // ====================================================
-  // VALIDAÇÕES
-  // ====================================================
+  return {
+    nome,
+    telefone,
+    cidade,
+    endereco,
+    horarioAbertura,
+    horarioFechamento,
+    email,
+    senha,
+    confirmarSenha,
+    arquivoLogo,
+    diasSelecionados,
+  };
+}
 
-  if (!nome) {
-    mostrarMensagem("Digite o nome da barbearia.", "erro");
-    return;
+// VALIDAÇÕES
+
+function validarCadastro(dados) {
+  if (!dados.nome) {
+    return "Digite o nome da barbearia.";
   }
 
-  if (!cidade) {
-    mostrarMensagem("Selecione a cidade.", "erro");
-    return;
+  if (!dados.cidade) {
+    return "Digite a cidade.";
   }
 
-  if (!email) {
-    mostrarMensagem("Digite o e-mail.", "erro");
-    return;
-  }
+  /*
+    E-mail e senha só são obrigatórios
+    quando estamos criando uma CONTA nova.
 
-  if (!senha) {
-    mostrarMensagem("Digite uma senha.", "erro");
-    return;
-  }
+    Quando o usuário veio de:
+    ?modo=nova-barbearia
 
-  if (senha.length < 6) {
-    mostrarMensagem("A senha precisa ter pelo menos 6 caracteres.", "erro");
-    return;
-  }
+    ele já está autenticado.
+  */
 
-  if (senha !== confirmarSenha) {
-    mostrarMensagem("As senhas não são iguais.", "erro");
-    return;
-  }
+  if (!MODO_NOVA_BARBEARIA) {
+    if (!dados.email) {
+      return "Digite o e-mail.";
+    }
 
-  // ----------------------------------------------------
-  // Validação dos horários
-  // ----------------------------------------------------
+    if (!dados.senha) {
+      return "Digite uma senha.";
+    }
+
+    if (dados.senha.length < CONFIG_CADASTRO.SENHA_MINIMA) {
+      return `A senha precisa ter pelo menos ${CONFIG_CADASTRO.SENHA_MINIMA} caracteres.`;
+    }
+
+    if (dados.senha !== dados.confirmarSenha) {
+      return "As senhas não são iguais.";
+    }
+  }
 
   if (
-    horarioAbertura &&
-    horarioFechamento &&
-    horarioAbertura >= horarioFechamento
+    dados.horarioAbertura &&
+    dados.horarioFechamento &&
+    dados.horarioAbertura >= dados.horarioFechamento
   ) {
-    mostrarMensagem(
-      "O horário de fechamento precisa ser depois da abertura.",
-      "erro",
-    );
+    return "O horário de fechamento precisa ser depois da abertura.";
+  }
+
+  if (
+    dados.diasSelecionados.length &&
+    (!dados.horarioAbertura || !dados.horarioFechamento)
+  ) {
+    return "Informe os horários de abertura e fechamento.";
+  }
+
+  if (dados.arquivoLogo) {
+    if (!CONFIG_CADASTRO.TIPOS_LOGO.includes(dados.arquivoLogo.type)) {
+      return "A logo precisa ser JPG, PNG ou WEBP.";
+    }
+
+    if (dados.arquivoLogo.size > CONFIG_CADASTRO.TAMANHO_MAXIMO_LOGO) {
+      return "A logo pode ter no máximo 5 MB.";
+    }
+  }
+
+  return null;
+}
+
+// CADASTRO PENDENTE
+
+function salvarCadastroPendente(dados) {
+  const dadosPendentes = {
+    nome: dados.nome,
+
+    telefone: dados.telefone,
+
+    cidade: dados.cidade,
+
+    endereco: dados.endereco,
+
+    horarioAbertura: dados.horarioAbertura,
+
+    horarioFechamento: dados.horarioFechamento,
+
+    diasSelecionados: dados.diasSelecionados,
+  };
+
+  localStorage.setItem(
+    CONFIG_CADASTRO.CADASTRO_PENDENTE_KEY,
+
+    JSON.stringify(dadosPendentes),
+  );
+}
+
+function obterCadastroPendente() {
+  try {
+    const salvo = localStorage.getItem(CONFIG_CADASTRO.CADASTRO_PENDENTE_KEY);
+
+    if (!salvo) {
+      return null;
+    }
+
+    return JSON.parse(salvo);
+  } catch (erro) {
+    console.error("[BarberHub] Erro ao ler cadastro pendente:", erro);
+
+    return null;
+  }
+}
+
+function limparCadastroPendente() {
+  localStorage.removeItem(CONFIG_CADASTRO.CADASTRO_PENDENTE_KEY);
+}
+
+// CRIAR BARBEARIA
+
+async function criarBarbearia({
+  usuarioId,
+  nome,
+  cidade,
+  endereco,
+  telefone,
+  horarioAbertura,
+  horarioFechamento,
+  diasSelecionados,
+}) {
+  if (!usuarioId) {
+    throw new Error("Usuário não identificado.");
+  }
+
+  const id = gerarIdBarbearia();
+
+  const { data, error } = await supabaseClient
+    .from("barbearias")
+    .insert({
+      id,
+
+      dono_id: usuarioId,
+
+      nome,
+
+      cidade,
+
+      endereco: endereco || null,
+
+      telefone: telefone || null,
+
+      horario_abertura: horarioAbertura || null,
+
+      horario_fechamento: horarioFechamento || null,
+
+      dias_funcionamento: diasSelecionados || [],
+
+      logo_url: null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+// HORÁRIOS DE FUNCIONAMENTO
+
+function converterDiaSemana(dia) {
+  const mapa = {
+    dom: 0,
+    seg: 1,
+    ter: 2,
+    qua: 3,
+    qui: 4,
+    sex: 5,
+    sab: 6,
+  };
+
+  return mapa[dia] ?? null;
+}
+
+async function criarHorariosFuncionamento({
+  barbeariaId,
+  diasSelecionados,
+  horarioAbertura,
+  horarioFechamento,
+}) {
+  if (
+    !barbeariaId ||
+    !diasSelecionados?.length ||
+    !horarioAbertura ||
+    !horarioFechamento
+  ) {
+    return [];
+  }
+
+  const diasNumericos = diasSelecionados
+    .map(converterDiaSemana)
+    .filter((dia) => dia !== null);
+
+  if (!diasNumericos.length) {
+    return [];
+  }
+
+  const { data: existentes, error: erroBusca } = await supabaseClient
+    .from("horarios_funcionamento")
+    .select(
+      `
+          id,
+          dia_semana
+        `,
+    )
+    .eq("barbearia_id", barbeariaId);
+
+  if (erroBusca) {
+    throw erroBusca;
+  }
+
+  const diasExistentes = new Set(
+    (existentes || []).map((item) => Number(item.dia_semana)),
+  );
+
+  const novosHorarios = diasNumericos
+    .filter((diaSemana) => !diasExistentes.has(diaSemana))
+    .map((diaSemana) => ({
+      barbearia_id: barbeariaId,
+
+      dia_semana: diaSemana,
+
+      aberto: true,
+
+      hora_abertura: horarioAbertura,
+
+      hora_fechamento: horarioFechamento,
+
+      intervalo_inicio: null,
+
+      intervalo_fim: null,
+    }));
+
+  if (!novosHorarios.length) {
+    return existentes || [];
+  }
+
+  const { data, error } = await supabaseClient
+    .from("horarios_funcionamento")
+    .insert(novosHorarios)
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
+
+// UPLOAD DA LOGO
+
+async function enviarLogo({ usuarioId, barbeariaId, arquivoLogo }) {
+  if (!usuarioId || !barbeariaId || !arquivoLogo) {
+    return null;
+  }
+
+  const extensao = arquivoLogo.name.split(".").pop()?.toLowerCase() || "png";
+
+  const nomeArquivo = `${crypto.randomUUID()}.${extensao}`;
+
+  const caminhoArquivo = `${usuarioId}/${barbeariaId}/${nomeArquivo}`;
+
+  const { error: erroUpload } = await supabaseClient.storage
+    .from(CONFIG_CADASTRO.STORAGE_BUCKET)
+    .upload(caminhoArquivo, arquivoLogo, {
+      cacheControl: "3600",
+
+      upsert: false,
+    });
+
+  if (erroUpload) {
+    throw erroUpload;
+  }
+
+  const { data: urlData } = supabaseClient.storage
+    .from(CONFIG_CADASTRO.STORAGE_BUCKET)
+    .getPublicUrl(caminhoArquivo);
+
+  const logoUrl = urlData?.publicUrl || null;
+
+  if (!logoUrl) {
+    return null;
+  }
+
+  const { error: erroAtualizacao } = await supabaseClient
+    .from("barbearias")
+    .update({
+      logo_url: logoUrl,
+    })
+    .eq("id", barbeariaId)
+    .eq("dono_id", usuarioId);
+
+  if (erroAtualizacao) {
+    throw erroAtualizacao;
+  }
+
+  return logoUrl;
+}
+
+// FINALIZAR CRIAÇÃO DA BARBEARIA
+
+async function finalizarCadastroBarbearia({
+  usuarioId,
+  dados,
+  arquivoLogo = null,
+}) {
+  const barbearia = await criarBarbearia({
+    usuarioId,
+
+    nome: dados.nome,
+
+    cidade: dados.cidade,
+
+    endereco: dados.endereco,
+
+    telefone: dados.telefone,
+
+    horarioAbertura: dados.horarioAbertura,
+
+    horarioFechamento: dados.horarioFechamento,
+
+    diasSelecionados: dados.diasSelecionados,
+  });
+
+  await criarHorariosFuncionamento({
+    barbeariaId: barbearia.id,
+    diasSelecionados: dados.diasSelecionados,
+    horarioAbertura: dados.horarioAbertura,
+    horarioFechamento: dados.horarioFechamento,
+  });
+
+  let alertaLogo = null;
+
+  if (arquivoLogo) {
+    try {
+      await enviarLogo({
+        usuarioId,
+        barbeariaId: barbearia.id,
+        arquivoLogo,
+      });
+    } catch (erro) {
+      alertaLogo = erro;
+
+      console.warn(
+        "[BarberHub] A barbearia foi criada, mas a logo não pôde ser enviada:",
+        erro,
+      );
+    }
+  }
+
+  return {
+    barbearia,
+    alertaLogo,
+  };
+}
+// Dono Logado
+async function obterDonoLogado() {
+  const {
+    data: { session },
+    error,
+  } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const { data: perfil, error: erroPerfil } = await supabaseClient
+    .from("profiles")
+    .select(
+      `
+          id,
+          nome,
+          tipo
+        `,
+    )
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (erroPerfil) {
+    throw erroPerfil;
+  }
+
+  if (!perfil || perfil.tipo !== "dono") {
+    return null;
+  }
+
+  return {
+    usuario: session.user,
+
+    perfil,
+  };
+}
+
+// CADASTRAR
+
+async function cadastrarBarbearia(evento) {
+  evento.preventDefault();
+
+  limparMensagem();
+
+  if (!supabaseClient) {
+    mostrarMensagem("Erro de conexão com o sistema.", "erro");
+
     return;
   }
 
-  // ----------------------------------------------------
-  // Validação da logo
-  // ----------------------------------------------------
+  const dados = obterDadosFormulario();
 
-  if (arquivoLogo) {
-    const tiposPermitidos = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/webp",
-    ];
+  const erroValidacao = validarCadastro(dados);
 
-    if (!tiposPermitidos.includes(arquivoLogo.type)) {
-      mostrarMensagem("A logo precisa ser JPG, PNG ou WEBP.", "erro");
-      return;
-    }
+  if (erroValidacao) {
+    mostrarMensagem(erroValidacao, "erro");
 
-    const tamanhoMaximo = 5 * 1024 * 1024;
-
-    if (arquivoLogo.size > tamanhoMaximo) {
-      mostrarMensagem("A logo pode ter no máximo 5 MB.", "erro");
-      return;
-    }
+    return;
   }
 
-  // ====================================================
-  // DESABILITA BOTÃO
-  // ====================================================
-
-  if (botao) {
-    botao.disabled = true;
-    botao.textContent = "Criando cadastro...";
-  }
-
-  mensagem.textContent = "";
+  const botao = form?.querySelector('button[type="submit"]');
 
   try {
+    if (botao) {
+      botao.disabled = true;
+
+      botao.textContent = MODO_NOVA_BARBEARIA
+        ? "Criando barbearia..."
+        : "Criando cadastro...";
+    }
+
     // ==================================================
-    // 1 — CRIAR USUÁRIO NO SUPABASE AUTH
+    // NOVA BARBEARIA PARA DONO JÁ LOGADO
     // ==================================================
 
-    console.log("Criando usuário...");
+    if (MODO_NOVA_BARBEARIA) {
+      mostrarMensagem("Criando sua nova barbearia...", "aviso");
+
+      const dono = await obterDonoLogado();
+
+      if (!dono?.usuario?.id) {
+        mostrarMensagem("Sua sessão expirou. Entre novamente.", "erro");
+
+        setTimeout(() => {
+          window.location.href = CONFIG_CADASTRO.LOGIN_URL;
+        }, 1500);
+
+        return;
+      }
+
+      const resultado = await finalizarCadastroBarbearia({
+        usuarioId: dono.usuario.id,
+
+        dados,
+
+        arquivoLogo: dados.arquivoLogo,
+      });
+
+      if (resultado.alertaLogo) {
+        mostrarMensagem(
+          "Barbearia criada! A logo não pôde ser enviada agora, mas você poderá adicioná-la pelo painel.",
+          "sucesso",
+        );
+      } else {
+        mostrarMensagem("Nova barbearia criada com sucesso!", "sucesso");
+      }
+
+      setTimeout(() => {
+        window.location.href = `${CONFIG_CADASTRO.PAINEL_URL}?id=${encodeURIComponent(
+          resultado.barbearia.id,
+        )}`;
+      }, 1000);
+
+      return;
+    }
+
+    // ==================================================
+    // PRIMEIRO CADASTRO
+    // CRIA CONTA + BARBEARIA
+    // ==================================================
+
+    mostrarMensagem("Criando sua conta...", "aviso");
+
+    const urlConfirmacao = `${window.location.origin}${window.location.pathname}`;
 
     const { data: authData, error: authError } =
       await supabaseClient.auth.signUp({
-        email: email,
-        password: senha,
+        email: dados.email,
+
+        password: dados.senha,
 
         options: {
+          emailRedirectTo: urlConfirmacao,
+
           data: {
-            nome: nome,
-            telefone: telefone || null,
+            nome: dados.nome,
+
+            telefone: dados.telefone || null,
+
             tipo: "dono",
           },
         },
       });
 
-    // --------------------------------------------------
-    // Erro no Auth
-    // --------------------------------------------------
-
     if (authError) {
-      console.error("ERRO AUTH:", authError);
-
-      mostrarMensagem(traduzirErroSupabase(authError), "erro");
-
-      return;
+      throw authError;
     }
 
-    // --------------------------------------------------
-    // Verifica usuário
-    // --------------------------------------------------
-
-    if (!authData || !authData.user) {
-      console.error("Supabase não retornou o usuário:", authData);
-
-      mostrarMensagem("Não foi possível criar a conta.", "erro");
-
-      return;
+    if (!authData?.user) {
+      throw new Error("O Supabase não retornou o usuário criado.");
     }
 
     const usuarioId = authData.user.id;
 
-    console.log("Usuário criado:", usuarioId);
-
-    // ==================================================
-    // IMPORTANTE
-    // ==================================================
-    //
-    // O perfil NÃO é criado aqui.
-    //
-    // O trigger:
-    //
-    // on_auth_user_created
-    //
-    // chama:
-    //
-    // handle_new_user()
-    //
-    // e cria automaticamente o registro em profiles.
-    //
-    // ==================================================
-
-    console.log("Perfil será criado automaticamente pelo trigger.");
-
-    // ==================================================
-    // 2 — VERIFICAR SESSÃO
-    // ==================================================
+    // Confirmação de e-mail ativa.
 
     if (!authData.session) {
-      console.warn("Usuário criado, porém sem sessão.");
+      salvarCadastroPendente(dados);
+
+      form?.reset();
 
       mostrarMensagem(
-        "Conta criada! Verifique seu e-mail para confirmar o cadastro.",
+        "Conta criada! Confirme seu e-mail. Depois da confirmação concluiremos o cadastro da barbearia.",
         "sucesso",
       );
 
       return;
     }
 
-    // ==================================================
-    // 3 — UPLOAD DA LOGO
-    // ==================================================
+    mostrarMensagem("Criando sua barbearia...", "aviso");
 
-    let logoUrl = null;
+    const resultado = await finalizarCadastroBarbearia({
+      usuarioId,
+      dados,
 
-    if (arquivoLogo) {
-      console.log("Enviando logo...");
+      arquivoLogo: dados.arquivoLogo,
+    });
 
-      const extensao = arquivoLogo.name.split(".").pop().toLowerCase();
+    limparCadastroPendente();
 
-      const nomeArquivo = `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
-
-      const caminhoArquivo = `${usuarioId}/${nomeArquivo}`;
-
-      const { error: erroUpload } = await supabaseClient.storage
-        .from("barbearias")
-        .upload(caminhoArquivo, arquivoLogo, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      // ------------------------------------------------
-      // Erro upload
-      // ------------------------------------------------
-
-      if (erroUpload) {
-        console.error("ERRO AO ENVIAR LOGO:", erroUpload);
-
-        mostrarMensagem(
-          "Conta criada, mas não foi possível enviar a logo.",
-          "erro",
-        );
-
-        return;
-      }
-
-      // ------------------------------------------------
-      // URL pública
-      // ------------------------------------------------
-
-      const { data: urlData } = supabaseClient.storage
-        .from("barbearias")
-        .getPublicUrl(caminhoArquivo);
-
-      logoUrl = urlData?.publicUrl || null;
-
-      console.log("Logo enviada:", logoUrl);
-    }
-
-    // ==================================================
-    // 4 — CRIAR BARBEARIA
-    // ==================================================
-
-    console.log("Criando barbearia...");
-
-    const dadosBarbearia = {
-      id: nome,
-      dono_id: usuarioId,
-      nome: nome,
-      cidade: cidade,
-      endereco: endereco || null,
-      telefone: telefone || null,
-      horario_abertura: horarioAbertura || null,
-      horario_fechamento: horarioFechamento || null,
-      dias_funcionamento: diasSelecionados,
-      logo_url: logoUrl,
-    };
-
-    console.log("Dados da barbearia:", dadosBarbearia);
-
-    const { data: barbearia, error: erroBarbearia } = await supabaseClient
-      .from("barbearias")
-      .insert(dadosBarbearia)
-      .select()
-      .single();
-
-    // --------------------------------------------------
-    // Erro barbearia
-    // --------------------------------------------------
-
-    if (erroBarbearia) {
-      console.error("=================================");
-
-      console.error("ERRO AO CRIAR BARBEARIA");
-
-      console.error("Mensagem:", erroBarbearia.message);
-
-      console.error("Detalhes:", erroBarbearia.details);
-
-      console.error("Hint:", erroBarbearia.hint);
-
-      console.error("Código:", erroBarbearia.code);
-
-      console.error("Objeto completo:", erroBarbearia);
-
-      console.error("=================================");
-
+    if (resultado.alertaLogo) {
       mostrarMensagem(
-        "Conta criada, mas não foi possível criar a barbearia. Veja o Console (F12).",
-        "erro",
+        "Barbearia criada! A logo não pôde ser enviada agora, mas você poderá adicioná-la pelo painel.",
+        "sucesso",
       );
-
-      return;
+    } else {
+      mostrarMensagem(
+        "Cadastro realizado com sucesso! Redirecionando...",
+        "sucesso",
+      );
     }
-
-    console.log("Barbearia criada:", barbearia);
-
-    // ==================================================
-    // 5 — SUCESSO
-    // ==================================================
-
-    mostrarMensagem(
-      "Cadastro realizado com sucesso! Redirecionando...",
-      "sucesso",
-    );
-
-    console.log("CADASTRO FINALIZADO COM SUCESSO!");
-
-    // ==================================================
-    // REDIRECIONAMENTO
-    // ==================================================
 
     setTimeout(() => {
-      window.location.href = `../painel/index.html?id=${barbearia.id}`;
-    }, 1000);
+      window.location.href = `${CONFIG_CADASTRO.PAINEL_URL}?id=${encodeURIComponent(
+        resultado.barbearia.id,
+      )}`;
+    }, 1200);
   } catch (erro) {
-    // ==================================================
-    // ERRO INESPERADO
-    // ==================================================
+    console.error("[BarberHub] Erro no cadastro da barbearia:", erro);
 
-    console.error("=================================");
-
-    console.error("ERRO INESPERADO NO CADASTRO");
-
-    console.error(erro);
-
-    console.error("Mensagem:", erro?.message);
-
-    console.error("Stack:", erro?.stack);
-
-    console.error("=================================");
-
-    mostrarMensagem(
-      "Ocorreu um erro inesperado. Abra o Console (F12) para verificar.",
-      "erro",
-    );
+    mostrarMensagem(traduzirErroSupabase(erro), "erro");
   } finally {
-    // ==================================================
-    // REATIVA BOTÃO
-    // ==================================================
-
     if (botao) {
       botao.disabled = false;
-      botao.textContent = "Cadastrar";
+
+      botao.textContent = "+ Cadastrar Barbearia";
     }
-  }
-});
-
-// ======================================================
-// FUNÇÃO — MOSTRAR MENSAGEM
-// ======================================================
-
-function mostrarMensagem(texto, tipo = "erro") {
-  if (!mensagem) {
-    return;
-  }
-
-  mensagem.textContent = texto;
-
-  if (tipo === "sucesso") {
-    mensagem.style.color = "#D4AF37";
-  } else {
-    mensagem.style.color = "#C1121F";
   }
 }
 
-// ======================================================
-// TRADUZIR ERROS DO SUPABASE
-// ======================================================
+// FINALIZAR CADASTRO DEPOIS DA CONFIRMAÇÃO DE E-MAIL
 
-function traduzirErroSupabase(error) {
-  if (!error) {
-    return "Ocorreu um erro.";
+async function finalizarCadastroPendente() {
+  const dadosPendentes = obterCadastroPendente();
+
+  if (!dadosPendentes) {
+    return false;
   }
 
-  const mensagemErro = error.message?.toLowerCase() || "";
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabaseClient.auth.getSession();
 
-  // ----------------------------------------------------
-  // E-mail já cadastrado
-  // ----------------------------------------------------
+    if (error) {
+      throw error;
+    }
 
-  if (
-    mensagemErro.includes("already registered") ||
-    mensagemErro.includes("already exists") ||
-    mensagemErro.includes("user already registered")
-  ) {
-    return "Este e-mail já está cadastrado.";
+    if (!session?.user) {
+      return false;
+    }
+
+    mostrarMensagem("Finalizando o cadastro da sua barbearia...", "aviso");
+
+    const resultado = await finalizarCadastroBarbearia({
+      usuarioId: session.user.id,
+
+      dados: dadosPendentes,
+
+      /*
+          O navegador não consegue guardar o arquivo
+          da logo no localStorage.
+
+          Caso a confirmação de e-mail tenha sido
+          necessária, a logo poderá ser enviada depois.
+        */
+      arquivoLogo: null,
+    });
+
+    limparCadastroPendente();
+
+    mostrarMensagem(
+      "Barbearia criada com sucesso! Redirecionando...",
+      "sucesso",
+    );
+
+    setTimeout(() => {
+      window.location.href = `${CONFIG_CADASTRO.PAINEL_URL}?id=${encodeURIComponent(
+        resultado.barbearia.id,
+      )}`;
+    }, 1200);
+
+    return true;
+  } catch (erro) {
+    console.error("[BarberHub] Erro ao finalizar cadastro pendente:", erro);
+
+    mostrarMensagem(
+      "Sua conta foi confirmada, mas não conseguimos finalizar a barbearia. Tente novamente.",
+      "erro",
+    );
+
+    return false;
+  }
+}
+
+async function configurarModoCadastro() {
+  if (!MODO_NOVA_BARBEARIA) {
+    return;
   }
 
-  // ----------------------------------------------------
-  // E-mail inválido
-  // ----------------------------------------------------
+  const secaoConta = document.getElementById("secao-conta");
 
-  if (mensagemErro.includes("invalid email")) {
-    return "Digite um e-mail válido.";
+  const avisoConta = document.getElementById("aviso-conta-existente");
+
+  const campoEmail = document.getElementById("email");
+
+  const campoSenha = document.getElementById("senha");
+
+  const campoConfirmarSenha = document.getElementById("confirmar-senha");
+
+  // ================================================
+  // VERIFICAR DONO LOGADO
+  // ================================================
+
+  const dono = await obterDonoLogado();
+
+  if (!dono?.usuario?.id) {
+    mostrarMensagem("Sua sessão expirou. Entre novamente.", "erro");
+
+    setTimeout(() => {
+      window.location.href = CONFIG_CADASTRO.LOGIN_URL;
+    }, 1500);
+
+    return;
   }
 
-  // ----------------------------------------------------
-  // Senha fraca
-  // ----------------------------------------------------
+  // ================================================
+  // E-MAIL E SENHA NÃO SÃO NECESSÁRIOS
+  // ================================================
 
-  if (
-    mensagemErro.includes("password") &&
-    (mensagemErro.includes("weak") || mensagemErro.includes("short"))
-  ) {
-    return "A senha escolhida é muito fraca.";
+  if (campoEmail) {
+    campoEmail.required = false;
+
+    campoEmail.value = dono.usuario.email || "";
   }
 
-  // ----------------------------------------------------
-  // Rate limit
-  // ----------------------------------------------------
-
-  if (
-    mensagemErro.includes("rate limit") ||
-    mensagemErro.includes("too many")
-  ) {
-    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+  if (campoSenha) {
+    campoSenha.required = false;
+    campoSenha.value = "";
   }
 
-  // ----------------------------------------------------
-  // Retorna erro original
-  // ----------------------------------------------------
+  if (campoConfirmarSenha) {
+    campoConfirmarSenha.required = false;
 
-  return error.message || "Não foi possível realizar o cadastro.";
+    campoConfirmarSenha.value = "";
+  }
+
+  // ================================================
+  // ESCONDER CRIAÇÃO DE CONTA
+  // ================================================
+
+  if (secaoConta) {
+    secaoConta.hidden = true;
+  }
+
+  // ================================================
+  // MOSTRAR AVISO
+  // ================================================
+
+  if (avisoConta) {
+    avisoConta.hidden = false;
+  }
+}
+
+// ==================================================
+// INICIALIZAÇÃO
+// ==================================================
+
+async function iniciarCadastro() {
+  if (!supabaseClient) {
+    console.error("[BarberHub] Supabase não foi carregado.");
+
+    mostrarMensagem("Erro: não foi possível conectar ao sistema.", "erro");
+
+    return;
+  }
+
+  if (form) {
+    form.addEventListener("submit", cadastrarBarbearia);
+  }
+
+  await configurarModoCadastro();
+
+  await finalizarCadastroPendente();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", iniciarCadastro);
+} else {
+  iniciarCadastro();
 }

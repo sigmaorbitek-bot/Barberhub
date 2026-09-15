@@ -8,17 +8,17 @@
 
 :root {
   --bg-dark: #080808;
-  --bg-primary: #0D0D0D;
+  --bg-primary: #0d0d0d;
   --bg-secondary: #141414;
-  --bg-card: #1A1A1A;
+  --bg-card: #1a1a1a;
 
-  --blue: #007BFF;
-  --red: #C1121F;
-  --gold: #D4AF37;
+  --blue: #007bff;
+  --red: #c1121f;
+  --gold: #d4af37;
 
-  --white: #FFFFFF;
-  --text-primary: #F5F5F5;
-  --text-secondary: #A6A6A6;
+  --white: #ffffff;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a6a6a6;
   --text-muted: #707070;
 
   --border-color: #292929;
@@ -31,22 +31,17 @@
     var(--gold) 30%
   );
 
-   --gradient-brand: linear-gradient(
+  --gradient-brand: linear-gradient(
     135deg,
     var(--blue) 0%,
     var(--red) 50%,
     var(--gold) 100%
   );
 
-  --gradient-gold: linear-gradient(
-    135deg,
-    #B8860B,
-    #D4AF37,
-    #FFD700
-  );
+  --gradient-gold: linear-gradient(135deg, #b8860b, #d4af37, #ffd700);
 
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --shadow-brand: 0 0 30px rgba(212, 175, 55, 0.20);
+  --shadow-brand: 0 0 30px rgba(212, 175, 55, 0.2);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -57,13 +52,8 @@
   --transition-normal: 0.3s ease;
 
   --font-base:
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+    "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
-
 
 /* ==================================================
    RESET
@@ -74,7 +64,6 @@
   padding: 0;
   box-sizing: border-box;
 }
-
 
 /* ==================================================
    HTML / BODY
@@ -87,17 +76,12 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(
-      circle at top,
-      rgba(0, 123, 255, 0.08),
-      transparent 35%
-    ),
+    radial-gradient(circle at top, rgba(0, 123, 255, 0.08), transparent 35%),
     var(--bg-dark);
   color: var(--text-primary);
   font-family: var(--font-base);
   -webkit-font-smoothing: antialiased;
 }
-
 
 /* ==================================================
    TELA PRINCIPAL
@@ -111,7 +95,6 @@ body {
   padding: 40px 20px;
 }
 
-
 /* ==================================================
    CONTAINER
    ================================================== */
@@ -120,7 +103,6 @@ body {
   width: 100%;
   max-width: 700px;
 }
-
 
 /* ==================================================
    CAIXA PRINCIPAL
@@ -138,7 +120,6 @@ body {
   animation: subirCaixa 0.5s ease;
 }
 
-
 /* ==================================================
    CABEÇALHO
    ================================================== */
@@ -147,7 +128,6 @@ body {
   text-align: center;
   margin-bottom: 30px;
 }
-
 
 /* ==================================================
    LOGO
@@ -159,11 +139,9 @@ body {
   object-fit: contain;
   display: block;
   margin: 0 auto 18px;
-  filter:
-    drop-shadow(0 0 12px rgba(0, 123, 255, 0.35));
+  filter: drop-shadow(0 0 12px rgba(0, 123, 255, 0.35));
   animation: pulsarLogo 3s ease-in-out infinite;
 }
-
 
 /* ==================================================
    TÍTULO
@@ -179,7 +157,6 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 /* ==================================================
    SUBTÍTULO
@@ -205,7 +182,6 @@ body {
   );
 }
 
-
 /* ==================================================
    DESCRIÇÃO
    ================================================== */
@@ -218,7 +194,6 @@ body {
   margin-bottom: 25px;
 }
 
-
 /* ==================================================
    FORMULÁRIO
    ================================================== */
@@ -228,7 +203,6 @@ body {
   flex-direction: column;
   gap: 18px;
 }
-
 
 /* ==================================================
    CAMPOS
@@ -240,7 +214,6 @@ body {
   gap: 8px;
 }
 
-
 /* ==================================================
    LABEL
    ================================================== */
@@ -250,7 +223,6 @@ body {
   font-size: 14px;
   font-weight: 600;
 }
-
 
 /* ==================================================
    INPUT / SELECT
@@ -282,7 +254,6 @@ body {
   color: var(--text-muted);
 }
 
-
 /* ==================================================
    FOCO
    ================================================== */
@@ -291,8 +262,7 @@ body {
 .campo select:focus {
   border-color: var(--blue);
   background: #171717;
-  box-shadow:
-    0 0 0 3px rgba(0, 123, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
 }
 
 /* ==================================================
@@ -322,7 +292,6 @@ body {
   background: #0069d9;
 }
 
-
 /* ==================================================
    SELECT
    ================================================== */
@@ -330,7 +299,6 @@ body {
 .campo select {
   cursor: pointer;
 }
-
 
 /* ==================================================
    LINHA COM DOIS CAMPOS
@@ -342,19 +310,16 @@ body {
   gap: 15px;
 }
 
-
 /* ==================================================
    DIAS DE FUNCIONAMENTO
    ================================================== */
 
 .dias {
   display: grid;
-  grid-template-columns:
-  repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   margin-top: 5px;
 }
-
 
 /* ==================================================
    CHECKBOX
@@ -395,7 +360,6 @@ body {
   transform: translateY(-1px);
 }
 
-
 /* ==================================================
    DIA SELECIONADO
    ================================================== */
@@ -404,8 +368,7 @@ body {
   background: rgba(0, 123, 255, 0.12);
   border-color: var(--blue);
   color: var(--white);
-  box-shadow:
-    0 0 12px rgba(0, 123, 255, 0.12);
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.12);
 }
 
 /* ==================================================
@@ -426,7 +389,6 @@ body {
   margin-top: -8px;
 }
 
-
 /* ==================================================
    BOTÃO PRINCIPAL
    ================================================== */
@@ -443,8 +405,7 @@ body {
   font-weight: 700;
   cursor: pointer;
   margin-top: 10px;
-  box-shadow:
-    0 8px 25px rgba(0, 123, 255, 0.18);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.18);
   transition:
     transform var(--transition-fast),
     filter var(--transition-fast),
@@ -454,14 +415,12 @@ body {
 .btn-principal:hover {
   transform: translateY(-2px);
   filter: brightness(1.08);
-  box-shadow:
-    0 12px 30px rgba(0, 123, 255, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.25);
 }
 
 .btn-principal:active {
   transform: translateY(0);
 }
-
 
 /* ==================================================
    BOTÃO VOLTAR
@@ -491,7 +450,6 @@ body {
   border-color: var(--blue);
 }
 
-
 /* ==================================================
    BOTÃO CANCELAR EDIÇÃO
    ================================================== */
@@ -510,9 +468,8 @@ body {
 }
 
 #btn-cancelar-edicao:hover {
-  background: rgba(193, 18, 31, 0.10);
+  background: rgba(193, 18, 31, 0.1);
 }
-
 
 /* ==================================================
    MENSAGEM
@@ -525,7 +482,6 @@ body {
   line-height: 1.5;
   margin-top: 5px;
 }
-
 
 /* ==================================================
    ESTADOS DE MENSAGEM
@@ -542,7 +498,6 @@ body {
 .mensagem-aviso {
   color: var(--gold);
 }
-
 
 /* ==================================================
    ANIMAÇÕES
@@ -562,7 +517,6 @@ body {
   }
 }
 
-
 @keyframes pulsarLogo {
   0%,
   100% {
@@ -574,13 +528,11 @@ body {
   }
 }
 
-
 /* ==================================================
    RESPONSIVO — TABLET
    ================================================== */
 
 @media (max-width: 700px) {
-
   .cadastro-barbearia {
     padding: 25px 15px;
   }
@@ -599,18 +551,15 @@ body {
   }
 
   .dias {
-    grid-template-columns:
-      repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
-
 
 /* ==================================================
    RESPONSIVO — CELULAR
    ================================================== */
 
 @media (max-width: 450px) {
-
   .cadastro-barbearia {
     padding: 15px 10px;
   }
@@ -630,15 +579,13 @@ body {
   }
 
   .dias {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .dia label {
     min-height: 40px;
   }
 }
-
 
 /* ==================================================
    ACESSIBILIDADE
@@ -653,13 +600,11 @@ label:focus-visible {
   outline-offset: 2px;
 }
 
-
 /* ==================================================
    REDUÇÃO DE MOVIMENTO
    ================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -667,5 +612,207 @@ label:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ==================================================
+   BARBERHUB — AJUSTES FINAIS DO CADASTRO
+   Compatível com cadastro de cliente e barbearia
+   ================================================== */
+
+/* TEXTO AUXILIAR DOS CAMPOS */
+
+.campo-ajuda {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* MELHOR LEITURA DOS CAMPOS */
+
+.campo input,
+.campo select {
+  min-width: 0;
+}
+
+.campo input[type="email"],
+.campo input[type="password"],
+.campo input[type="text"],
+.campo input[type="tel"],
+.campo input[type="time"],
+.campo select {
+  appearance: none;
+}
+
+.campo select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* AUTOFILL DO NAVEGADOR */
+
+.campo input:-webkit-autofill,
+.campo input:-webkit-autofill:hover,
+.campo input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  box-shadow: 0 0 0 1000px var(--bg-card) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* INPUT FILE */
+
+.campo input[type="file"] {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.campo input[type="file"]::file-selector-button {
+  min-height: 36px;
+}
+
+/* ESTADOS DOS BOTÕES */
+
+.btn-principal:disabled,
+.btn-voltar:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  filter: none;
+  box-shadow: none;
+}
+
+/* MENSAGEM */
+
+#mensagem:empty {
+  display: none;
+}
+
+#mensagem:not(:empty) {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+
+#mensagem.mensagem-sucesso {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+#mensagem.mensagem-erro {
+  color: #ff6b75;
+  background: rgba(193, 18, 31, 0.1);
+  border-color: rgba(193, 18, 31, 0.28);
+}
+
+#mensagem.mensagem-aviso {
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.22);
+}
+
+/* MELHOR EXPERIÊNCIA COM CHECKBOX */
+
+.dia input:focus-visible + label {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.dia input:disabled + label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* EVITAR ESTOURO DE TEXTO */
+
+.box,
+.campo,
+.campos-duplos,
+.dias {
+  min-width: 0;
+}
+
+.descricao,
+.secao-descricao,
+.campo-ajuda,
+#mensagem {
+  overflow-wrap: anywhere;
+}
+
+/* TOUCH / MOBILE */
+
+@media (hover: none) {
+  .btn-principal:hover,
+  .btn-voltar:hover,
+  .dia label:hover,
+  .campo input[type="file"]::file-selector-button:hover {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* TABLET E CELULAR */
+
+@media (max-width: 700px) {
+  body {
+    min-width: 320px;
+  }
+
+  .cadastro-barbearia {
+    align-items: flex-start;
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-right: max(15px, env(safe-area-inset-right));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    padding-left: max(15px, env(safe-area-inset-left));
+  }
+
+  .campo input,
+  .campo select {
+    font-size: 16px;
+  }
+
+  .btn-principal,
+  .btn-voltar {
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+
+  .dias {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* CELULAR PEQUENO */
+
+@media (max-width: 380px) {
+  .cadastro-barbearia {
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+  }
+
+  .box {
+    padding: 22px 14px;
+  }
+
+  .logo {
+    width: 68px;
+    height: 68px;
+  }
+
+  .box h1 {
+    font-size: 23px;
+  }
+
+  .dias {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .dia label {
+    font-size: 12px;
+    padding-inline: 6px;
   }
 }

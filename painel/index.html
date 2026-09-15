@@ -127,7 +127,6 @@
           <!-- NOTIFICAÇÕES E COMENTÁRIOS -->
 
           <div class="sidebar-acoes">
-          
             <button
               type="button"
               class="sidebar-acao"
@@ -155,7 +154,6 @@
                 0
               </span>
             </button>
-            
           </div>
         </div>
 
@@ -713,7 +711,6 @@
                   type="button"
                   class="btn-voltar"
                   id="btn-cancelar-servico"
-                  onclick="cancelarEdicaoServico()"
                   hidden
                 >
                   Cancelar edição
@@ -812,7 +809,6 @@
                   type="button"
                   class="btn-voltar"
                   id="btn-cancelar-produto"
-                  onclick="cancelarEdicaoProduto()"
                   hidden
                 >
                   Cancelar edição
@@ -1010,6 +1006,18 @@
                 </div>
               </div>
 
+              <div class="campo-inline">
+                <div class="campo">
+                  <label for="cliente-email">E-mail (opcional)</label>
+                  <input
+                    type="email"
+                    id="cliente-email"
+                    placeholder="Ex: cliente@email.com"
+                  />
+                </div>
+
+              </div>
+
               <div class="form-item-botoes">
                 <button
                   type="submit"
@@ -1105,7 +1113,6 @@
                   type="button"
                   class="btn-voltar"
                   id="btn-cancelar-barbeiro"
-                  onclick="cancelarEdicaoBarbeiro()"
                   hidden
                 >
                   Cancelar edição
@@ -1218,6 +1225,7 @@
             </div>
 
             <form id="form-gasto" class="form-item">
+              <input type="hidden" id="gasto-id" />
               <div class="campo">
                 <label for="gasto-descricao"> Descrição do gasto </label>
 
@@ -1307,6 +1315,15 @@
                 >
                   + Adicionar gasto
                 </button>
+
+                <button
+                  type="button"
+                  class="btn-voltar"
+                  id="btn-cancelar-gasto"
+                  hidden
+                >
+                  Cancelar edição
+                </button>
               </div>
             </form>
 
@@ -1325,6 +1342,12 @@
 
               <p>Gerencie os dados da conta e da barbearia.</p>
             </div>
+
+            <p
+              id="mensagem-configuracao"
+              class="mensagem"
+              aria-live="polite"
+            ></p>
 
             <!-- DADOS DA BARBEARIA -->
 
@@ -1477,6 +1500,7 @@
           class="mobile-bottom-item"
           id="btn-menu-bottom"
           aria-label="Abrir menu"
+          aria-expanded="false"
         >
           <span>☰</span>
           <small>Menu</small>
@@ -1489,9 +1513,14 @@
          ================================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script src="../config.js"></script>
-
-    <script src="painel.js"></script>
+    <script src="seçao 1,2,3,4.js"></script>
+    <script src="seçao 5,6.js"></script>
+    <script src="seçao 7,8.js"></script>
+    <script src="seçao 9,10.js"></script>
+    <script src="seçao 11,12.js"></script>
+    <script src="seçao 13,14.js"></script>
+    <script src="seçao 15,16,17.js"></script>  
+    
   </body>
 </html>

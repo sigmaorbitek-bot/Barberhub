@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -12,7 +11,7 @@
 
     <title>Nova senha | BarberHub</title>
 
-    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="icon" type="image/png" href="../assets/barber.png" />
 
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -21,12 +20,12 @@
     <main id="tela-boas-vindas">
       <section class="tbv-container">
         <div class="tbv-box">
-          <!-- ==========================================
-               CABEÇALHO
-               ========================================== -->
-
           <header class="box-header">
-            <img src="../assets/barber.png" alt="BarberHub" class="bv-logo" />
+            <img
+              src="../assets/barber.png"
+              alt="Logo BarberHub"
+              class="bv-logo"
+            />
 
             <h1 class="bv-titulo">Nova senha</h1>
 
@@ -35,11 +34,7 @@
 
           <div class="bv-divisor" aria-hidden="true"></div>
 
-          <!-- ==========================================
-               FORMULÁRIO
-               ========================================== -->
-
-          <form id="form-nova-senha">
+          <form id="form-nova-senha" novalidate>
             <div class="campo">
               <label for="nova-senha"> Nova senha </label>
 
@@ -68,15 +63,9 @@
               />
             </div>
 
-            <p id="mensagem" aria-live="polite"></p>
-
-            <!-- BOTÃO -->
+            <p id="mensagem" aria-live="polite" role="status"></p>
 
             <button type="submit" class="btn-principal">Alterar senha</button>
-
-            <!-- ==========================================
-     VOLTAR PARA O LOGIN
-     ========================================== -->
 
             <button
               type="button"
@@ -90,10 +79,6 @@
         </div>
       </section>
     </main>
-
-    <!-- ==========================================
-         SUPABASE
-         ========================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

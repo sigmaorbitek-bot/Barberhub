@@ -1,10 +1,34 @@
-/* ==================================================
+/* ==================================================================
    BARBERHUB — PAINEL DA BARBEARIA
-   ================================================== */
+   Índice:
+   1.  Variáveis
+   2.  Reset e base (html/body/botões/inputs)
+   3.  Tela de carregamento
+   4.  Layout geral do painel
+   5.  Sidebar (menu lateral desktop)
+   6.  Header mobile
+   7.  Menu mobile (dropdown)
+   8.  Navegação inferior mobile
+   9.  Área principal / cabeçalho do conteúdo
+   10. Dashboard (cards e seções)
+   11. Filtros (pedidos / agendamentos)
+   12. Relatórios
+   13. Botão WhatsApp
+   14. Mensagens de feedback
+   15. Formulários e campos
+   16. Botões (principal, voltar, perigo)
+   17. Listas e itens
+   18. Status (select colorido)
+   19. Horários de funcionamento
+   20. Configurações
+   21. Acessibilidade (foco)
+   22. Animações
+   23. Responsividade (tablet / mobile / mobile pequeno)
+   ================================================================== */
 
-/* ==================================================
-   VARIÁVEIS
-   ================================================== */
+/* ==================================================================
+   1. VARIÁVEIS
+   ================================================================== */
 
 :root {
   --bg-dark: #080808;
@@ -30,13 +54,10 @@
     var(--red) 50%,
     var(--gold) 100%
   );
-
   --gradient-gold: linear-gradient(135deg, #b8860b, #d4af37, #ffd700);
 
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
-
   --shadow-sidebar: 8px 0 30px rgba(0, 0, 0, 0.25);
-
   --shadow-brand: 0 0 25px rgba(212, 175, 55, 0.12);
 
   --radius-sm: 8px;
@@ -53,19 +74,15 @@
     "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ==================================================
-   RESET
-   ================================================== */
+/* ==================================================================
+   2. RESET E BASE
+   ================================================================== */
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
-/* ==================================================
-   HTML / BODY
-   ================================================== */
 
 html {
   min-height: 100%;
@@ -74,19 +91,11 @@ html {
 
 body {
   min-height: 100vh;
-
   background: var(--bg-dark);
-
   color: var(--text-primary);
-
   font-family: var(--font-base);
-
   line-height: 1.5;
 }
-
-/* ==================================================
-   BOTÕES / INPUTS
-   ================================================== */
 
 button,
 input,
@@ -104,14 +113,13 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* ==================================================
-   TELA DE CARREGAMENTO
-   ================================================== */
+/* ==================================================================
+   3. TELA DE CARREGAMENTO
+   ================================================================== */
 
 .tela-carregamento {
   position: fixed;
   inset: 0;
-
   z-index: 9999;
 
   display: flex;
@@ -122,15 +130,10 @@ button:disabled {
 
   opacity: 1;
   visibility: visible;
-
   transition:
     opacity 0.3s ease,
     visibility 0.3s ease;
 }
-
-/* ==================================================
-   TELA ESCONDIDA
-   ================================================== */
 
 .tela-carregamento--oculta {
   opacity: 0;
@@ -138,108 +141,63 @@ button:disabled {
   pointer-events: none;
 }
 
-/* ==================================================
-   CONTEÚDO DO CARREGAMENTO
-   ================================================== */
-
 .carregamento-conteudo {
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
   text-align: center;
-
   padding: 30px;
 }
-
-/* ==================================================
-   LOGO DO CARREGAMENTO
-   ================================================== */
 
 .carregamento-logo {
   width: 72px;
   height: 72px;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
   margin-bottom: 18px;
 
   background: var(--bg-card);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-lg);
-
   box-shadow: var(--shadow-brand);
 
   overflow: hidden;
 }
 
-/* ==================================================
-   IMAGEM
-   ================================================== */
-
 .carregamento-logo img {
   width: 100%;
   height: 100%;
-
   object-fit: contain;
-
   padding: 10px;
 }
 
-/* ==================================================
-   TÍTULO DO CARREGAMENTO
-   ================================================== */
-
 .carregamento-conteudo h2 {
   margin: 0;
-
   color: var(--white);
-
   font-size: 1.5rem;
-
   font-weight: 700;
 }
 
-/* ==================================================
-   TEXTO DO CARREGAMENTO
-   ================================================== */
-
 .carregamento-conteudo p {
   margin: 8px 0 22px;
-
   color: var(--text-secondary);
-
   font-size: 0.85rem;
 }
-
-/* ==================================================
-   SPINNER
-   ================================================== */
 
 .carregamento-spinner {
   width: 34px;
   height: 34px;
 
   border: 3px solid var(--border-color);
-
   border-top-color: var(--gold);
-
   border-radius: 50%;
 
   animation: carregarSpinner 0.8s linear infinite;
 }
-
-/* ==================================================
-   ANIMAÇÃO DO SPINNER
-   ================================================== */
 
 @keyframes carregarSpinner {
   to {
@@ -247,27 +205,23 @@ button:disabled {
   }
 }
 
-/* ==================================================
-   PAINEL PRINCIPAL
-   ================================================== */
+/* ==================================================================
+   4. LAYOUT GERAL DO PAINEL
+   ================================================================== */
 
 .painel {
   width: 100%;
-
   min-height: 100vh;
-
   display: flex;
-
   background: var(--bg-dark);
 }
 
-/* ==================================================
-   MENU LATERAL
-   ================================================== */
+/* ==================================================================
+   5. SIDEBAR (MENU LATERAL DESKTOP)
+   ================================================================== */
 
 .painel-sidebar {
   position: fixed;
-
   top: 0;
   left: 0;
   bottom: 0;
@@ -275,21 +229,16 @@ button:disabled {
   width: var(--sidebar-width);
 
   display: flex;
-
   flex-direction: column;
 
   background: linear-gradient(180deg, #101010 0%, #0b0b0b 100%);
-
   border-right: 1px solid var(--border-color);
-
   box-shadow: var(--shadow-sidebar);
 
   z-index: 100;
 }
 
-/* ==================================================
-   TOPO DO SIDEBAR
-   ================================================== */
+/* --- Topo: logo + identidade + ações --- */
 
 .sidebar-top {
   display: flex;
@@ -297,23 +246,20 @@ button:disabled {
   gap: 10px;
 
   width: 100%;
-
   padding: 4px 6px 20px;
 
   border-bottom: 1px solid var(--border-color);
 }
 
-/* ==================================================
-   LOGO DO BARBERHUB
-   ================================================== */
-
 .sidebar-logo {
   width: 48px;
   height: 48px;
   flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   overflow: hidden;
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
@@ -321,448 +267,140 @@ button:disabled {
   box-shadow: 0 0 20px rgba(0, 123, 255, 0.08);
 }
 
-/* =========================================================
-AÇÕES DO TOPO
-🔔 NOTIFICAÇÕES
-💬 COMENTÁRIOS
-========================================================= */
-
-.sidebar-acoes {
-display: flex;
-align-items: center;
-gap: 5px;
-
-margin-left: auto;
-}
-
-/* BOTÃO */
-
-.sidebar-acao {
-position: relative;
-
-width: 35px;
-height: 35px;
-
-flex-shrink: 0;
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-border: 1px solid var(--border-light);
-border-radius: 8px;
-
-background: #151515;
-color: var(--text-secondary);
-
-font-size: 0.95rem;
-
-cursor: pointer;
-
-transition:
-color var(--transition-fast),
-background var(--transition-fast),
-border-color var(--transition-fast),
-transform var(--transition-fast),
-box-shadow var(--transition-fast);
-}
-
-/* HOVER */
-
-.sidebar-acao {
-color: var(--gold);
-
-background: #1c1c1c;
-
-border-color:
-rgba(212, 175, 55, 0.5);
-
-transform: translateY(-1px);
-
-box-shadow:
-0 5px 15px rgba(0, 0, 0, 0.25);
-}
-
-/* CLICK */
-
-.sidebar-acao {
-transform: translateY(0);
-}
-
-/* =========================================================
-BADGE VERMELHO
-========================================================= */
-
-.sidebar-badge {
-position: absolute;
-
-top: -6px;
-right: -6px;
-
-min-width: 17px;
-height: 17px;
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-padding: 0 4px;
-
-border: 2px solid #111111;
-border-radius: 999px;
-
-background: var(--red);
-color: var(--white);
-
-font-size: 0.5rem;
-font-weight: 800;
-
-line-height: 1;
-
-box-shadow:
-0 2px 7px rgba(0, 0, 0, 0.35);
-}
-
-/* =========================================================
-HEADER MOBILE
-========================================================= */
-
-.mobile-header {
-min-height: 64px;
-
-display: flex;
-align-items: center;
-justify-content: space-between;
-
-padding: 8px 14px;
-
-border-bottom: 1px solid var(--border-color);
-
-background: rgba(13, 13, 13, 0.96);
-
-backdrop-filter: blur(14px);
-}
-
-.mobile-header-brand {
-min-width: 0;
-
-display: flex;
-align-items: center;
-gap: 10px;
-}
-
-.mobile-logo {
-width: 42px;
-height: 42px;
-
-flex-shrink: 0;
-
-object-fit: contain;
-}
-
-.mobile-header-brand > div {
-min-width: 0;
-
-display: flex;
-flex-direction: column;
-}
-
-.mobile-header-brand strong {
-color: var(--white);
-
-font-size: 0.9rem;
-font-weight: 700;
-
-line-height: 1.1;
-}
-
-.mobile-header-brand span {
-margin-top: 3px;
-
-color: var(--text-muted);
-
-font-size: 0.64rem;
-}
-
-/* =========================================================
-AÇÕES DO HEADER MOBILE
-========================================================= */
-
-.mobile-header-acoes {
-display: flex;
-align-items: center;
-gap: 5px;
-
-margin-left: auto;
-}
-
-/* =========================================================
-BOTÕES MOBILE
-========================================================= */
-
-.mobile-header-acao,
-.mobile-menu-toggle {
-position: relative;
-
-width: 40px;
-height: 40px;
-
-flex-shrink: 0;
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-border: 1px solid var(--border-light);
-border-radius: var(--radius-sm);
-
-background: #151515;
-color: var(--white);
-
-font-size: 1rem;
-
-cursor: pointer;
-
-transition:
-color var(--transition-fast),
-background var(--transition-fast),
-border-color var(--transition-fast),
-transform var(--transition-fast),
-box-shadow var(--transition-fast);
-}
-
-.mobile-header-acao,
-.mobile-menu-toggle {
-color: var(--gold);
-
-background: #1d1d1d;
-
-border-color:
-rgba(212, 175, 55, 0.45);
-
-transform: translateY(-1px);
-
-box-shadow:
-0 5px 15px rgba(0, 0, 0, 0.25);
-}
-
-.mobile-header-acao,
-.mobile-menu-toggle {
-transform: translateY(0);
-}
-
-/* =========================================================
-BADGE MOBILE
-========================================================= */
-
-.mobile-header-badge {
-position: absolute;
-
-top: -5px;
-right: -5px;
-
-min-width: 18px;
-height: 18px;
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-padding: 0 4px;
-
-border: 2px solid #0d0d0d;
-border-radius: 999px;
-
-background: var(--red);
-color: var(--white);
-
-font-size: 0.55rem;
-font-weight: 800;
-
-line-height: 1;
-
-box-shadow:
-0 2px 7px rgba(0, 0, 0, 0.35);
-}
-
-/* =========================================================
-MOBILE
-========================================================= */
-
-@media (max-width: 768px) {
-
-.painel-sidebar {
-display: none;
-}
-
-.mobile-header {
-display: flex;
-}
-
-.sidebar-acoes {
-display: none;
-}
-
-.mobile-header-acoes {
-display: flex;
-}
-
-}
-
-/* =========================================================
-DESKTOP
-========================================================= */
-
-@media (min-width: 769px) {
-
-.mobile-header {
-display: none;
-}
-
-.mobile-header-acoes {
-display: none;
-}
-
-.mobile-header-acao,
-.mobile-header-badge {
-display: none;
-}
-
-}
-
-/* =========================================================
-CELULAR PEQUENO
-========================================================= */
-
-@media (max-width: 450px) {
-
-.mobile-header {
-min-height: 60px;
-
-padding: 7px 10px;
-
-}
-
-.mobile-logo {
-width: 38px;
-height: 38px;
-}
-
-.mobile-header-brand strong {
-font-size: 0.84rem;
-}
-
-.mobile-header-brand span {
-font-size: 0.6rem;
-}
-
-.mobile-header-acoes {
-gap: 4px;
-}
-
-.mobile-header-acao,
-.mobile-menu-toggle {
-width: 37px;
-height: 37px;
-}
-
-}
-
-/* ==================================================
-   IMAGEM DA LOGO
-   ================================================== */
-
 .bv-logo {
   width: 100%;
   height: 100%;
-
   display: block;
-
   object-fit: contain;
 }
 
-/* ==================================================
-   IDENTIDADE
-   ================================================== */
-
 .sidebar-brand {
   min-width: 0;
-
   display: flex;
-
   flex-direction: column;
 }
 
 .sidebar-brand strong {
   color: var(--white);
-
   font-size: 1rem;
-
   line-height: 1.2;
 }
 
 .sidebar-brand span {
   margin-top: 3px;
-
   color: var(--text-muted);
-
   font-size: 0.72rem;
-
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
 
-/* ==================================================
-   MENU
-   ================================================== */
+/* Ações do topo (🔔 notificações, 💬 comentários) */
+
+.sidebar-acoes {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.sidebar-acao {
+  position: relative;
+
+  width: 35px;
+  height: 35px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+
+  background: #151515;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.sidebar-acao:hover {
+  color: var(--gold);
+  background: #1c1c1c;
+  border-color: rgba(212, 175, 55, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-acao:active {
+  transform: translateY(0);
+}
+
+/* Badge vermelho de notificação */
+
+.sidebar-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
+  min-width: 17px;
+  height: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 4px;
+
+  border: 2px solid #111111;
+  border-radius: 999px;
+
+  background: var(--red);
+  color: var(--white);
+  font-size: 0.5rem;
+  font-weight: 800;
+  line-height: 1;
+
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Menu de navegação --- */
 
 .sidebar-menu {
   flex: 1;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 5px;
 
   padding: 18px 12px;
-
   overflow-y: auto;
 }
-
-/* ==================================================
-   ITEM DO MENU
-   ================================================== */
 
 .menu-item,
 .btn-adicionar-barbearia {
   width: 100%;
-
   min-height: 46px;
 
   display: flex;
-
   align-items: center;
-
   gap: 12px;
 
   padding: 0 14px;
-
   border-radius: var(--radius-sm);
 
   background: transparent;
-
   color: var(--text-secondary);
-
   font-family: inherit;
-
   font-size: 0.86rem;
-
   font-weight: 600;
-
   text-align: left;
 
   cursor: pointer;
@@ -773,38 +411,22 @@ height: 37px;
     transform var(--transition-fast);
 }
 
-/* ==================================================
-   ÍCONE DO MENU
-   ================================================== */
-
 .menu-icon {
   width: 24px;
-
   flex-shrink: 0;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
   font-size: 1.05rem;
 }
 
-/* ==================================================
-   HOVER MENU
-   ================================================== */
-
 .menu-item:hover {
   color: var(--text-primary);
-
   background: rgba(255, 255, 255, 0.045);
-
   transform: translateX(2px);
 }
-
-/* ==================================================
-   MENU ATIVO
-   ================================================== */
 
 .menu-item--ativo {
   color: var(--white);
@@ -817,13 +439,8 @@ height: 37px;
   );
 
   border-left: 3px solid var(--gold);
-
   padding-left: 11px;
 }
-
-/* ==================================================
-   MENU ATIVO — HOVER
-   ================================================== */
 
 .menu-item--ativo:hover {
   transform: none;
@@ -836,19 +453,12 @@ height: 37px;
   );
 }
 
-/* ==================================================
-   PARTE INFERIOR
-   ================================================== */
+/* --- Parte inferior --- */
 
 .sidebar-bottom {
   padding: 12px;
-
   border-top: 1px solid var(--border-color);
 }
-
-/* ==================================================
-   BOTÃO MINHAS LOJAS
-   ================================================== */
 
 .menu-item--voltar {
   color: var(--text-muted);
@@ -856,919 +466,71 @@ height: 37px;
 
 .menu-item--voltar:hover {
   color: var(--white);
-
   background: rgba(0, 123, 255, 0.08);
 }
 
-/* ==================================================
-   ÁREA PRINCIPAL
-   ================================================== */
+/* ==================================================================
+   6. HEADER MOBILE
+   ================================================================== */
 
-.painel-main {
-  width: calc(100% - var(--sidebar-width));
+.mobile-header {
+  min-height: 64px;
 
-  min-height: 100vh;
-
-  margin-left: var(--sidebar-width);
-
-  display: flex;
-
-  flex-direction: column;
-
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(0, 123, 255, 0.035),
-      transparent 35%
-    ),
-    var(--bg-dark);
-}
-
-/* ==================================================
-   CABEÇALHO
-   ================================================== */
-
-.painel-header {
-  width: 100%;
-
-  min-height: 100px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 16px;
-
-  padding: 22px 34px;
-
-  background: rgba(13, 13, 13, 0.92);
-
-  border-bottom: 1px solid var(--border-color);
-
-  backdrop-filter: blur(10px);
-}
-
-/* ==================================================
-   LOGO DA BARBEARIA
-   ================================================== */
-
-.painel-logo,
-.painel-logo-vazio {
-  width: 64px;
-  height: 64px;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  border: 2px solid var(--gold);
-
-  object-fit: cover;
-
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
-}
-
-/* ==================================================
-   LOGO VAZIA
-   ================================================== */
-
-.painel-logo-vazio {
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  background: var(--bg-secondary);
-
-  font-size: 25px;
-}
-
-/* ==================================================
-   TÍTULO DO CABEÇALHO
-   ================================================== */
-
-.painel-header h1 {
-  font-size: 1.45rem;
-
-  line-height: 1.2;
-
-  margin-bottom: 4px;
-}
-
-/* ==================================================
-   INFORMAÇÃO DO CABEÇALHO
-   ================================================== */
-
-.painel-header p {
-  color: var(--text-secondary);
-
-  font-size: 0.85rem;
-}
-
-/* ==================================================
-   CONTEÚDOS
-   ================================================== */
-
-.painel-conteudos {
-  width: 100%;
-
-  max-width: 1400px;
-
-  margin: 0 auto;
-
-  padding: 34px;
-
-  flex: 1;
-}
-
-/* ==================================================
-   CONTEÚDO INDIVIDUAL
-   ================================================== */
-
-.painel-conteudo {
-  width: 100%;
-
-  background: var(--bg-card);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-lg);
-
-  padding: 30px;
-
-  min-height: 160px;
-
-  box-shadow: var(--shadow-card);
-
-  animation: aparecerConteudo 0.3s ease;
-}
-
-/* ==================================================
-   TÍTULO DO CONTEÚDO
-   ================================================== */
-
-.conteudo-titulo {
-  margin-bottom: 26px;
-}
-
-.conteudo-titulo h1 {
-  font-size: 1.45rem;
-
-  line-height: 1.2;
-
-  margin-bottom: 7px;
-}
-
-.conteudo-titulo p {
-  color: var(--text-secondary);
-
-  font-size: 0.88rem;
-}
-
-/* ==================================================
-   DASHBOARD
-   ================================================== */
-
-.dashboard-cards {
-  display: grid;
-
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-
-  gap: 14px;
-
-  margin-bottom: 28px;
-}
-
-/* ==================================================
-   CARD DO DASHBOARD
-   ================================================== */
-
-.dashboard-card {
-  min-height: 140px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: center;
-
-  padding: 20px;
-
-  background: linear-gradient(145deg, #1c1c1c, #151515);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-md);
-
-  transition:
-    border-color var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.dashboard-card:hover {
-  border-color: var(--border-light);
-
-  transform: translateY(-2px);
-}
-
-.dashboard-card > span {
-  margin-bottom: 8px;
-
-  font-size: 1.3rem;
-}
-
-.dashboard-card strong {
-  color: var(--white);
-
-  font-size: 1.45rem;
-
-  line-height: 1.2;
-}
-
-.dashboard-card p {
-  margin-top: 5px;
-
-  color: var(--text-secondary);
-
-  font-size: 0.78rem;
-}
-
-/* ==================================================
-   SEÇÃO DO DASHBOARD
-   ================================================== */
-
-.dashboard-secao {
-  margin-top: 10px;
-}
-
-.dashboard-secao h2 {
-  margin-bottom: 14px;
-
-  font-size: 1rem;
-}
-
-/* =========================================================
-PEDIDOS
-========================================================= */
-
-.filtros-pedidos,
-.filtros-agendamentos {
   display: flex;
   align-items: center;
-
-  gap: 8px;
-
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-
-  border-bottom: 1px solid var(--border-color);
-
-  overflow-x: auto;
-
-  scrollbar-width: thin;
-}
-
-.filtro-pedido,
-.filtro-agendamento {
-  min-height: 36px;
-
-  flex-shrink: 0;
-
-  padding: 0 14px;
-
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-
-  background: transparent;
-  color: var(--text-secondary);
-
-  font-size: 0.76rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast);
-}
-
-.filtro-pedido,
-.filtro-agendamento {
-  color: var(--white);
-
-  border-color: rgba(212, 175, 55, 0.45);
-
-  background: rgba(212, 175, 55, 0.05);
-}
-
-.filtro-pedido.filtro--ativo,
-.filtro-agendamento.filtro--ativo {
-  color: var(--gold);
-
-  border-color: rgba(212, 175, 55, 0.65);
-
-  background: rgba(212, 175, 55, 0.1);
-}
-
-#lista-pedidos .item-lista {
-  border-left: 3px solid transparent;
-}
-
-#lista-pedidos .item-lista {
-  border-left-color: var(--gold);
-}
-
-#lista-pedidos .item-acoes button {
-  border-color: rgba(46, 125, 50, 0.45);
-}
-
-#lista-pedidos .item-acoes button:first-child {
-  background: rgba(46, 125, 50, 0.15);
-}
-
-#lista-pedidos .item-acoes button {
-  border-color: rgba(193, 18, 31, 0.45);
-}
-
-#lista-pedidos .item-acoes button:last-child {
-  background: rgba(193, 18, 31, 0.15);
-}
-
-/* ==================================================
-   RELATÓRIOS
-   ================================================== */
-
-.relatorios-tipos {
-  display: grid;
-
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  gap: 10px;
-
-  margin-top: 18px;
-}
-
-.btn-relatorio {
-  min-height: 44px;
-
-  padding: 0 14px;
-
-  border: 1px solid var(--border-light);
-
-  border-radius: var(--radius-sm);
-
-  background: var(--bg-secondary);
-
-  color: var(--text-secondary);
-
-  font-family: inherit;
-
-  font-size: 0.82rem;
-
-  font-weight: 600;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    color var(--transition-fast),
-    border-color var(--transition-fast),
-    background var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.btn-relatorio:hover {
-  color: var(--white);
-
-  border-color: var(--gold);
-
-  background: rgba(212, 175, 55, 0.06);
-
-  transform: translateY(-1px);
-}
-
-.btn-relatorio.btn-relatorio--ativo {
-  color: var(--white);
-
-  border-color: transparent;
-
-  background: var(--gradient-brand);
-}
-
-/* ==================================================
-   PERÍODO DO RELATÓRIO
-   ================================================== */
-
-.relatorio-periodo {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 12px;
-
-  margin-top: 20px;
-
-  padding-top: 20px;
-
-  border-top: 1px solid var(--border-color);
-}
-
-.relatorio-periodo .campo {
-  min-width: 0;
-}
-
-.relatorio-periodo .btn-principal {
-  grid-column: 1 / -1;
-}
-
-/* ==================================================
-   BOTÃO WHATSAPP
-   ================================================== */
-
-.btn-whatsapp {
-  min-height: 44px;
-
-  padding: 0 18px;
-
-  border: 1px solid #25d366;
-
-  border-radius: var(--radius-sm);
-
-  background: transparent;
-
-  color: #25d366;
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.btn-whatsapp:hover {
-  background: #25d366;
-
-  border-color: #25d366;
-
-  color: var(--white);
-
-  transform: translateY(-1px);
-}
-
-.btn-whatsapp:active {
-  transform: translateY(0);
-}
-
-/* ==================================================
-   MENSAGENS
-   ================================================== */
-
-.em-breve {
-  padding: 20px 0;
-
-  color: var(--text-muted);
-
-  text-align: center;
-
-  font-size: 0.9rem;
-}
-
-.mensagem {
-  min-height: 20px;
-
-  margin-top: -10px;
-
-  margin-bottom: 15px;
-
-  color: var(--text-secondary);
-
-  font-size: 0.85rem;
-
-  text-align: center;
-}
-
-.mensagem.sucesso {
-  color: #4ade80;
-}
-
-.mensagem.erro {
-  color: #ff5c67;
-}
-
-/* ==================================================
-   FORMULÁRIO
-   ================================================== */
-
-.form-item {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 14px;
-
-  margin-bottom: 24px;
-
-  padding-bottom: 24px;
-
-  border-bottom: 1px solid var(--border-color);
-}
-
-/* ==================================================
-   CAMPOS INLINE
-   ================================================== */
-
-.campo-inline {
-  display: grid;
-
-  grid-template-columns: 2fr 1fr 1fr;
-
-  gap: 12px;
-}
-
-/* ==================================================
-   CAMPO
-   ================================================== */
-
-.campo {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 6px;
-}
-
-/* ==================================================
-   LABEL
-   ================================================== */
-
-.campo label {
-  color: var(--text-secondary);
-
-  font-size: 0.78rem;
-
-  font-weight: 500;
-}
-
-/* ==================================================
-   INPUT / SELECT
-   ================================================== */
-
-.campo input,
-.campo select {
-  width: 100%;
-
-  height: 44px;
-
-  padding: 0 12px;
-
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-sm);
-
-  color: var(--text-primary);
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
-
-  outline: none;
-
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-/* ==================================================
-   TEXTAREA
-   ================================================== */
-
-.campo textarea {
-  width: 100%;
-
-  min-height: 100px;
-
-  padding: 12px;
-
-  resize: vertical;
-
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-sm);
-
-  color: var(--text-primary);
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
-
-  outline: none;
-
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-.campo textarea:focus {
-  border-color: var(--blue);
-
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-}
-
-.campo textarea::placeholder {
-  color: var(--text-muted);
-}
-
-/* ==================================================
-   FOCO
-   ================================================== */
-
-.campo input:focus,
-.campo select:focus {
-  border-color: var(--blue);
-
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-}
-
-/* ==================================================
-   PLACEHOLDER
-   ================================================== */
-
-.campo input::placeholder {
-  color: var(--text-muted);
-}
-
-/* ==================================================
-   INPUT FILE
-   ================================================== */
-
-.campo input[type="file"] {
-  height: auto;
-
-  min-height: 44px;
-
-  padding: 10px;
-}
-
-/* ==================================================
-   BOTÕES DO FORMULÁRIO
-   ================================================== */
-
-.form-item-botoes {
-  display: flex;
-
-  gap: 10px;
-}
-
-#form-configuracao-barbearia button[type="submit"],
-#form-configuracao-usuario button[type="submit"] {
-  margin-top: 20px;
-
-  position: relative;
-
-  z-index: 2;
-}
-
-/* ==================================================
-   BOTÃO PRINCIPAL
-   ================================================== */
-
-.btn-principal {
-  min-height: 44px;
-
-  flex: 1;
-
-  padding: 0 18px;
-
-  border: none;
-
-  border-radius: var(--radius-sm);
-
-  background: var(--gradient-brand);
-
-  color: var(--white);
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    filter var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.btn-principal:hover {
-  filter: brightness(1.1);
-
-  transform: translateY(-1px);
-}
-
-.btn-principal:active {
-  transform: translateY(0);
-}
-
-/* ==================================================
-   BOTÃO SECUNDÁRIO
-   ================================================== */
-
-.btn-voltar {
-  min-height: 44px;
-
-  padding: 0 16px;
-
-  border: 1px solid var(--border-light);
-
-  border-radius: var(--radius-sm);
-
-  background: transparent;
-
-  color: var(--text-secondary);
-
-  font-family: inherit;
-
-  font-size: 0.85rem;
-
-  cursor: pointer;
-
-  transition:
-    border-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.btn-voltar:hover {
-  border-color: var(--red);
-
-  color: var(--text-primary);
-}
-
-/* ==================================================
-   PRÉVIA DO PRODUTO
-   ================================================== */
-
-.preview-produto {
-  width: 100%;
-
-  margin-top: 8px;
-
-  padding: 10px;
-
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-md);
-
-  text-align: center;
-}
-
-.preview-produto img {
-  display: block;
-
-  width: 120px;
-  height: 120px;
-
-  margin: 0 auto;
-
-  border-radius: var(--radius-md);
-
-  object-fit: cover;
-
-  border: 1px solid var(--border-light);
-}
-
-/* ==================================================
-   LISTA
-   ================================================== */
-
-.lista-itens {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 10px;
-}
-
-/* ==================================================
-   ITEM DA LISTA
-   ================================================== */
-
-.item-lista {
-  display: flex;
-
-  align-items: center;
-
   justify-content: space-between;
 
-  gap: 15px;
+  padding: 8px 14px;
 
-  padding: 14px 16px;
-
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border-color);
-
-  border-radius: var(--radius-sm);
-
-  transition:
-    border-color var(--transition-fast),
-    transform var(--transition-fast);
+  background: rgba(13, 13, 13, 0.96);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(14px);
 }
 
-.item-lista:hover {
-  border-color: var(--border-light);
-
-  transform: translateY(-1px);
-}
-
-/* ==================================================
-   INFORMAÇÕES
-   ================================================== */
-
-.item-info {
+.mobile-header-brand {
   min-width: 0;
-}
-
-.item-info h3 {
-  margin-bottom: 3px;
-
-  font-size: 0.95rem;
-
-  word-break: break-word;
-}
-
-.item-info p {
-  color: var(--text-secondary);
-
-  font-size: 0.82rem;
-}
-
-/* ==================================================
-   AÇÕES
-   ================================================== */
-
-.item-acoes {
   display: flex;
-
   align-items: center;
+  gap: 10px;
+}
 
-  gap: 6px;
-
+.mobile-logo {
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
+  object-fit: contain;
 }
 
-.item-acoes button {
-  width: 32px;
-  height: 32px;
+.mobile-header-brand > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  border: 1px solid var(--border-light);
-
-  border-radius: var(--radius-sm);
-
-  background: transparent;
-
-  color: var(--text-primary);
-
+.mobile-header-brand strong {
+  color: var(--white);
   font-size: 0.9rem;
-
-  cursor: pointer;
-
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.item-acoes button:hover {
-  border-color: var(--gold);
-
-  background: rgba(212, 175, 55, 0.08);
+.mobile-header-brand span {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 0.64rem;
 }
+
+/* Ações do header mobile (notificações, menu) */
 
 .mobile-header-acoes {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-left: auto;
 }
-
-/* =========================================================
-BOTÕES DO HEADER MOBILE
-========================================================= */
 
 .mobile-header-acao,
 .mobile-menu-toggle {
@@ -1776,6 +538,7 @@ BOTÕES DO HEADER MOBILE
 
   width: 42px;
   height: 42px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
@@ -1786,38 +549,38 @@ BOTÕES DO HEADER MOBILE
 
   background: #151515;
   color: var(--white);
-
   font-size: 1.05rem;
 
   cursor: pointer;
 
   transition:
+    color var(--transition-fast),
     background var(--transition-fast),
     border-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .mobile-header-acao:hover,
 .mobile-menu-toggle:hover {
-  background: #1d1d1d;
-
-  border-color: rgba(212, 175, 55, 0.45);
-
   color: var(--gold);
-
+  background: #1d1d1d;
+  border-color: rgba(212, 175, 55, 0.45);
   transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
 
-/* =========================================================
-BADGE
-========================================================= */
+.mobile-header-acao:active,
+.mobile-menu-toggle:active {
+  transform: translateY(0);
+}
+
+/* Badge vermelho mobile */
 
 .mobile-header-badge {
   position: absolute;
-
-  top: -4px;
-  right: -4px;
+  top: -5px;
+  right: -5px;
 
   min-width: 18px;
   height: 18px;
@@ -1833,223 +596,926 @@ BADGE
 
   background: var(--red);
   color: var(--white);
-
   font-size: 0.58rem;
   font-weight: 800;
-
   line-height: 1;
+
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.35);
 }
 
-/* =========================================================
-MOBILE
-========================================================= */
+/* ==================================================================
+   7. MENU MOBILE (DROPDOWN)
+   ================================================================== */
 
-@media (max-width: 768px) {
-  .mobile-header-acoes {
-    gap: 5px;
-  }
+.mobile-menu {
+  position: fixed;
+  top: 74px;
+  right: 12px;
+  z-index: 1100;
 
-  .mobile-header-acao,
-  .mobile-menu-toggle {
-    width: 40px;
-    height: 40px;
-  }
+  display: none;
+  width: min(260px, calc(100vw - 24px));
+
+  padding: 8px;
+
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 
-/* =========================================================
-DESKTOP
-========================================================= */
-
-@media (min-width: 769px) {
-  .mobile-header {
-    display: none !important;
-  }
-}
-
-/* ==================================================
-   PRODUTO COM FOTO
-   ================================================== */
-
-.item-info--com-foto {
+.mobile-menu--aberto {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
+.mobile-menu-item {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
   align-items: center;
+  gap: 10px;
 
-  gap: 12px;
-}
-
-/* ==================================================
-   MINIATURA
-   ================================================== */
-
-.produto-thumb {
-  width: 44px;
-  height: 44px;
-
-  flex-shrink: 0;
-
-  border-radius: var(--radius-sm);
-
-  object-fit: cover;
-
-  border: 1px solid var(--border-light);
-}
-
-/* ==================================================
-   PRODUTO SEM FOTO
-   ================================================== */
-
-.produto-thumb--vazia {
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  background: var(--bg-secondary);
-
-  font-size: 1.1rem;
-}
-
-/* ==================================================
-   FILTROS DE AGENDAMENTO
-   ================================================== */
-
-.filtros-agendamentos {
-  display: flex;
-
-  gap: 8px;
-
-  margin-bottom: 20px;
-
-  padding-bottom: 16px;
-
-  border-bottom: 1px solid var(--border-color);
-}
-
-.filtro-agendamento {
-  min-height: 38px;
-
-  padding: 0 16px;
-
-  border: 1px solid var(--border-light);
-
+  padding: 0 12px;
+  border: 0;
   border-radius: var(--radius-sm);
 
   background: transparent;
-
   color: var(--text-secondary);
+  font: inherit;
+  text-align: left;
 
-  font-family: inherit;
+  cursor: pointer;
 
-  font-size: 0.82rem;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
 
+.mobile-menu-item:hover,
+.mobile-menu-item:active {
+  background: var(--bg-secondary);
+  color: var(--white);
+}
+
+.mobile-menu-item--sair {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0;
+  color: #ff6b6b;
+}
+
+/* ==================================================================
+   8. NAVEGAÇÃO INFERIOR MOBILE
+   ================================================================== */
+
+.mobile-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  min-height: 64px;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+
+  background: rgba(13, 13, 13, 0.97);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.mobile-bottom-item {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.mobile-bottom-item span {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.mobile-bottom-item small {
+  font-size: 0.68rem;
   font-weight: 600;
+}
+
+.mobile-bottom-item--ativo {
+  color: var(--gold);
+}
+
+/* Por padrão, a navegação mobile fica escondida no desktop */
+
+.mobile-header,
+.mobile-menu,
+.mobile-menu-toggle,
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* Botão hamburguer precisa estado-base explícito para
+   herdar width/height (solo aparece no mobile). */
+.mobile-menu-toggle {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: #151515;
+  color: var(--white);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.mobile-menu-toggle:hover {
+  color: var(--gold);
+  background: #1d1d1d;
+  border-color: rgba(212, 175, 55, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* ==================================================================
+   9. ÁREA PRINCIPAL / CABEÇALHO DO CONTEÚDO
+   ================================================================== */
+
+.painel-main {
+  width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 123, 255, 0.035),
+      transparent 35%
+    ),
+    var(--bg-dark);
+}
+
+.painel-header {
+  width: 100%;
+  min-height: 100px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 22px 34px;
+
+  background: rgba(13, 13, 13, 0.92);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+.painel-logo,
+.painel-logo-vazio {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+.painel-logo-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  font-size: 25px;
+}
+
+.painel-header h1 {
+  font-size: 1.45rem;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.painel-header p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Reforço de tamanho fixo da logo no header (evita distorção) */
+
+.painel-header .painel-logo,
+.painel-header .painel-logo-vazio,
+.painel-header img {
+  width: 64px !important;
+  height: 64px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+}
+
+.painel-conteudos {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 34px;
+  flex: 1;
+}
+
+.painel-conteudo {
+  width: 100%;
+  min-height: 160px;
+
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--shadow-card);
+
+  animation: aparecerConteudo 0.3s ease;
+}
+
+.conteudo-titulo {
+  margin-bottom: 26px;
+}
+
+.conteudo-titulo h1 {
+  font-size: 1.45rem;
+  line-height: 1.2;
+  margin-bottom: 7px;
+}
+
+.conteudo-titulo p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+/* ==================================================================
+   10. DASHBOARD (CARDS E SEÇÕES)
+   ================================================================== */
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.dashboard-card {
+  min-height: 140px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: linear-gradient(145deg, #1c1c1c, #151515);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.dashboard-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.dashboard-card > span {
+  margin-bottom: 8px;
+  font-size: 1.3rem;
+}
+
+.dashboard-card strong {
+  color: var(--white);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.dashboard-card p {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.dashboard-secao {
+  margin-top: 10px;
+}
+
+.dashboard-secao h2 {
+  margin-bottom: 14px;
+  font-size: 1rem;
+}
+
+/* ==================================================================
+   11. FILTROS (PEDIDOS / AGENDAMENTOS)
+   ================================================================== */
+
+.filtros-pedidos,
+.filtros-agendamentos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.filtro-pedido,
+.filtro-agendamento {
+  min-height: 36px;
+  flex-shrink: 0;
+
+  padding: 0 14px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.filtro-pedido:hover,
+.filtro-agendamento:hover {
+  color: var(--text-primary);
+  border-color: var(--gold);
+}
+
+.filtro-pedido.filtro--ativo,
+.filtro-agendamento.filtro--ativo {
+  color: var(--white);
+  border-color: transparent;
+  background: var(--gradient-brand);
+}
+
+/* Lista de pedidos: destaque lateral e ações (aceitar / recusar) */
+
+#lista-pedidos .item-lista {
+  border-left: 3px solid var(--gold);
+}
+
+#lista-pedidos .item-acoes button:first-child {
+  border-color: rgba(46, 125, 50, 0.45);
+  background: rgba(46, 125, 50, 0.15);
+}
+
+#lista-pedidos .item-acoes button:last-child {
+  border-color: rgba(193, 18, 31, 0.45);
+  background: rgba(193, 18, 31, 0.15);
+}
+
+/* ==================================================================
+   12. RELATÓRIOS
+   ================================================================== */
+
+.relatorios-tipos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-relatorio {
+  min-height: 44px;
+  padding: 0 14px;
+
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
 
   cursor: pointer;
 
   transition:
     color var(--transition-fast),
     border-color var(--transition-fast),
-    background var(--transition-fast);
+    background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
-.filtro-agendamento:hover {
-  color: var(--text-primary);
-
-  border-color: var(--gold);
-}
-
-.filtro-agendamento.filtro--ativo {
+.btn-relatorio:hover {
   color: var(--white);
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.06);
+  transform: translateY(-1px);
+}
 
+.btn-relatorio.btn-relatorio--ativo {
+  color: var(--white);
   border-color: transparent;
-
   background: var(--gradient-brand);
 }
 
-/* ==================================================
-   STATUS
-   ================================================== */
+.relatorio-periodo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 
-.select-status {
-  height: 34px;
+  margin-top: 20px;
+  padding-top: 20px;
 
-  padding: 0 10px;
+  border-top: 1px solid var(--border-color);
+}
 
+.relatorio-periodo .campo {
+  min-width: 0;
+}
+
+.relatorio-periodo .btn-principal {
+  grid-column: 1 / -1;
+}
+
+/* ==================================================================
+   13. BOTÃO WHATSAPP
+   ================================================================== */
+
+.btn-whatsapp {
+  min-height: 44px;
+  padding: 0 18px;
+
+  border: 1px solid #25d366;
   border-radius: var(--radius-sm);
 
-  border: 1px solid var(--border-light);
-
-  background: var(--bg-secondary);
-
-  color: var(--text-primary);
-
+  background: transparent;
+  color: #25d366;
   font-family: inherit;
-
-  font-size: 0.8rem;
-
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
 
   cursor: pointer;
 
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-whatsapp:hover {
+  background: #25d366;
+  border-color: #25d366;
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.btn-whatsapp:active {
+  transform: translateY(0);
+}
+
+/* ==================================================================
+   14. MENSAGENS DE FEEDBACK
+   ================================================================== */
+
+.em-breve {
+  padding: 20px 0;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.mensagem {
+  min-height: 20px;
+  margin-top: -10px;
+  margin-bottom: 15px;
+
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.mensagem.sucesso {
+  color: #4ade80;
+}
+
+.mensagem.erro {
+  color: #ff5c67;
+}
+
+/* ==================================================================
+   15. FORMULÁRIOS E CAMPOS
+   ================================================================== */
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.campo-inline {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  height: 44px;
+
+  padding: 0 12px;
+
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.88rem;
+
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.campo textarea {
+  width: 100%;
+  min-height: 100px;
+
+  padding: 12px;
+  resize: vertical;
+
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.88rem;
+
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.campo input::placeholder,
+.campo textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.campo input[type="file"] {
+  height: auto;
+  min-height: 44px;
+  padding: 10px;
+}
+
+.form-item-botoes {
+  display: flex;
+  gap: 10px;
+}
+
+#form-configuracao-barbearia button[type="submit"],
+#form-configuracao-usuario button[type="submit"] {
+  margin-top: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.preview-produto {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.preview-produto img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  object-fit: cover;
+}
+
+/* ==================================================================
+   16. BOTÕES (PRINCIPAL, VOLTAR, PERIGO)
+   ================================================================== */
+
+.btn-principal {
+  min-height: 44px;
+  flex: 1;
+  padding: 0 18px;
+
+  border: none;
+  border-radius: var(--radius-sm);
+
+  background: var(--gradient-brand);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    filter var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-principal:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-principal:active {
+  transform: translateY(0);
+}
+
+.btn-voltar {
+  min-height: 44px;
+  padding: 0 16px;
+
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.btn-voltar:hover {
+  border-color: var(--red);
+  color: var(--text-primary);
+}
+
+.btn-perigo {
+  min-height: 44px;
+  padding: 0 18px;
+
+  border: 1px solid var(--red);
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: #ff5c67;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.btn-perigo:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--white);
+}
+
+/* ==================================================================
+   17. LISTAS E ITENS
+   ================================================================== */
+
+.lista-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item-lista {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 14px 16px;
+
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.item-lista:hover {
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+}
+
+.item-info {
+  min-width: 0;
+}
+
+.item-info h3 {
+  margin-bottom: 3px;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.item-info p {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.item-info--com-foto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.produto-thumb {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  object-fit: cover;
+}
+
+.produto-thumb--vazia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  font-size: 1.1rem;
+}
+
+.item-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.item-acoes button {
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.item-acoes button:hover {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* ==================================================================
+   18. STATUS (SELECT COLORIDO)
+   ================================================================== */
+
+.select-status {
+  height: 34px;
+  padding: 0 10px;
+
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  cursor: pointer;
   outline: none;
 }
 
 .select-status--pendente {
   border-color: var(--gold);
-
   color: var(--gold);
 }
 
 .select-status--confirmado {
   border-color: var(--blue);
-
   color: var(--blue);
 }
 
 .select-status--concluido {
   border-color: #4ade80;
-
   color: #4ade80;
 }
 
 .select-status--cancelado {
   border-color: var(--red);
-
   color: #ff5c67;
 }
 
-/* ==================================================
-   HORÁRIOS DE FUNCIONAMENTO
-   ================================================== */
+/* ==================================================================
+   19. HORÁRIOS DE FUNCIONAMENTO
+   ================================================================== */
 
 .lista-horarios {
   display: flex;
-
   flex-direction: column;
-
   gap: 10px;
 }
 
 .horario-item {
   display: grid;
-
   grid-template-columns:
     minmax(150px, 1.3fr)
     100px
     1fr
     1fr;
-
   align-items: center;
-
   gap: 14px;
 
   padding: 16px;
 
   background: var(--bg-secondary);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-md);
 
   transition:
@@ -2063,33 +1529,26 @@ DESKTOP
 
 .horario-dia {
   display: flex;
-
   flex-direction: column;
-
   gap: 3px;
 }
 
 .horario-dia strong {
   color: var(--white);
-
   font-size: 0.92rem;
 }
 
 .horario-dia span {
   color: var(--text-muted);
-
   font-size: 0.75rem;
 }
 
 .horario-aberto {
   display: flex;
-
   align-items: center;
-
   gap: 8px;
 
   color: var(--text-secondary);
-
   font-size: 0.8rem;
 
   cursor: pointer;
@@ -2098,44 +1557,34 @@ DESKTOP
 .horario-aberto input {
   width: 18px;
   height: 18px;
-
   accent-color: var(--gold);
-
   cursor: pointer;
 }
 
 .horario-campo {
   display: flex;
-
   flex-direction: column;
-
   gap: 5px;
 }
 
 .horario-campo label {
   color: var(--text-muted);
-
   font-size: 0.7rem;
 }
 
 .horario-campo input {
   width: 100%;
-
   height: 40px;
 
   padding: 0 10px;
 
   background: #101010;
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-sm);
-
   color: var(--text-primary);
+  color-scheme: dark;
 
   outline: none;
-
-  color-scheme: dark;
 
   transition:
     border-color var(--transition-fast),
@@ -2144,61 +1593,46 @@ DESKTOP
 
 .horario-campo input:focus {
   border-color: var(--blue);
-
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
 }
 
 .horario-campo input:disabled {
   opacity: 0.4;
-
   cursor: not-allowed;
 }
 
 .horario-intervalo {
   display: grid;
-
   grid-template-columns: 1fr 1fr;
-
   gap: 8px;
 }
 
-/* ==================================================
-   CONFIGURAÇÕES
-   ================================================== */
+/* ==================================================================
+   20. CONFIGURAÇÕES
+   ================================================================== */
 
 .configuracao-card {
   padding: 24px;
-
   margin-bottom: 18px;
 
   background: var(--bg-secondary);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-md);
 }
 
 .configuracao-card h2 {
   margin-bottom: 6px;
-
   font-size: 1rem;
 }
 
 .configuracao-card > p {
   margin-bottom: 20px;
-
   color: var(--text-secondary);
-
   font-size: 0.82rem;
 }
 
-/* ==================================================
-   CONFIGURAÇÃO — PERIGO
-   ================================================== */
-
 .configuracao-card--perigo {
   border-color: rgba(193, 18, 31, 0.35);
-
   background: rgba(193, 18, 31, 0.035);
 }
 
@@ -2206,90 +1640,38 @@ DESKTOP
   color: #ff5c67;
 }
 
-/* ==================================================
-   BOTÃO PERIGO
-   ================================================== */
-
-.btn-perigo {
-  min-height: 44px;
-
-  padding: 0 18px;
-
-  border: 1px solid var(--red);
-
-  border-radius: var(--radius-sm);
-
-  background: transparent;
-
-  color: #ff5c67;
-
-  font-family: inherit;
-
-  font-size: 0.88rem;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast);
-}
-
-.btn-perigo:hover {
-  background: var(--red);
-
-  border-color: var(--red);
-
-  color: var(--white);
-}
-
-/* ==================================================
-   FOCO — ACESSIBILIDADE
-   ================================================== */
+/* ==================================================================
+   21. ACESSIBILIDADE (FOCO)
+   ================================================================== */
 
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--blue);
-
   outline-offset: 2px;
 }
 
-/* ==================================================
-   ANIMAÇÃO
-   ================================================== */
+/* ==================================================================
+   22. ANIMAÇÕES
+   ================================================================== */
 
 @keyframes aparecerConteudo {
   from {
     opacity: 0;
-
     transform: translateY(5px);
   }
-
   to {
     opacity: 1;
-
     transform: translateY(0);
   }
 }
 
-/* ==================================================
-   NAVEGAÇÃO MOBILE
-   ESCONDIDA NO DESKTOP
-   ================================================== */
+/* ==================================================================
+   23. RESPONSIVIDADE
+   ================================================================== */
 
-.mobile-header,
-.mobile-menu,
-.mobile-bottom-nav {
-  display: none;
-}
-
-/* ==================================================
-   RESPONSIVIDADE — TABLET
-   ================================================== */
+/* --- Tablet (≤1000px) --- */
 
 @media (max-width: 1000px) {
   :root {
@@ -2330,231 +1712,114 @@ textarea:focus-visible {
   }
 }
 
-/* ==================================================
-   RESPONSIVIDADE — CELULAR
-   ================================================== */
+/* --- Celular (≤768px): mostra layout mobile, esconde sidebar/desktop --- */
 
-@media (max-width: 700px) {
-  /* PAINEL */
-
-  .painel {
-    display: block;
-
-    min-height: 100vh;
+@media (max-width: 768px) {
+  .painel-sidebar {
+    display: none;
   }
 
-  /* SIDEBAR DESKTOP */
+  .sidebar-acoes {
+    display: none;
+  }
+
+  /* Mostra TODA a estrutura mobile de uma vez
+     (header + botão do menu + nav inferior).
+     O .mobile-menu continua display:none até o JS adicionar
+     a classe .mobile-menu--aberto, então aqui é seguro. */
+  .mobile-header,
+  .mobile-header-acoes,
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  .mobile-bottom-nav {
+    display: grid;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+}
+
+/* --- Desktop (≥769px): garante que nada mobile apareça --- */
+
+@media (min-width: 769px) {
+  .mobile-header,
+  .mobile-header-acoes,
+  .mobile-header-acao,
+  .mobile-header-badge,
+  .mobile-menu-toggle,
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+/* --- Celular (≤700px): ajustes finos de layout do painel --- */
+
+@media (max-width: 700px) {
+  .painel {
+    display: block;
+    min-height: 100vh;
+  }
 
   .painel-sidebar {
     display: none;
   }
 
-  /* CABEÇALHO MOBILE */
-
   .mobile-header {
     position: sticky;
-
     top: 0;
-
     z-index: 1000;
 
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     min-height: 64px;
-
     padding: 10px 16px;
 
     background: var(--bg-dark);
-
     border-bottom: 1px solid var(--border-color);
   }
-
-  /* IDENTIDADE */
-
-  .mobile-header-brand {
-    min-width: 0;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-  }
-
-  /* LOGO */
 
   .mobile-logo {
     width: 40px;
     height: 40px;
-
-    flex-shrink: 0;
-
-    object-fit: contain;
-  }
-
-  /* TEXTO */
-
-  .mobile-header-brand > div {
-    min-width: 0;
-
-    display: flex;
-
-    flex-direction: column;
   }
 
   .mobile-header-brand strong {
-    color: var(--white);
-
     font-size: 0.95rem;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
   }
 
   .mobile-header-brand span {
     color: var(--text-secondary);
-
     font-size: 0.72rem;
   }
-
-  /* BOTÃO MENU */
 
   .mobile-menu-toggle {
     width: 42px;
     height: 42px;
 
-    flex-shrink: 0;
-
     border: 1px solid var(--border-light);
-
     border-radius: var(--radius-sm);
 
     background: var(--bg-secondary);
-
     color: var(--white);
-
     font-size: 1.3rem;
-
-    cursor: pointer;
   }
-
-  /* MENU MOBILE */
-
-  .mobile-menu {
-    position: fixed;
-
-    top: 74px;
-
-    right: 12px;
-
-    z-index: 1100;
-
-    display: none;
-
-    width: min(260px, calc(100vw - 24px));
-
-    padding: 8px;
-
-    background: var(--bg-card);
-
-    border: 1px solid var(--border-color);
-
-    border-radius: var(--radius-md);
-
-    box-shadow: var(--shadow-card);
-  }
-
-  /* MENU ABERTO */
-
-  .mobile-menu--aberto {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 4px;
-  }
-
-  /* ITEM MENU */
-
-  .mobile-menu-item {
-    width: 100%;
-
-    min-height: 46px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 0 12px;
-
-    border: 0;
-
-    border-radius: var(--radius-sm);
-
-    background: transparent;
-
-    color: var(--text-secondary);
-
-    font: inherit;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    transition:
-      background var(--transition-fast),
-      color var(--transition-fast);
-  }
-
-  .mobile-menu-item:hover,
-  .mobile-menu-item:active {
-    background: var(--bg-secondary);
-
-    color: var(--white);
-  }
-
-  /* BOTÃO SAIR */
-
-  .mobile-menu-item--sair {
-    margin-top: 4px;
-
-    border-top: 1px solid var(--border-color);
-
-    border-radius: 0;
-
-    color: #ff6b6b;
-  }
-
-  /* ÁREA PRINCIPAL */
 
   .painel-main {
     width: 100%;
-
     margin-left: 0;
-
     min-height: calc(100vh - 64px);
-
     padding-bottom: 76px;
   }
 
-  /* CABEÇALHO DA PÁGINA */
-
   .painel-header {
     min-height: 85px;
-
     padding: 16px 18px;
   }
-
-  /* CONTEÚDOS */
 
   .painel-conteudos {
     padding: 18px;
@@ -2562,93 +1827,17 @@ textarea:focus-visible {
 
   .painel-conteudo {
     padding: 20px;
-
     border-radius: var(--radius-md);
   }
 
-  /* NAVEGAÇÃO INFERIOR */
-
-  .mobile-bottom-nav {
-    position: fixed;
-
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    z-index: 1000;
-
-    display: grid;
-
-    grid-template-columns: repeat(4, 1fr);
-
-    min-height: 64px;
-
-    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
-
-    background: rgba(13, 13, 13, 0.97);
-
-    border-top: 1px solid var(--border-color);
-
-    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.25);
-
-    backdrop-filter: blur(10px);
-  }
-
-  /* ITEM NAV */
-
-  .mobile-bottom-item {
-    min-width: 0;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 3px;
-
-    border: 0;
-
-    background: transparent;
-
-    color: var(--text-muted);
-
-    font: inherit;
-
-    cursor: pointer;
-  }
-
-  .mobile-bottom-item span {
-    font-size: 1.15rem;
-
-    line-height: 1;
-  }
-
-  .mobile-bottom-item small {
-    font-size: 0.68rem;
-
-    font-weight: 600;
-  }
-
-  .mobile-bottom-item--ativo {
-    color: var(--gold);
-  }
-
-  /* DASHBOARD */
-
   .dashboard-cards {
     grid-template-columns: 1fr;
-
     gap: 10px;
   }
 
   .dashboard-card {
     min-height: 110px;
   }
-
-  /* FORMULÁRIOS */
 
   .campo-inline {
     grid-template-columns: 1fr;
@@ -2659,11 +1848,10 @@ textarea:focus-visible {
   }
 
   .btn-principal,
-  .btn-voltar {
+  .btn-voltar,
+  .btn-whatsapp {
     width: 100%;
   }
-
-  /* RELATÓRIOS */
 
   .relatorios-tipos {
     grid-template-columns: 1fr;
@@ -2677,23 +1865,14 @@ textarea:focus-visible {
     grid-column: auto;
   }
 
-  .btn-whatsapp {
-    width: 100%;
-  }
-
-  /* LISTAS */
-
   .item-lista {
     align-items: flex-start;
-
     padding: 12px;
   }
 
   .item-acoes {
     align-self: center;
   }
-
-  /* FILTROS */
 
   .filtros-agendamentos {
     overflow-x: auto;
@@ -2707,19 +1886,13 @@ textarea:focus-visible {
     max-width: 120px;
   }
 
-  /* CONFIGURAÇÕES */
-
   .configuracao-card {
     padding: 18px;
   }
 
-  /* HORÁRIOS */
-
   .horario-item {
     grid-template-columns: 1fr;
-
     gap: 12px;
-
     padding: 14px;
   }
 
@@ -2732,11 +1905,37 @@ textarea:focus-visible {
   }
 }
 
-/* ==================================================
-   RESPONSIVIDADE — CELULAR PEQUENO
-   ================================================== */
+/* --- Celular pequeno (≤450px) --- */
 
 @media (max-width: 450px) {
+  .mobile-header {
+    min-height: 60px;
+    padding: 7px 10px;
+  }
+
+  .mobile-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .mobile-header-brand strong {
+    font-size: 0.84rem;
+  }
+
+  .mobile-header-brand span {
+    font-size: 0.6rem;
+  }
+
+  .mobile-header-acoes {
+    gap: 4px;
+  }
+
+  .mobile-header-acao,
+  .mobile-menu-toggle {
+    width: 37px;
+    height: 37px;
+  }
+
   .painel-header {
     gap: 12px;
   }
@@ -2788,13 +1987,757 @@ textarea:focus-visible {
   }
 }
 
-.painel-header .painel-logo,
-.painel-header .painel-logo-vazio,
-.painel-header img {
-  width: 64px !important;
-  height: 64px !important;
-  max-width: 64px !important;
-  max-height: 64px !important;
-  object-fit: contain !important;
-  flex-shrink: 0 !important;
+/* Adições mínimas para classes referenciadas no HTML que não tinham regra */
+
+.campo--curto {
+  min-width: 0;
+}
+
+.preview-barbeiro {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.preview-barbeiro img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  object-fit: cover;
+}
+
+/* === GARANTIAS MOBILE === */
+
+/* mobile-menu-toggle precisa existir no HTML com display:flex nos breakpoints */
+.mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 700px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+}
+
+/* ==================================================================
+   24. AJUSTES FINAIS — HTML/JS ATUAL + MOBILE
+   ================================================================== */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Feedback compatível com mostrarMensagem(..., "sucesso"/"erro") */
+.mensagem--sucesso,
+.mensagem.sucesso {
+  color: #4ade80;
+}
+
+.mensagem--erro,
+.mensagem.erro {
+  color: #ff5c67;
+}
+
+.mensagem--sucesso,
+.mensagem--erro {
+  padding: 10px 12px;
+  margin-top: 0;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mensagem--sucesso {
+  border: 1px solid rgba(74, 222, 128, 0.22);
+}
+
+.mensagem--erro {
+  border: 1px solid rgba(255, 92, 103, 0.22);
+}
+
+/* Corrige precedência do menu mobile: aberto precisa vencer display:none */
+@media (max-width: 768px) {
+  .mobile-menu.mobile-menu--aberto {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mobile-menu {
+    top: 72px;
+    max-height: calc(100dvh - 152px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Cabeçalho mobile seguro em aparelhos com notch */
+@media (max-width: 768px) {
+  .mobile-header {
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Horários gerados pelo JS atual */
+.horarios-secao-titulo {
+  margin: 8px 0 14px;
+}
+
+.horarios-secao-titulo + .horarios-gerais,
+.horarios-secao-titulo + .horario-profissional {
+  margin-top: 0;
+}
+
+.horarios-secao-titulo h3 {
+  margin-bottom: 4px;
+  color: var(--white);
+  font-size: 1rem;
+}
+
+.horarios-secao-titulo p {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.horarios-gerais,
+.horario-profissional-dias {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.horario-profissional {
+  margin-top: 14px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.horario-profissional + .horario-profissional {
+  margin-top: 12px;
+}
+
+.horario-profissional-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.horario-profissional-cabecalho h4 {
+  color: var(--white);
+  font-size: 0.95rem;
+}
+
+.horario-profissional-cabecalho small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.horario-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 14px;
+}
+
+.horario-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.horario-dia {
+  display: block;
+  color: var(--white);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.horario-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.horario-toggle input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.horario-campos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.horario-item-profissional .horario-campos {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Avaliações */
+.avaliacao-item {
+  align-items: flex-start;
+}
+
+.avaliacao-cabecalho {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.avaliacao-estrelas {
+  margin-top: 4px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.avaliacao-data {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.avaliacao-comentario {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+#lista-comentarios-dashboard .avaliacao-item .item-info {
+  width: 100%;
+}
+
+/* Notificações */
+.notificacao-item {
+  align-items: flex-start;
+}
+
+.notificacao-item.nao-lida {
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.055),
+    var(--bg-secondary) 24%
+  );
+}
+
+.notificacao-item.lida {
+  opacity: 0.78;
+}
+
+.notificacao-item .item-info {
+  flex: 1;
+}
+
+.notificacao-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.notificacao-cabecalho span {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.notificacao-item .item-acoes button {
+  width: auto;
+  min-width: 0;
+  height: auto;
+  min-height: 36px;
+  padding: 7px 10px;
+  white-space: nowrap;
+  font-size: 0.74rem;
+}
+
+/* Pedidos possuem ações textuais, não apenas ícones */
+#lista-pedidos .item-acoes button {
+  width: auto;
+  min-width: 84px;
+  height: 36px;
+  padding: 0 10px;
+  white-space: nowrap;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+/* Status simples exibido no dashboard */
+.item-status {
+  flex-shrink: 0;
+  padding: 6px 9px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Melhora listas com conteúdo longo */
+.item-lista > .item-info {
+  flex: 1 1 auto;
+}
+
+.item-info p,
+.item-info small,
+.item-lista strong {
+  overflow-wrap: anywhere;
+}
+
+/* Inputs nunca estouram grids */
+.campo,
+.campo-inline > *,
+.relatorio-periodo > * {
+  min-width: 0;
+}
+
+.campo input,
+.campo select,
+.campo textarea,
+.horario-campo input {
+  max-width: 100%;
+}
+
+/* Área de ações rápidas e relatórios */
+.relatorios-tipos .btn-relatorio {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ================================================================
+   FINANCEIRO — FORMULÁRIO DE GASTOS
+   ================================================================ */
+
+#form-gasto {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#form-gasto .campo,
+#form-gasto .campo--curto {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: none;
+}
+
+#form-gasto .campo input,
+#form-gasto .campo select,
+#form-gasto .campo textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+#form-gasto .campo textarea {
+  min-height: 100px;
+}
+
+#form-gasto .form-item-botoes {
+  width: 100%;
+  margin-top: 4px;
+}
+
+#form-gasto .btn-principal {
+  width: 100%;
+  flex: none;
+}
+
+#lista-financeiro {
+  margin-top: 4px;
+}
+
+#lista-financeiro .item-acoes strong {
+  margin-right: 4px;
+  color: #ff858d;
+  white-space: nowrap;
+}
+
+/* Configurações */
+#mensagem-configuracao {
+  margin-bottom: 16px;
+}
+
+/* Melhor comportamento de scroll ao navegar para seções */
+#lista-notificacoes,
+#lista-comentarios-dashboard,
+#form-cliente,
+#form-produto,
+#form-barbeiro,
+#form-gasto {
+  scroll-margin-top: 90px;
+}
+
+/* Tablet */
+@media (max-width: 1000px) {
+  .horario-campos,
+  .horario-item-profissional .horario-campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .relatorios-tipos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Celular e tablet pequeno */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .painel-main {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .painel-conteudos {
+    max-width: 100%;
+  }
+
+  .painel-conteudo,
+  .dashboard-secao,
+  .configuracao-card,
+  .form-item {
+    max-width: 100%;
+  }
+
+  /* Evita zoom automático do iOS ao focar inputs */
+  .campo input,
+  .campo select,
+  .campo textarea,
+  .horario-campo input {
+    font-size: 16px;
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    min-width: 0;
+  }
+
+  .item-lista {
+    flex-wrap: wrap;
+  }
+
+  .item-acoes {
+    flex-wrap: wrap;
+  }
+
+  .notificacao-item .item-acoes {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .notificacao-item .item-acoes button {
+    width: 100%;
+  }
+
+  #lista-pedidos .item-acoes {
+    width: 100%;
+  }
+
+  #lista-pedidos .item-acoes button {
+    flex: 1 1 120px;
+  }
+
+  .horario-profissional {
+    padding: 12px;
+  }
+
+  .horario-profissional-cabecalho {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .horario-campos,
+  .horario-item-profissional .horario-campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Celular */
+@media (max-width: 700px) {
+  .painel-header {
+    gap: 12px;
+  }
+
+  .painel-header > div,
+  .painel-header > section {
+    min-width: 0;
+  }
+
+  .painel-header h1,
+  .painel-header p {
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-secao {
+    overflow: hidden;
+  }
+
+  .filtros-pedidos,
+  .filtros-agendamentos {
+    margin-left: -2px;
+    margin-right: -2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .relatorios-tipos {
+    grid-template-columns: 1fr;
+  }
+
+  .item-lista {
+    align-items: stretch;
+  }
+
+  .item-acoes {
+    align-self: stretch;
+  }
+
+  .select-status {
+    width: 100%;
+    max-width: none;
+    min-height: 40px;
+  }
+
+  .horario-campos,
+  .horario-item-profissional .horario-campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .avaliacao-cabecalho,
+  .notificacao-cabecalho {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+/* Celulares médios */
+@media (max-width: 430px) {
+  .mobile-header {
+    gap: 6px;
+  }
+
+  .mobile-header-brand {
+    gap: 7px;
+  }
+
+  .mobile-header-brand > div {
+    max-width: 120px;
+  }
+
+  .mobile-header-acoes {
+    flex-shrink: 0;
+  }
+
+  .painel-header {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .painel-conteudos {
+    padding: 12px;
+  }
+
+  .painel-conteudo {
+    padding: 15px;
+  }
+
+  .form-item-botoes {
+    width: 100%;
+  }
+
+  .form-item-botoes > button {
+    width: 100%;
+  }
+
+  .item-acoes {
+    width: 100%;
+  }
+
+  .item-acoes button {
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .horario-campos,
+  .horario-item-profissional .horario-campos {
+    grid-template-columns: 1fr;
+  }
+
+  .configuracao-card {
+    padding: 15px;
+  }
+}
+
+/* Celular pequeno */
+@media (max-width: 360px) {
+  .mobile-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .mobile-header-brand > div {
+    max-width: 92px;
+  }
+
+  .mobile-header-brand strong {
+    font-size: 0.78rem;
+  }
+
+  .mobile-header-brand span {
+    display: none;
+  }
+
+  .mobile-header-acao,
+  .mobile-menu-toggle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mobile-header-acoes {
+    gap: 3px;
+  }
+
+  .painel-conteudos {
+    padding: 9px;
+  }
+
+  .painel-conteudo {
+    padding: 13px;
+  }
+
+  .dashboard-card {
+    padding: 16px;
+  }
+
+  .mobile-bottom-item small {
+    font-size: 0.62rem;
+  }
+}
+
+/* Respeita preferência por menos animações */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ================================================================
+   REFORÇOS FINAIS DE LAYOUT
+   ================================================================ */
+
+.painel-conteudo,
+.dashboard-secao,
+.form-item,
+.campo,
+.item-lista,
+.item-info {
+  min-width: 0;
+}
+
+input[type="date"],
+input[type="time"],
+input[type="number"] {
+  min-width: 0;
+}
+
+/* Evita que botões flexíveis criem altura/largura inesperada */
+.form-item > .btn-principal,
+.form-item-botoes > .btn-principal {
+  min-height: 44px;
+}
+
+/* Financeiro em celular */
+@media (max-width: 768px) {
+  #form-gasto {
+    gap: 12px;
+  }
+
+  #form-gasto .campo input,
+  #form-gasto .campo select,
+  #form-gasto .campo textarea {
+    font-size: 16px;
+  }
+
+  #form-gasto .form-item-botoes {
+    flex-direction: column;
+  }
+
+  #form-gasto .form-item-botoes > button {
+    width: 100%;
+  }
 }

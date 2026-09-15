@@ -3,68 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Cadastro do clientes no BarberHub" />
+    <meta name="description" content="Cadastro de cliente no BarberHub" />
     <meta name="theme-color" content="#D4AF37" />
-    <title>Cadastro | BarberHub</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <title>Cadastro de Cliente | BarberHub</title>
+    <link rel="icon" type="image/png" href="../assets/barber.png" />
     <link rel="stylesheet" href="../cadastro/style.css" />
   </head>
 
-
-   <body>
+  <body>
     <main class="cadastro-barbearia">
       <div class="container">
         <section class="box">
-          <!-- ==========================================
-             CABEÇALHO
-             ========================================== -->
-
           <header class="box-header">
-            <img src="../assets/barber.png" alt="BarberHub" class="logo" />
+            <img src="../assets/barber.png" alt="Logo BarberHub" class="logo" />
 
             <h1>BarberHub</h1>
 
-            <p class="bv-subtitulo">Cadastro de Cliente</p>
+            <p class="bv-subtitulo">Cadastro de cliente</p>
           </header>
-
-          <!-- ==========================================
-             DESCRIÇÃO
-             ========================================== -->
 
           <div class="divisor"></div>
 
           <p class="descricao">
-            Cadastre os dados para começar o Agendamento pelo BarberHub.
+            Crie sua conta para encontrar barbearias, agendar horários,
+            acompanhar seus atendimentos e muito mais.
           </p>
 
-          <!-- ==========================================
-             FORMULÁRIO
-             ========================================== -->
-
-          <form id="form-cadastro">
-
-            <h2 class="secao-titulo">Dados do Cliente</h2>
+          <form id="form-cadastro" novalidate>
+            <h2 class="secao-titulo">Seus dados</h2>
 
             <p class="secao-descricao">
-              Informe os dados que serão exibidos para seus Barbeiro.
+              Informe seus dados para utilizar o BarberHub.
             </p>
 
-            <!-- NOME -->
-
             <div class="campo">
-              <label for="nome"> Seu Nome * </label>
+              <label for="nome"> Nome completo * </label>
 
               <input
                 type="text"
                 id="nome"
                 name="nome"
                 placeholder="Ex.: João da Silva"
-                autocomplete="organization"
+                autocomplete="name"
+                maxlength="120"
                 required
               />
             </div>
-
-            <!-- TELEFONE -->
 
             <div class="campo">
               <label for="telefone"> Telefone / WhatsApp </label>
@@ -75,22 +59,22 @@
                 name="telefone"
                 placeholder="(81) 99999-9999"
                 autocomplete="tel"
+                inputmode="tel"
+                maxlength="20"
               />
-            </div>
 
-             <!-- ========================================
-               CONTA DE ACESSO
-               ======================================== -->
+              <small class="campo-ajuda">
+                Usaremos esse número para facilitar o contato com a barbearia.
+              </small>
+            </div>
 
             <div class="divisor"></div>
 
             <h2 class="secao-titulo">Dados da conta</h2>
 
             <p class="secao-descricao">
-              Esses dados serão usados para acessar o painel de Cliente.
+              Use seu e-mail e senha para acessar o painel do cliente.
             </p>
-
-            <!-- EMAIL -->
 
             <div class="campo">
               <label for="email"> E-mail * </label>
@@ -99,13 +83,13 @@
                 type="email"
                 id="email"
                 name="email"
-                placeholder="cliente@gmail.com"
+                placeholder="cliente@email.com"
                 autocomplete="email"
+                inputmode="email"
+                maxlength="254"
                 required
               />
             </div>
-
-            <!-- SENHA -->
 
             <div class="campo">
               <label for="senha"> Senha * </label>
@@ -119,9 +103,9 @@
                 autocomplete="new-password"
                 required
               />
-            </div>
 
-            <!-- CONFIRMAR SENHA -->
+              <small class="campo-ajuda"> Use pelo menos 6 caracteres. </small>
+            </div>
 
             <div class="campo">
               <label for="confirmar-senha"> Confirmar senha * </label>
@@ -137,62 +121,24 @@
               />
             </div>
 
-            <!-- ========================================
-               MENSAGEM
-               ======================================== -->
-
-            <p id="mensagem" aria-live="polite"></p>
-
-            <!-- ========================================
-               BOTÃO CADASTRAR
-               ======================================== -->
+            <p id="mensagem" aria-live="polite" role="status"></p>
 
             <button type="submit" class="btn-principal">
               + Confirmar Cadastro
             </button>
 
-            <!-- ========================================
-               BOTÃO VOLTAR
-               ======================================== -->
-
             <button type="button" class="btn-voltar" onclick="voltar()">
-              💈 Voltar
+              ← Voltar para o login
             </button>
-
-            <!-- ========================================
-               CANCELAR EDIÇÃO
-               ======================================== -->
-
-            <button
-              type="button"
-              id="btn-cancelar-edicao"
-              style="display: none"
-            >
-              Cancelar edição
-            </button>
-
-
-
           </form>
-          
         </section>
       </div>
     </main>
-     <!-- ==============================================
-       SUPABASE
-       ============================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script src="../config.js"></script>
 
-    <!-- ==============================================
-       JAVASCRIPT DA PÁGINA
-       ============================================== -->
-
     <script src="cliente.js"></script>
- </body>
+  </body>
 </html>
-
-
- 

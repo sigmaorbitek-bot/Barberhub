@@ -2,51 +2,89 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Login da barbearia no BarberHub" />
-    <meta name="theme-color" content="#D4AF37" />
-    <title>Entrar | BarberHub</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-    <link rel="stylesheet" href="style.css" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <meta
+      name="description"
+      content="Login da barbearia no BarberHub"
+    />
+
+    <meta
+      name="theme-color"
+      content="#D4AF37"
+    />
+
+    <title>
+      Login da Barbearia | BarberHub
+    </title>
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="../assets/barber.png"
+    />
+
+    <link
+      rel="stylesheet"
+      href="style.css"
+    />
   </head>
 
   <body>
     <main id="tela-boas-vindas">
       <section class="tbv-container">
         <div class="tbv-box">
-          <!-- ==========================================
-             CABEÇALHO
-             ========================================== -->
 
           <header class="box-header">
-            <img src="../assets/barber.png" alt="BarberHub" class="bv-logo" />
+            <img
+              src="../assets/barber.png"
+              alt="Logo BarberHub"
+              class="bv-logo"
+            />
 
-            <h1 class="bv-titulo" style="font-size: 1.9rem">Entrar</h1>
+            <h1 class="bv-titulo">
+              Entrar
+            </h1>
 
-            <p class="bv-subtitulo">Acesse o painel da sua barbearia</p>
+            <p class="bv-subtitulo">
+              Acesse o painel da sua barbearia
+            </p>
           </header>
 
-          <div class="bv-divisor" aria-hidden="true"></div>
+          <div
+            class="bv-divisor"
+            aria-hidden="true"
+          ></div>
 
-          <!-- ==========================================
-             FORMULÁRIO
-             ========================================== -->
-
-          <form id="form-login">
+          <form
+            id="form-login"
+            novalidate
+          >
             <div class="campo">
-              <label for="email"> E-mail </label>
+              <label for="email">
+                E-mail
+              </label>
+
               <input
                 type="email"
                 id="email"
                 name="email"
                 placeholder="barbearia@email.com"
                 autocomplete="email"
+                inputmode="email"
+                maxlength="254"
                 required
               />
             </div>
 
             <div class="campo">
-              <label for="senha">Senha</label>
+              <label for="senha">
+                Senha
+              </label>
 
               <input
                 type="password"
@@ -66,19 +104,32 @@
               </button>
             </div>
 
-            <!-- MENSAGEM -->
-            <p id="mensagem" aria-live="polite"></p>
+            <p
+              id="mensagem"
+              aria-live="polite"
+              role="status"
+            ></p>
 
-            <!-- BOTÃO ENTRAR -->
-            <button type="submit" class="btn-principal">Entrar</button>
+            <button
+              type="submit"
+              class="btn-principal"
+            >
+              Entrar
+            </button>
 
-            <!-- BOTÃO CADASTRAR -->
-            <button type="button" class="btn-voltar" onclick="irParaCadastro()">
+            <button
+              type="button"
+              class="btn-voltar"
+              onclick="irParaCadastro()"
+            >
               Ainda não tenho conta
             </button>
 
-            <!-- VOLTAR -->
-            <button type="button" class="btn-voltar" onclick="voltar()">
+            <button
+              type="button"
+              class="btn-voltar"
+              onclick="voltar()"
+            >
               💈 Voltar ao início
             </button>
           </form>
@@ -86,9 +137,12 @@
       </section>
     </main>
 
-    <!-- SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
     <script src="../config.js"></script>
+
     <script src="login.js"></script>
   </body>
 </html>

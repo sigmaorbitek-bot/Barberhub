@@ -2782,3 +2782,312 @@ a {
     scroll-behavior: auto !important;
   }
 }
+/* =========================================================
+   40. AJUSTES FINAIS — PAINEL DO CLIENTE
+   ========================================================= */
+
+/* Bloqueia o fundo enquanto o menu lateral mobile estiver aberto. */
+body.menu-mobile-aberto {
+  overflow: hidden;
+}
+
+/* Compatibilidade com as classes geradas pelo novo cliente.js. */
+.mensagem-sucesso,
+.mensagem.sucesso {
+  color: var(--success);
+}
+
+.mensagem-erro,
+.mensagem.erro {
+  color: var(--error);
+}
+
+.mensagem-info,
+.mensagem.info {
+  color: var(--info);
+}
+
+/* O card de perfil do dashboard também funciona como navegação. */
+.card-dashboard--perfil:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Botões de ações rápidas continuam claros em telas touch. */
+.acao-rapida:active,
+.card-dashboard--perfil:active,
+.btn-principal:active,
+.btn-secundario:active {
+  transform: scale(0.985);
+}
+
+/* =========================================================
+   41. BARBEARIAS E FAVORITOS
+   ========================================================= */
+
+.item-barbearia {
+  position: relative;
+  min-width: 0;
+}
+
+.item-barbearia--favorita {
+  border-color: rgba(212, 175, 55, 0.48);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(212, 175, 55, 0.08),
+    var(--shadow-brand);
+}
+
+.item-barbearia-imagem {
+  position: relative;
+}
+
+.item-barbearia-favorita-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 30px;
+  padding: 6px 10px;
+
+  color: var(--white);
+  background: rgba(8, 8, 8, 0.88);
+
+  border: 1px solid rgba(212, 175, 55, 0.42);
+  border-radius: 999px;
+
+  font-size: 0.68rem;
+  font-weight: 750;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.btn-favoritar-barbearia--ativo {
+  color: var(--gold-light);
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.09);
+}
+
+.btn-favoritar-barbearia--ativo:hover {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.14);
+}
+
+.item-barbearia-conteudo {
+  min-width: 0;
+}
+
+.item-barbearia-conteudo h3,
+.item-barbearia-conteudo p {
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   42. PRODUTOS
+   ========================================================= */
+
+.item-produto-cliente {
+  min-width: 0;
+}
+
+.item-produto-cliente-conteudo {
+  flex: 1;
+}
+
+.item-produto-cliente-conteudo h4 {
+  overflow-wrap: anywhere;
+}
+
+.btn-comprar-produto {
+  touch-action: manipulation;
+}
+
+/* =========================================================
+   43. AVALIAÇÕES
+   ========================================================= */
+
+.avaliacao-formulario .form-item-botoes {
+  margin-top: 10px;
+}
+
+.item-comentario-cliente > small {
+  display: block;
+  margin-bottom: 8px;
+
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+/* =========================================================
+   44. MENU MOBILE
+   ========================================================= */
+
+.mobile-menu-item.ativo {
+  color: var(--white);
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.28);
+}
+
+.mobile-menu-item.ativo > span:first-child {
+  color: var(--gold);
+}
+
+/* =========================================================
+   45. ACESSIBILIDADE E INTERAÇÃO
+   ========================================================= */
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+button:disabled {
+  pointer-events: none;
+}
+
+@media (hover: none) {
+  .menu-item:hover,
+  .acao-rapida:hover,
+  .card-dashboard:hover,
+  .item-agendamento:hover,
+  .item-notificacao:hover,
+  .item-produto-cliente:hover,
+  .item-avaliacao:hover,
+  .item-comentario-cliente:hover,
+  .item-barbearia:hover,
+  .btn-principal:hover,
+  .btn-secundario:hover {
+    transform: none;
+  }
+
+  .item-barbearia:hover .item-barbearia-imagem img {
+    transform: none;
+  }
+}
+
+/* =========================================================
+   46. RESPONSIVIDADE FINAL
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .painel-main {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-header {
+    padding-top: calc(10px + env(safe-area-inset-top));
+  }
+
+  .mobile-menu-conteudo {
+    padding-top: calc(25px + env(safe-area-inset-top));
+    padding-bottom: calc(25px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .mobile-bottom-nav {
+    min-height: calc(70px + env(safe-area-inset-bottom));
+    padding-bottom: calc(7px + env(safe-area-inset-bottom));
+  }
+
+  .busca-painel input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .form-campo input,
+  .form-campo select,
+  .form-campo textarea {
+    font-size: 16px;
+  }
+
+  .item-barbearia-imagem {
+    height: 190px;
+  }
+
+  .item-barbearia-acoes {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .item-barbearia-acoes .btn-principal,
+  .item-barbearia-acoes .btn-secundario {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .produtos-barbearia-cabecalho {
+    align-items: flex-start;
+  }
+
+  .item-produto-cliente {
+    align-items: flex-start;
+  }
+
+  .item-produto-cliente-imagem {
+    width: 72px;
+    height: 72px;
+  }
+
+  .item-notificacao-topo > div {
+    flex-wrap: wrap;
+  }
+
+  .notificacoes-acoes .btn-secundario {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .lista-vazia {
+    padding: 32px 16px;
+  }
+
+  .item-barbearia-imagem {
+    height: 165px;
+  }
+
+  .item-barbearia-conteudo {
+    padding: 16px;
+  }
+
+  .item-barbearia-favorita-badge {
+    top: 10px;
+    right: 10px;
+  }
+
+  .produtos-barbearia {
+    padding: 14px;
+  }
+
+  .produtos-barbearia-logo {
+    width: 46px;
+    height: 46px;
+  }
+
+  .item-produto-cliente {
+    gap: 11px;
+  }
+
+  .item-produto-cliente-imagem {
+    width: 62px;
+    height: 62px;
+  }
+
+  .item-avaliacao,
+  .item-comentario-cliente {
+    padding: 17px;
+  }
+
+  .item-avaliacao-topo,
+  .item-comentario-topo {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

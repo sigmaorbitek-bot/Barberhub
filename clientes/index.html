@@ -79,82 +79,42 @@
         <!-- MENU -->
 
         <nav class="sidebar-menu" aria-label="Menu principal">
-          <button
-            type="button"
-            class="menu-item ativo"
-            data-aba="inicio"
-            onclick="mudarAba('inicio')"
-          >
+          <button type="button" class="menu-item ativo" data-aba="inicio">
             <span class="menu-icon">🏠</span>
             <span>Início</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="agendamento"
-            onclick="mudarAba('agendamento')"
-          >
+          <button type="button" class="menu-item" data-aba="agendamento">
             <span class="menu-icon">📅</span>
             <span>Agendar horário</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="agendamentos"
-            onclick="mudarAba('agendamentos')"
-          >
+          <button type="button" class="menu-item" data-aba="agendamentos">
             <span class="menu-icon">🗓️</span>
             <span>Meus agendamentos</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="notificacoes"
-            onclick="mudarAba('notificacoes')"
-          >
+          <button type="button" class="menu-item" data-aba="notificacoes">
             <span class="menu-icon">🔔</span>
             <span>Notificações</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="produtos"
-            onclick="mudarAba('produtos')"
-          >
+          <button type="button" class="menu-item" data-aba="produtos">
             <span class="menu-icon">🛍️</span>
             <span>Ver produtos</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="avaliacoes"
-            onclick="mudarAba('avaliacoes')"
-          >
+          <button type="button" class="menu-item" data-aba="avaliacoes">
             <span class="menu-icon">⭐</span>
             <span>Avaliações</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="favoritos"
-            onclick="mudarAba('favoritos')"
-          >
+          <button type="button" class="menu-item" data-aba="favoritos">
             <span class="menu-icon">❤️</span>
             <span>Favoritos</span>
           </button>
 
-          <button
-            type="button"
-            class="menu-item"
-            data-aba="perfil"
-            onclick="mudarAba('perfil')"
-          >
+          <button type="button" class="menu-item" data-aba="perfil">
             <span class="menu-icon">👤</span>
             <span>Meu perfil</span>
           </button>
@@ -174,7 +134,13 @@
            MENU MOBILE
       ================================================== -->
 
-      <nav class="mobile-menu" id="menu-mobile" aria-label="Menu mobile">
+      <nav
+        class="mobile-menu"
+        id="menu-mobile"
+        aria-label="Menu mobile"
+        aria-hidden="true"
+        inert
+      >
         <div class="mobile-menu-conteudo">
           <div class="mobile-menu-topo">
             <div>
@@ -193,12 +159,7 @@
           </div>
 
           <div class="mobile-menu-lista">
-            <button
-              type="button"
-              class="mobile-menu-item"
-              data-aba="inicio"
-              onclick="mudarAba('inicio')"
-            >
+            <button type="button" class="mobile-menu-item" data-aba="inicio">
               <span>🏠</span>
               <span>Início</span>
             </button>
@@ -207,7 +168,6 @@
               type="button"
               class="mobile-menu-item"
               data-aba="agendamento"
-              onclick="mudarAba('agendamento')"
             >
               <span>📅</span>
               <span>Agendar horário</span>
@@ -217,7 +177,6 @@
               type="button"
               class="mobile-menu-item"
               data-aba="agendamentos"
-              onclick="mudarAba('agendamentos')"
             >
               <span>🗓️</span>
               <span>Meus agendamentos</span>
@@ -226,18 +185,12 @@
               type="button"
               class="mobile-menu-item"
               data-aba="notificacoes"
-              onclick="mudarAba('notificacoes')"
             >
               <span>🔔</span>
               <span>Notificações</span>
             </button>
 
-            <button
-              type="button"
-              class="mobile-menu-item"
-              data-aba="produtos"
-              onclick="mudarAba('produtos')"
-            >
+            <button type="button" class="mobile-menu-item" data-aba="produtos">
               <span>🛍️</span>
               <span>Ver produtos</span>
             </button>
@@ -246,28 +199,17 @@
               type="button"
               class="mobile-menu-item"
               data-aba="avaliacoes"
-              onclick="mudarAba('avaliacoes')"
             >
               <span>⭐</span>
               <span>Avaliações</span>
             </button>
 
-            <button
-              type="button"
-              class="mobile-menu-item"
-              data-aba="favoritos"
-              onclick="mudarAba('favoritos')"
-            >
+            <button type="button" class="mobile-menu-item" data-aba="favoritos">
               <span>❤️</span>
               <span>Favoritos</span>
             </button>
 
-            <button
-              type="button"
-              class="mobile-menu-item"
-              data-aba="perfil"
-              onclick="mudarAba('perfil')"
-            >
+            <button type="button" class="mobile-menu-item" data-aba="perfil">
               <span>👤</span>
               <span>Meu perfil</span>
             </button>
@@ -372,7 +314,9 @@
 
               <article
                 class="card-dashboard card-dashboard--perfil"
-                onclick="mudarAba('perfil')"
+                data-aba="perfil"
+                role="button"
+                tabindex="0"
               >
                 <div class="card-dashboard-topo">
                   <div class="card-dashboard-icone">👤</div>
@@ -421,7 +365,7 @@
                 <button
                   type="button"
                   class="acao-rapida"
-                  onclick="mudarAba('agendamento')"
+                  data-aba="agendamento"
                 >
                   <span class="acao-rapida-icone"> 📅 </span>
 
@@ -433,7 +377,7 @@
                 <button
                   type="button"
                   class="acao-rapida"
-                  onclick="mudarAba('agendamentos')"
+                  data-aba="agendamentos"
                 >
                   <span class="acao-rapida-icone"> 🗓️ </span>
 
@@ -445,7 +389,7 @@
                 <button
                   type="button"
                   class="acao-rapida"
-                  onclick="mudarAba('notificacoes')"
+                  data-aba="notificacoes"
                 >
                   <span class="acao-rapida-icone">🔔 </span>
 
@@ -454,11 +398,7 @@
                   <small> Veja seus avisos </small>
                 </button>
 
-                <button
-                  type="button"
-                  class="acao-rapida"
-                  onclick="mudarAba('produtos')"
-                >
+                <button type="button" class="acao-rapida" data-aba="produtos">
                   <span class="acao-rapida-icone">🛍️</span>
 
                   <strong> Ver produtos </strong>
@@ -466,11 +406,7 @@
                   <small> Confira produtos disponíveis </small>
                 </button>
 
-                <button
-                  type="button"
-                  class="acao-rapida"
-                  onclick="mudarAba('avaliacoes')"
-                >
+                <button type="button" class="acao-rapida" data-aba="avaliacoes">
                   <span class="acao-rapida-icone">⭐</span>
 
                   <strong> Avaliar atendimento </strong>
@@ -478,11 +414,7 @@
                   <small> Conte sua experiência </small>
                 </button>
 
-                <button
-                  type="button"
-                  class="acao-rapida"
-                  onclick="mudarAba('favoritos')"
-                >
+                <button type="button" class="acao-rapida" data-aba="perfil">
                   <span class="acao-rapida-icone"> ❤️ </span>
 
                   <strong> Minhas barbearias </strong>
@@ -490,11 +422,7 @@
                   <small> Acesse seus favoritos </small>
                 </button>
 
-                <button
-                  type="button"
-                  class="acao-rapida"
-                  onclick="mudarAba('perfil')"
-                >
+                <button type="button" class="acao-rapida">
                   <span class="acao-rapida-icone"> 👤 </span>
 
                   <strong> Meu perfil </strong>
@@ -664,7 +592,7 @@
 
               <h1>Ver produtos</h1>
 
-              <p>Veja os produtos disponíveis nas suas barbearias.</p>
+              <p>Veja os produtos disponíveis nas barbearias cadastradas.</p>
             </div>
 
             <!-- ==================================================
@@ -728,11 +656,14 @@
 
           <section id="conteudo-favoritos" class="painel-conteudo oculto">
             <div class="conteudo-titulo">
-              <span class="conteudo-eyebrow"> SEUS FAVORITOS </span>
+              <span class="conteudo-eyebrow"> BARBEARIAS </span>
 
-              <h1>Favoritos</h1>
+              <h1>Encontre uma barbearia</h1>
 
-              <p>Encontre rapidamente suas barbearias favoritas.</p>
+              <p>
+                Veja todas as barbearias cadastradas, favorite suas preferidas e
+                agende seu horário.
+              </p>
             </div>
 
             <div class="busca-painel">
@@ -741,7 +672,7 @@
               <input
                 type="search"
                 id="busca-barbearia"
-                placeholder="Digite o nome ou cidade..."
+                placeholder="Busque por nome, cidade ou endereço..."
                 autocomplete="off"
               />
             </div>
@@ -807,7 +738,12 @@
                   <div class="form-campo form-campo--full">
                     <label for="perfil-email"> E-mail </label>
 
-                    <input type="email" id="perfil-email" disabled />
+                    <input
+                      type="email"
+                      id="perfil-email"
+                      autocomplete="email"
+                      disabled
+                    />
 
                     <small class="campo-ajuda">
                       O e-mail da conta não pode ser alterado por aqui.
@@ -858,23 +794,17 @@
            NAVEGAÇÃO INFERIOR MOBILE
       ================================================== -->
 
-      <nav class="mobile-bottom-nav">
+      <nav class="mobile-bottom-nav" aria-label="Navegação rápida">
         <button
           type="button"
           class="mobile-bottom-item ativo"
           data-aba="inicio"
-          onclick="mudarAba('inicio')"
         >
           <span>🏠</span>
           <small>Início</small>
         </button>
 
-        <button
-          type="button"
-          class="mobile-bottom-item"
-          data-aba="agendamento"
-          onclick="mudarAba('agendamento')"
-        >
+        <button type="button" class="mobile-bottom-item" data-aba="agendamento">
           <span>📅</span>
           <small>Agendar</small>
         </button>
@@ -883,7 +813,6 @@
           type="button"
           class="mobile-bottom-item"
           data-aba="agendamentos"
-          onclick="mudarAba('agendamentos')"
         >
           <span>🗓️</span>
           <small>Agenda</small>
@@ -907,6 +836,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../config.js"></script>
-    <script src="cliente.js"></script>
+    <script src="seçao 1a9.js"></script>
+    <script src="seçao 10,11.js"></script>
+    <script src="seçao 12,13.js"></script>
+    <script src="seçao 14a20.js"></script>
   </body>
 </html>

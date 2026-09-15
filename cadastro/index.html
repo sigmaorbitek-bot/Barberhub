@@ -4,10 +4,15 @@
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Cadastro de barbearia no BarberHub" />
+
+    <meta name="description" content="Cadastre sua barbearia no BarberHub" />
+
     <meta name="theme-color" content="#D4AF37" />
-    <title>Cadastro | BarberHub</title>
+
+    <title>Cadastro de Barbearia | BarberHub</title>
+
     <link rel="icon" type="image/png" href="../assets/barber.png" />
+
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -15,45 +20,31 @@
     <main class="cadastro-barbearia">
       <div class="container">
         <section class="box">
-          <!-- ==========================================
-             CABEÇALHO
-             ========================================== -->
-
           <header class="box-header">
-            <img src="../assets/barber.png" alt="BarberHub" class="logo" />
+            <img src="../assets/barber.png" alt="Logo BarberHub" class="logo" />
 
             <h1>BarberHub</h1>
 
             <p class="bv-subtitulo">Cadastre sua barbearia</p>
           </header>
 
-          <!-- ==========================================
-             DESCRIÇÃO
-             ========================================== -->
-
           <div class="divisor"></div>
 
           <p class="descricao">
-            Cadastre os dados da sua barbearia para começar a gerenciar seu
-            negócio pelo BarberHub.
+            Cadastre sua barbearia para começar a gerenciar clientes,
+            profissionais, serviços, agendamentos e produtos pelo BarberHub.
           </p>
 
-          <!-- ==========================================
-             FORMULÁRIO
-             ========================================== -->
-
-          <form id="form-cadastro">
-            <!-- ========================================
-               DADOS DA BARBEARIA
-               ======================================== -->
+          <form id="form-cadastro" novalidate>
+            <!-- DADOS DA BARBEARIA -->
 
             <h2 class="secao-titulo">Dados da barbearia</h2>
 
             <p class="secao-descricao">
-              Informe os dados que serão exibidos para seus clientes.
+              Essas informações serão exibidas para os clientes no BarberHub.
             </p>
 
-            <!-- LOGO / FOTO -->
+            <!-- LOGO -->
 
             <div class="campo">
               <label for="foto"> Logo da barbearia </label>
@@ -64,6 +55,10 @@
                 name="foto"
                 accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
               />
+
+              <small class="campo-ajuda">
+                JPG, PNG ou WEBP. Tamanho máximo de 5 MB.
+              </small>
             </div>
 
             <!-- NOME -->
@@ -77,6 +72,7 @@
                 name="nome"
                 placeholder="Ex.: Barbearia Imperial"
                 autocomplete="organization"
+                maxlength="150"
                 required
               />
             </div>
@@ -92,7 +88,14 @@
                 name="telefone"
                 placeholder="(87) 99999-9999"
                 autocomplete="tel"
+                inputmode="tel"
+                maxlength="20"
               />
+
+              <small class="campo-ajuda">
+                Esse número poderá ser usado pelos clientes para entrar em
+                contato.
+              </small>
             </div>
 
             <!-- CIDADE -->
@@ -100,17 +103,15 @@
             <div class="campo">
               <label for="cidade"> Cidade * </label>
 
-              <select id="cidade" name="cidade" required>
-                <option value="">Selecione sua cidade</option>
-
-                <option value="Altinho">Altinho</option>
-
-                <option value="Agrestina">Agrestina</option>
-
-                <option value="Caruaru">Caruaru</option>
-
-                <option value="outra">Outra cidade</option>
-              </select>
+              <input
+                type="text"
+                id="cidade"
+                name="cidade"
+                placeholder="Ex.: Caruaru"
+                autocomplete="address-level2"
+                maxlength="100"
+                required
+              />
             </div>
 
             <!-- ENDEREÇO -->
@@ -124,24 +125,22 @@
                 name="endereco"
                 placeholder="Rua, número, bairro..."
                 autocomplete="street-address"
+                maxlength="250"
               />
             </div>
 
-            <!-- ========================================
-               HORÁRIO DE FUNCIONAMENTO
-               ======================================== -->
-
             <div class="divisor"></div>
+
+            <!-- HORÁRIO -->
 
             <h2 class="secao-titulo">Horário de funcionamento</h2>
 
             <p class="secao-descricao">
-              Informe o horário padrão de atendimento da barbearia.
+              Informe o horário padrão de funcionamento. Depois você poderá
+              personalizar cada dia pelo painel.
             </p>
 
             <div class="campos-duplos">
-              <!-- ABERTURA -->
-
               <div class="campo">
                 <label for="horario_abertura"> Abertura </label>
 
@@ -151,8 +150,6 @@
                   name="horario_abertura"
                 />
               </div>
-
-              <!-- FECHAMENTO -->
 
               <div class="campo">
                 <label for="horario_fechamento"> Fechamento </label>
@@ -165,9 +162,7 @@
               </div>
             </div>
 
-            <!-- ========================================
-               DIAS DE FUNCIONAMENTO
-               ======================================== -->
+            <!-- DIAS -->
 
             <div class="campo">
               <label> Dias de funcionamento </label>
@@ -215,116 +210,122 @@
                   <label for="sab"> Sábado </label>
                 </div>
               </div>
-            </div>
 
-            <!-- ========================================
-               CONTA DE ACESSO
-               ======================================== -->
+              <small class="campo-ajuda">
+                Selecione os dias em que a barbearia atende normalmente.
+              </small>
+            </div>
 
             <div class="divisor"></div>
 
-            <h2 class="secao-titulo">Dados da conta</h2>
+            <!-- ==================================================
+     CONTA JÁ EXISTENTE
+     ================================================== -->
 
-            <p class="secao-descricao">
-              Esses dados serão usados para acessar o painel da sua barbearia.
-            </p>
+            <div
+              id="aviso-conta-existente"
+              class="aviso-conta-existente"
+              hidden
+            >
+              <strong>🔐 Conta já conectada</strong>
 
-            <!-- EMAIL -->
-
-            <div class="campo">
-              <label for="email"> E-mail * </label>
-
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="barbearia@email.com"
-                autocomplete="email"
-                required
-              />
+              <p>
+                Esta nova barbearia será vinculada automaticamente à sua conta
+                atual.
+              </p>
             </div>
 
-            <!-- SENHA -->
+            <!-- ==================================================
+     DADOS DA CONTA
+     ================================================== -->
 
-            <div class="campo">
-              <label for="senha"> Senha * </label>
+            <div id="secao-conta">
+              <div class="divisor"></div>
 
-              <input
-                type="password"
-                id="senha"
-                name="senha"
-                placeholder="Mínimo de 6 caracteres"
-                minlength="6"
-                autocomplete="new-password"
-                required
-              />
+              <h2 class="secao-titulo">Dados da conta</h2>
+
+              <p class="secao-descricao">
+                Esses dados serão usados para acessar o painel administrativo da
+                sua barbearia.
+              </p>
+
+              <!-- EMAIL -->
+
+              <div class="campo">
+                <label for="email"> E-mail * </label>
+
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="barbearia@email.com"
+                  autocomplete="email"
+                  inputmode="email"
+                  maxlength="254"
+                  required
+                />
+              </div>
+
+              <!-- SENHA -->
+
+              <div class="campo">
+                <label for="senha"> Senha * </label>
+
+                <input
+                  type="password"
+                  id="senha"
+                  name="senha"
+                  placeholder="Mínimo de 6 caracteres"
+                  minlength="6"
+                  autocomplete="new-password"
+                  required
+                />
+
+                <small class="campo-ajuda">
+                  Use pelo menos 6 caracteres.
+                </small>
+              </div>
+
+              <!-- CONFIRMAR SENHA -->
+
+              <div class="campo">
+                <label for="confirmar-senha"> Confirmar senha * </label>
+
+                <input
+                  type="password"
+                  id="confirmar-senha"
+                  name="confirmar-senha"
+                  placeholder="Digite a senha novamente"
+                  minlength="6"
+                  autocomplete="new-password"
+                  required
+                />
+              </div>
             </div>
 
-            <!-- CONFIRMAR SENHA -->
+            <!-- MENSAGEM -->
 
-            <div class="campo">
-              <label for="confirmar-senha"> Confirmar senha * </label>
+            <p id="mensagem" aria-live="polite" role="status"></p>
 
-              <input
-                type="password"
-                id="confirmar-senha"
-                name="confirmar-senha"
-                placeholder="Digite a senha novamente"
-                minlength="6"
-                autocomplete="new-password"
-                required
-              />
-            </div>
-
-            <!-- ========================================
-               MENSAGEM
-               ======================================== -->
-
-            <p id="mensagem" aria-live="polite"></p>
-
-            <!-- ========================================
-               BOTÃO CADASTRAR
-               ======================================== -->
+            <!-- CADASTRAR -->
 
             <button type="submit" class="btn-principal">
               + Cadastrar Barbearia
             </button>
 
-            <!-- ========================================
-               BOTÃO VOLTAR
-               ======================================== -->
+            <!-- VOLTAR -->
 
             <button type="button" class="btn-voltar" onclick="voltar()">
-              💈 Voltar
-            </button>
-
-            <!-- ========================================
-               CANCELAR EDIÇÃO
-               ======================================== -->
-
-            <button
-              type="button"
-              id="btn-cancelar-edicao"
-              style="display: none"
-            >
-              Cancelar edição
+              ← Voltar para o login
             </button>
           </form>
         </section>
       </div>
     </main>
 
-    <!-- ==============================================
-       SUPABASE
-       ============================================== -->
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script src="../config.js"></script>
-
-    <!-- ==============================================
-       JAVASCRIPT DA PÁGINA
-       ============================================== -->
 
     <script src="Cadastro.js"></script>
   </body>

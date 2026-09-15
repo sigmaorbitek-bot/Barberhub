@@ -313,3 +313,264 @@ body {
 #form-nova-senha .btn-voltar {
   width: 100%;
 }
+
+/* ==================================================
+   BARBERHUB — AJUSTES FINAIS DO LOGIN
+   Login cliente + login barbearia + nova senha
+   ================================================== */
+
+/* MELHORIAS GERAIS */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+.tbv-box,
+.campo,
+#form-login,
+#form-nova-senha {
+  min-width: 0;
+}
+
+/* TÍTULOS */
+
+.bv-titulo {
+  font-size: 1.9rem;
+  line-height: 1.15;
+}
+
+.bv-subtitulo {
+  line-height: 1.5;
+}
+
+/* INPUTS */
+
+.campo input {
+  width: 100%;
+  min-width: 0;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.campo input::placeholder {
+  color: var(--text-muted);
+}
+
+.campo input:hover {
+  border-color: var(--border-light);
+}
+
+.campo input:focus {
+  background: #171717;
+}
+
+/* AUTOFILL DO NAVEGADOR */
+
+.campo input:-webkit-autofill,
+.campo input:-webkit-autofill:hover,
+.campo input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  box-shadow: 0 0 0 1000px #141414 inset;
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* MENSAGENS */
+
+#mensagem {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+#mensagem:empty {
+  display: none;
+}
+
+#mensagem:not(:empty) {
+  display: block;
+  min-height: 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+
+#mensagem.mensagem-sucesso {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+#mensagem.mensagem-erro {
+  color: #ff6b75;
+  background: rgba(193, 18, 31, 0.1);
+  border-color: rgba(193, 18, 31, 0.28);
+}
+
+#mensagem.mensagem-aviso {
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.22);
+}
+
+/* BOTÕES */
+
+.btn-principal,
+.btn-voltar,
+.btn-esqueci-senha {
+  touch-action: manipulation;
+}
+
+.btn-principal:active {
+  transform: translateY(0);
+}
+
+.btn-principal:disabled,
+.btn-voltar:disabled,
+.btn-esqueci-senha:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  filter: none;
+}
+
+.btn-voltar:hover {
+  background: rgba(0, 123, 255, 0.06);
+}
+
+.btn-esqueci-senha {
+  line-height: 1.4;
+}
+
+/* ACESSIBILIDADE */
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* TABLET / CELULAR */
+
+@media (max-width: 700px) {
+  .tbv-container {
+    align-items: flex-start;
+
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+
+  .tbv-box {
+    margin: auto 0;
+    padding: 34px 24px;
+  }
+
+  .bv-logo {
+    width: 72px;
+  }
+
+  .bv-titulo {
+    font-size: 1.7rem;
+  }
+
+  .campo input {
+    font-size: 16px;
+  }
+
+  .btn-principal,
+  .btn-voltar {
+    min-height: 48px;
+    height: auto;
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .btn-esqueci-senha {
+    min-height: 32px;
+    padding: 4px 0;
+    font-size: 0.85rem;
+  }
+}
+
+/* CELULAR PEQUENO */
+
+@media (max-width: 420px) {
+  .tbv-container {
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-left: max(10px, env(safe-area-inset-left));
+  }
+
+  .tbv-box {
+    padding: 28px 18px;
+    border-radius: 14px;
+  }
+
+  .bv-logo {
+    width: 66px;
+    margin-bottom: 14px;
+  }
+
+  .bv-titulo {
+    font-size: 1.55rem;
+  }
+
+  .bv-subtitulo {
+    font-size: 0.86rem;
+  }
+
+  .bv-divisor {
+    margin: 18px auto;
+  }
+
+  #form-login,
+  #form-nova-senha {
+    gap: 14px;
+  }
+}
+
+/* DISPOSITIVOS TOUCH */
+
+@media (hover: none) {
+  .btn-principal:hover {
+    transform: none;
+    filter: none;
+  }
+
+  .btn-voltar:hover {
+    background: transparent;
+  }
+
+  .btn-esqueci-senha:hover {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  .campo input:hover {
+    border-color: var(--border-color);
+  }
+}
+
+/* REDUÇÃO DE MOVIMENTO */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
