@@ -160,34 +160,34 @@ async function buscarDadosRelatorio(periodo) {
           ascending: true,
         }),
 
-      // ------------------------------------------
-      // PEDIDOS CONFIRMADOS
-      // ------------------------------------------
+      // VENDAS DE PRODUTOS
 
       supabaseClient
         .from("pedidos")
         .select(
           `
-        id,
-        cliente_id,
-        produto_id,
-        quantidade,
-        preco_unitario,
-        status,
-        created_at,
-        atualizado_at,
+      id,
+      cliente_id,
+      produto_id,
+      quantidade,
+      preco_unitario,
+      status,
+      created_at,
+      confirmado_at,
+      concluido_at,
+      arquivado,
 
-        produtos:produto_id (
-          id,
-          nome
-        )
-      `,
+      produtos:produto_id (
+        id,
+        nome
+      )
+    `,
         )
         .eq("barbearia_id", lojaId)
-        .eq("status", "confirmado")
-        .gte("atualizado_at", periodo.inicio.toISOString())
-        .lt("atualizado_at", periodo.fimExclusivo.toISOString())
-        .order("atualizado_at", {
+        .in("status", ["confirmado", "concluido"])
+        .gte("confirmado_at", periodo.inicio.toISOString())
+        .lt("confirmado_at", periodo.fimExclusivo.toISOString())
+        .order("confirmado_at", {
           ascending: true,
         }),
     ]);
@@ -206,9 +206,7 @@ async function buscarDadosRelatorio(periodo) {
 
   return {
     agendamentos: respostaAgendamentos.data || [],
-
     gastos: respostaGastos.data || [],
-
     pedidos: respostaPedidos.data || [],
   };
 }
@@ -239,17 +237,20 @@ function calcularResumoRelatorio({ agendamentos, gastos, pedidos }) {
 
     const preco = Number(pedido.preco_unitario);
 
-    if (!Number.isFinite(quantidade) || !Number.isFinite(preco)) {
-      return total;
-    }
+    const quantidadeSegura =
+      Number.isFinite(quantidade) && quantidade > 0 ? quantidade : 0;
 
-    return total + quantidade * preco;
+    const precoSeguro = Number.isFinite(preco) && preco >= 0 ? preco : 0;
+
+    return total + quantidadeSegura * precoSeguro;
   }, 0);
 
   const produtosVendidos = pedidos.reduce((total, pedido) => {
     const quantidade = Number(pedido.quantidade);
 
-    return total + (Number.isFinite(quantidade) ? quantidade : 0);
+    return (
+      total + (Number.isFinite(quantidade) && quantidade > 0 ? quantidade : 0)
+    );
   }, 0);
 
   // ------------------------------------------
@@ -465,14 +466,10 @@ function gerarLinhasProdutosVendidos(pedidos) {
   return pedidos
     .map((pedido) => {
       const produto = pedido.produtos?.nome || "Produto";
-
       const quantidade = Number(pedido.quantidade) || 0;
-
       const preco = Number(pedido.preco_unitario) || 0;
-
       const total = quantidade * preco;
-
-      const dataVenda = pedido.atualizado_at || pedido.created_at;
+      const dataVenda = pedido.confirmado_at || pedido.created_at;
 
       return `
           <tr>
@@ -695,11 +692,12 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
         </div>
 
         <div class="card">
-          Pedidos confirmados
+  Vendas de produtos
 
-          <strong>
-            ${dados.pedidos.length}
-          </strong>
+  <strong>
+    ${dados.pedidos.length}
+  </strong>
+</div>
         </div>
 
         <div class="card">

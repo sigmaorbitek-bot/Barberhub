@@ -18,7 +18,6 @@
 
     <link rel="stylesheet" href="style.css" />
   </head>
-
   <body>
     <main class="painel">
       <!-- ==================================================
@@ -431,116 +430,362 @@
                ================================================== -->
 
           <section id="conteudo-visao-geral" class="painel-conteudo">
-            <div class="conteudo-titulo">
-              <h1>Visão geral</h1>
+            <!-- ==================================================
+                 CABEÇALHO DA VISÃO GERAL
+                 ================================================== -->
 
-              <p>Acompanhe os principais números da sua barbearia.</p>
-            </div>
+            <div class="dashboard-cabecalho">
+              <div>
+                <span class="dashboard-eyebrow">PAINEL DE GESTÃO</span>
 
-            <div class="dashboard-cards">
-              <article class="dashboard-card">
-                <span>📅</span>
+                <h1>Visão geral</h1>
 
-                <strong id="total-agendamentos-hoje"> 0 </strong>
+                <p>
+                  Acompanhe agenda, clientes, estoque, pedidos e resultados da
+                  sua barbearia em um só lugar.
+                </p>
+              </div>
 
-                <p>Agendamentos hoje</p>
-              </article>
-
-              <article class="dashboard-card">
-                <span>👥</span>
-
-                <strong id="total-clientes"> 0 </strong>
-
-                <p>Clientes</p>
-              </article>
-
-              <article class="dashboard-card">
-                <span>💈</span>
-
-                <strong id="total-profissionais"> 0 </strong>
-
-                <p>Profissionais</p>
-              </article>
-
-              <article class="dashboard-card">
-                <span>💰</span>
-
-                <strong id="faturamento-hoje"> R$ 0,00 </strong>
-
-                <p>Faturamento hoje</p>
-              </article>
-
-              <article class="dashboard-card">
-                <span>⭐</span>
-
-                <strong id="avaliacao-media">0,0</strong>
-
-                <p>Avaliação média</p>
-              </article>
-
-              <article class="dashboard-card">
-                <span>🔔</span>
-
-                <strong id="total-notificacoes">0</strong>
-
-                <p>Notificações</p>
-              </article>
-            </div>
-
-            <div class="dashboard-secao">
-              <h2>Próximos agendamentos</h2>
-
-              <div id="lista-proximos-agendamentos" class="lista-itens"></div>
-            </div>
-
-            <div class="dashboard-secao">
-              <h2>Ações rápidas</h2>
-
-              <div class="relatorios-tipos">
+              <div class="dashboard-cabecalho-acoes">
                 <button
                   type="button"
-                  class="btn-relatorio"
-                  onclick="mudarAba('clientes')"
+                  class="btn-principal"
+                  onclick="mudarAba('agendamentos')"
                 >
-                  📝 Cadastrar cliente
-                </button>
-
-                <button
-                  type="button"
-                  class="btn-relatorio"
-                  onclick="mudarAba('produtos')"
-                >
-                  🛍️ Ver produtos
-                </button>
-
-                <button
-                  type="button"
-                  class="btn-relatorio"
-                  onclick="mudarAba('avaliacoes')"
-                >
-                  ⭐ Ver avaliações
+                  + Novo agendamento
                 </button>
               </div>
             </div>
 
-            <div class="dashboard-secao">
-              <h2>🔔 Notificações</h2>
+            <!-- ==================================================
+                 CARDS PRINCIPAIS
+                 ================================================== -->
 
-              <div id="lista-notificacoes" class="lista-itens"></div>
-            </div>
-
-            <div class="dashboard-secao">
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  gap: 12px;
-                  flex-wrap: wrap;
+            <div class="dashboard-cards dashboard-cards--principal">
+              <article
+                class="dashboard-card dashboard-card--clicavel"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('agendamentos')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('agendamentos');
+                  }
                 "
               >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">📅</div>
+                  <span class="dashboard-card-tag">Hoje</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="total-agendamentos-hoje">0</strong>
+                  <p>Agendamentos hoje</p>
+                  <small>Veja a agenda do dia</small>
+                </div>
+              </article>
+
+              <article
+                class="dashboard-card dashboard-card--clicavel"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('clientes')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('clientes');
+                  }
+                "
+              >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">👥</div>
+                  <span class="dashboard-card-tag">Base</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="total-clientes">0</strong>
+                  <p>Clientes</p>
+                  <small>Clientes cadastrados</small>
+                </div>
+              </article>
+
+              <article
+                class="dashboard-card dashboard-card--clicavel"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('profissionais')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('profissionais');
+                  }
+                "
+              >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">💈</div>
+                  <span class="dashboard-card-tag">Equipe</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="total-profissionais">0</strong>
+                  <p>Profissionais</p>
+                  <small>Equipe cadastrada</small>
+                </div>
+              </article>
+
+              <article
+                class="dashboard-card dashboard-card--clicavel"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('produtos')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('produtos');
+                  }
+                "
+              >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">🛍️</div>
+                  <span class="dashboard-card-tag">Estoque</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="total-produtos-dashboard">0</strong>
+                  <p>Produtos</p>
+                  <small>Itens cadastrados</small>
+                </div>
+              </article>
+
+              <article
+                class="dashboard-card dashboard-card--clicavel dashboard-card--destaque"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('pedidos')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('pedidos');
+                  }
+                "
+              >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">🧾</div>
+                  <span class="dashboard-card-tag dashboard-card-tag--alerta">
+                    Atenção
+                  </span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="total-pedidos-pendentes-dashboard">0</strong>
+                  <p>Pedidos pendentes</p>
+                  <small>Aguardando confirmação</small>
+                </div>
+              </article>
+
+              <article
+                class="dashboard-card dashboard-card--clicavel dashboard-card--financeiro"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('financeiro')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('financeiro');
+                  }
+                "
+              >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">💰</div>
+                  <span class="dashboard-card-tag">Hoje</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="faturamento-hoje">R$ 0,00</strong>
+                  <p>Faturamento hoje</p>
+                  <small>Serviços + produtos</small>
+                </div>
+              </article>
+
+              <article
+                class="dashboard-card dashboard-card--clicavel"
+                role="button"
+                tabindex="0"
+                onclick="mudarAba('avaliacoes')"
+                onkeydown="
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    mudarAba('avaliacoes');
+                  }
+                "
+              >
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">⭐</div>
+                  <span class="dashboard-card-tag">Clientes</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="avaliacao-media">0,0</strong>
+                  <p>Avaliação média</p>
+                  <small>Satisfação dos clientes</small>
+                </div>
+              </article>
+
+              <article class="dashboard-card">
+                <div class="dashboard-card-topo">
+                  <div class="dashboard-card-icone">🔔</div>
+                  <span class="dashboard-card-tag">Novidades</span>
+                </div>
+
+                <div class="dashboard-card-conteudo">
+                  <strong id="total-notificacoes">0</strong>
+                  <p>Notificações</p>
+                  <small>Avisos não lidos</small>
+                </div>
+              </article>
+            </div>
+
+            <!-- ==================================================
+                 PRÓXIMOS AGENDAMENTOS
+                 ================================================== -->
+
+            <section class="dashboard-secao dashboard-secao--principal">
+              <div class="dashboard-secao-cabecalho">
                 <div>
+                  <span class="dashboard-secao-eyebrow">AGENDA</span>
+                  <h2>📅 Próximos agendamentos</h2>
+                  <p>Acompanhe os próximos clientes que serão atendidos.</p>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-relatorio"
+                  onclick="mudarAba('agendamentos')"
+                >
+                  Ver agenda completa
+                </button>
+              </div>
+
+              <div id="lista-proximos-agendamentos" class="lista-itens"></div>
+            </section>
+
+            <!-- ==================================================
+                 AÇÕES RÁPIDAS
+                 ================================================== -->
+
+            <section class="dashboard-secao">
+              <div class="dashboard-secao-cabecalho">
+                <div>
+                  <span class="dashboard-secao-eyebrow">ATALHOS</span>
+                  <h2>⚡ Ações rápidas</h2>
+                  <p>Acesse as tarefas mais usadas no dia a dia.</p>
+                </div>
+              </div>
+
+              <div class="dashboard-acoes-rapidas">
+                <button
+                  type="button"
+                  class="dashboard-acao-card"
+                  onclick="mudarAba('agendamentos')"
+                >
+                  <span class="dashboard-acao-icone">📅</span>
+                  <span>
+                    <strong>Novo agendamento</strong>
+                    <small>Cadastre um horário</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="dashboard-acao-card"
+                  onclick="mudarAba('clientes')"
+                >
+                  <span class="dashboard-acao-icone">👤</span>
+                  <span>
+                    <strong>Novo cliente</strong>
+                    <small>Cadastre um cliente</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="dashboard-acao-card"
+                  onclick="mudarAba('produtos')"
+                >
+                  <span class="dashboard-acao-icone">🛍️</span>
+                  <span>
+                    <strong>Novo produto</strong>
+                    <small>Gerencie seu estoque</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="dashboard-acao-card"
+                  onclick="mudarAba('pedidos')"
+                >
+                  <span class="dashboard-acao-icone">🧾</span>
+                  <span>
+                    <strong>Ver pedidos</strong>
+                    <small>Confirme novas vendas</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="dashboard-acao-card"
+                  onclick="mudarAba('financeiro')"
+                >
+                  <span class="dashboard-acao-icone">💰</span>
+                  <span>
+                    <strong>Financeiro</strong>
+                    <small>Entradas, gastos e lucro</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="dashboard-acao-card"
+                  onclick="mudarAba('avaliacoes')"
+                >
+                  <span class="dashboard-acao-icone">⭐</span>
+                  <span>
+                    <strong>Avaliações</strong>
+                    <small>Veja o feedback dos clientes</small>
+                  </span>
+                </button>
+              </div>
+            </section>
+
+            <!-- ==================================================
+                 NOTIFICAÇÕES
+                 ================================================== -->
+
+            <section class="dashboard-secao">
+              <div class="dashboard-secao-cabecalho">
+                <div>
+                  <span class="dashboard-secao-eyebrow">CENTRAL DE AVISOS</span>
+                  <h2>🔔 Notificações recentes</h2>
+                </div>
+              </div>
+
+              <div id="lista-notificacoes" class="lista-itens"></div>
+            </section>
+
+            <!-- ==================================================
+                 COMENTÁRIOS
+                 ================================================== -->
+
+            <section class="dashboard-secao">
+              <div class="dashboard-secao-cabecalho">
+                <div>
+                  <span class="dashboard-secao-eyebrow">
+                    EXPERIÊNCIA DO CLIENTE
+                  </span>
+
                   <h2>💬 Comentários recentes</h2>
+
                   <p>
                     Veja o que os clientes estão falando sobre sua barbearia.
                   </p>
@@ -556,12 +801,20 @@
               </div>
 
               <div id="lista-comentarios-dashboard" class="lista-itens"></div>
-            </div>
+            </section>
 
-            <div class="dashboard-secao">
-              <h2>Relatórios</h2>
+            <!-- ==================================================
+                 RELATÓRIOS
+                 ================================================== -->
 
-              <p>Gere relatórios da sua barbearia por período.</p>
+            <section class="dashboard-secao">
+              <div class="dashboard-secao-cabecalho">
+                <div>
+                  <span class="dashboard-secao-eyebrow">ANÁLISE</span>
+                  <h2>📊 Relatórios</h2>
+                  <p>Analise o desempenho da barbearia por período.</p>
+                </div>
+              </div>
 
               <div class="relatorios-tipos">
                 <button
@@ -569,7 +822,7 @@
                   class="btn-relatorio btn-relatorio--ativo"
                   data-relatorio="geral"
                 >
-                  📊 Relatório geral
+                  📊 Geral
                 </button>
 
                 <button
@@ -577,7 +830,7 @@
                   class="btn-relatorio"
                   data-relatorio="financeiro"
                 >
-                  💰 Relatório financeiro
+                  💰 Financeiro
                 </button>
 
                 <button
@@ -585,7 +838,7 @@
                   class="btn-relatorio"
                   data-relatorio="servicos"
                 >
-                  ✂️ Relatório de serviços
+                  ✂️ Serviços
                 </button>
 
                 <button
@@ -593,7 +846,7 @@
                   class="btn-relatorio"
                   data-relatorio="produtos"
                 >
-                  🛍️ Relatório de produtos
+                  🛍️ Produtos
                 </button>
 
                 <button
@@ -601,7 +854,7 @@
                   class="btn-relatorio"
                   data-relatorio="clientes"
                 >
-                  👥 Relatório de clientes
+                  👥 Clientes
                 </button>
 
                 <button
@@ -609,7 +862,7 @@
                   class="btn-relatorio"
                   data-relatorio="profissionais"
                 >
-                  💈 Relatório de profissionais
+                  💈 Profissionais
                 </button>
 
                 <button
@@ -617,20 +870,18 @@
                   class="btn-relatorio"
                   data-relatorio="agendamentos"
                 >
-                  📅 Relatório de agendamentos
+                  📅 Agendamentos
                 </button>
               </div>
 
               <div class="relatorio-periodo">
                 <div class="campo">
-                  <label for="relatorio-data-inicial"> Data inicial </label>
-
+                  <label for="relatorio-data-inicial">Data inicial</label>
                   <input type="date" id="relatorio-data-inicial" />
                 </div>
 
                 <div class="campo">
-                  <label for="relatorio-data-final"> Data final </label>
-
+                  <label for="relatorio-data-final">Data final</label>
                   <input type="date" id="relatorio-data-final" />
                 </div>
 
@@ -650,7 +901,7 @@
                   📱 Enviar pelo WhatsApp
                 </button>
               </div>
-            </div>
+            </section>
           </section>
 
           <!-- ==================================================
@@ -835,6 +1086,7 @@
           <section id="conteudo-pedidos" class="painel-conteudo" hidden>
             <div class="conteudo-titulo">
               <h1>Pedidos</h1>
+
               <p>Gerencie as compras de produtos realizadas pelos clientes.</p>
             </div>
 
@@ -866,6 +1118,14 @@
               <button
                 type="button"
                 class="filtro-pedido"
+                data-filtro-pedido="concluido"
+              >
+                Concluídos
+              </button>
+
+              <button
+                type="button"
+                class="filtro-pedido"
                 data-filtro-pedido="cancelado"
               >
                 Cancelados
@@ -880,7 +1140,6 @@
 
             <div id="lista-pedidos" class="lista-itens"></div>
           </section>
-
           <!-- ==================================================
                AGENDAMENTOS
                ================================================== -->

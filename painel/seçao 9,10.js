@@ -1,15 +1,25 @@
 // 9. PROFISSIONAIS
 
 const formBarbeiro = document.getElementById("form-barbeiro");
+
 const listaProfissionaisEl = document.getElementById("lista-profissionais");
+
 const btnSalvarBarbeiro = document.getElementById("btn-salvar-barbeiro");
+
 const btnCancelarBarbeiro = document.getElementById("btn-cancelar-barbeiro");
+
 const inputFotoBarbeiro = document.getElementById("barbeiro-foto");
+
 const previewBarbeiro = document.getElementById("preview-barbeiro");
+
 const previewBarbeiroImg = document.getElementById("preview-barbeiro-img");
+
 const campoBarbeiroId = document.getElementById("barbeiro-id");
+
 const campoBarbeiroNome = document.getElementById("barbeiro-nome");
+
 const campoBarbeiroTelefone = document.getElementById("barbeiro-tel");
+
 const campoBarbeiroFotoAtual = document.getElementById("barbeiro-foto-atual");
 
 let previewBarbeiroObjectUrl = null;
@@ -32,14 +42,14 @@ async function carregarProfissionais() {
       .from("profissionais")
       .select(
         `
-          id,
-          barbearia_id,
-          nome,
-          telefone,
-          foto_url,
-          ativo,
-          created_at
-        `,
+            id,
+            barbearia_id,
+            nome,
+            telefone,
+            foto_url,
+            ativo,
+            created_at
+          `,
       )
       .eq("barbearia_id", lojaId)
       .order("created_at", {
@@ -50,9 +60,10 @@ async function carregarProfissionais() {
       throw error;
     }
 
-    profissionaisCache = data || [];
+    profissionaisCache = Array.isArray(data) ? data : [];
 
     renderizarProfissionais(profissionaisCache);
+
     atualizarCardProfissionais();
 
     return true;
@@ -82,7 +93,11 @@ function atualizarCardProfissionais() {
     return;
   }
 
-  elemento.textContent = profissionaisCache.length;
+  const total = Array.isArray(profissionaisCache)
+    ? profissionaisCache.length
+    : 0;
+
+  elemento.textContent = String(total);
 }
 
 // RENDERIZAR PROFISSIONAIS
@@ -108,9 +123,14 @@ function renderizarProfissionais(profissionais) {
 
   lista.forEach((profissional) => {
     const item = document.createElement("div");
+
     item.classList.add("item-lista");
-    const nome = profissional.nome || "Profissional";
-    const telefone = profissional.telefone || "Telefone não informado";
+
+    const nome = profissional.nome?.trim() || "Profissional";
+
+    const telefone = profissional.telefone?.trim() || "Telefone não informado";
+
+    const estaAtivo = profissional.ativo !== false;
 
     item.innerHTML = `
         <div class="item-info item-info--com-foto">
@@ -122,12 +142,14 @@ function renderizarProfissionais(profissionais) {
                   src="${escaparHtml(profissional.foto_url)}"
                   alt="${escaparHtml(nome)}"
                   class="produto-thumb"
+                  loading="lazy"
                   onerror="this.style.display='none'"
                 >
               `
               : `
                 <div
                   class="produto-thumb produto-thumb--vazia"
+                  aria-hidden="true"
                 >
                   💈
                 </div>
@@ -144,15 +166,9 @@ function renderizarProfissionais(profissionais) {
               ${escaparHtml(telefone)}
             </p>
 
-            ${
-              profissional.ativo === false
-                ? `
-                  <p>
-                    Profissional inativo
-                  </p>
-                `
-                : ""
-            }
+            <p>
+              ${estaAtivo ? "🟢 Ativo" : "🔴 Inativo"}
+            </p>
 
           </div>
 
@@ -163,6 +179,7 @@ function renderizarProfissionais(profissionais) {
           <button
             type="button"
             title="Editar profissional"
+            aria-label="Editar profissional"
             onclick="editarBarbeiro('${escaparHtml(profissional.id)}')"
           >
             ✏️
@@ -171,6 +188,7 @@ function renderizarProfissionais(profissionais) {
           <button
             type="button"
             title="Excluir profissional"
+            aria-label="Excluir profissional"
             onclick="excluirBarbeiro('${escaparHtml(profissional.id)}')"
           >
             🗑️
@@ -195,6 +213,28 @@ function limparPreviewBarbeiroObjectUrl() {
   previewBarbeiroObjectUrl = null;
 }
 
+function restaurarPreviewBarbeiroAtual() {
+  const fotoAtual = campoBarbeiroFotoAtual?.value?.trim() || "";
+
+  if (fotoAtual && previewBarbeiroImg) {
+    previewBarbeiroImg.src = fotoAtual;
+
+    if (previewBarbeiro) {
+      previewBarbeiro.hidden = false;
+    }
+
+    return;
+  }
+
+  if (previewBarbeiroImg) {
+    previewBarbeiroImg.src = "";
+  }
+
+  if (previewBarbeiro) {
+    previewBarbeiro.hidden = true;
+  }
+}
+
 if (inputFotoBarbeiro) {
   inputFotoBarbeiro.addEventListener("change", () => {
     limparPreviewBarbeiroObjectUrl();
@@ -202,21 +242,7 @@ if (inputFotoBarbeiro) {
     const arquivo = inputFotoBarbeiro.files?.[0];
 
     if (!arquivo) {
-      if (campoBarbeiroFotoAtual?.value && previewBarbeiroImg) {
-        previewBarbeiroImg.src = campoBarbeiroFotoAtual.value;
-
-        if (previewBarbeiro) {
-          previewBarbeiro.hidden = false;
-        }
-      } else {
-        if (previewBarbeiroImg) {
-          previewBarbeiroImg.src = "";
-        }
-
-        if (previewBarbeiro) {
-          previewBarbeiro.hidden = true;
-        }
-      }
+      restaurarPreviewBarbeiroAtual();
 
       return;
     }
@@ -232,6 +258,8 @@ if (inputFotoBarbeiro) {
 
       inputFotoBarbeiro.value = "";
 
+      restaurarPreviewBarbeiroAtual();
+
       return;
     }
 
@@ -243,6 +271,8 @@ if (inputFotoBarbeiro) {
       );
 
       inputFotoBarbeiro.value = "";
+
+      restaurarPreviewBarbeiroAtual();
 
       return;
     }
@@ -266,9 +296,13 @@ if (formBarbeiro) {
     event.preventDefault();
 
     const id = campoBarbeiroId?.value?.trim() || "";
+
     const nome = campoBarbeiroNome?.value?.trim() || "";
+
     const telefone = campoBarbeiroTelefone?.value?.trim() || "";
+
     const arquivoFoto = inputFotoBarbeiro?.files?.[0];
+
     const fotoAtual = campoBarbeiroFotoAtual?.value?.trim() || "";
 
     if (!nome) {
@@ -330,6 +364,8 @@ if (formBarbeiro) {
         const { error } = await supabaseClient.from("profissionais").insert({
           barbearia_id: lojaId,
 
+          ativo: true,
+
           ...dadosProfissional,
         });
 
@@ -386,6 +422,10 @@ if (formBarbeiro) {
 // EDITAR PROFISSIONAL
 
 function editarBarbeiro(id) {
+  if (!id) {
+    return;
+  }
+
   const profissional = profissionaisCache.find(
     (item) => String(item.id) === String(id),
   );
@@ -422,21 +462,7 @@ function editarBarbeiro(id) {
     inputFotoBarbeiro.value = "";
   }
 
-  if (profissional.foto_url && previewBarbeiroImg) {
-    previewBarbeiroImg.src = profissional.foto_url;
-
-    if (previewBarbeiro) {
-      previewBarbeiro.hidden = false;
-    }
-  } else {
-    if (previewBarbeiroImg) {
-      previewBarbeiroImg.src = "";
-    }
-
-    if (previewBarbeiro) {
-      previewBarbeiro.hidden = true;
-    }
-  }
+  restaurarPreviewBarbeiroAtual();
 
   if (btnSalvarBarbeiro) {
     btnSalvarBarbeiro.textContent = "Salvar edição";
@@ -473,12 +499,16 @@ function cancelarEdicaoBarbeiro() {
     campoBarbeiroFotoAtual.value = "";
   }
 
-  if (previewBarbeiro) {
-    previewBarbeiro.hidden = true;
+  if (inputFotoBarbeiro) {
+    inputFotoBarbeiro.value = "";
   }
 
   if (previewBarbeiroImg) {
     previewBarbeiroImg.src = "";
+  }
+
+  if (previewBarbeiro) {
+    previewBarbeiro.hidden = true;
   }
 
   if (btnSalvarBarbeiro) {
@@ -517,9 +547,9 @@ async function excluirBarbeiro(id) {
     return;
   }
 
-  const confirmou = confirm(
-    `Deseja realmente remover "${profissional.nome || "este profissional"}"?`,
-  );
+  const nome = profissional.nome?.trim() || "este profissional";
+
+  const confirmou = confirm(`Deseja realmente remover "${nome}"?`);
 
   if (!confirmou) {
     return;
@@ -533,8 +563,6 @@ async function excluirBarbeiro(id) {
       .eq("barbearia_id", lojaId);
 
     if (error) {
-      console.error("Erro ao excluir profissional:", error);
-
       if (error.code === "23503") {
         mostrarMensagem(
           "mensagem-barbeiro",
@@ -568,7 +596,7 @@ async function excluirBarbeiro(id) {
       "sucesso",
     );
   } catch (erro) {
-    console.error("Erro inesperado ao excluir profissional:", erro);
+    console.error("Erro ao excluir profissional:", erro);
 
     mostrarMensagem(
       "mensagem-barbeiro",
@@ -577,6 +605,7 @@ async function excluirBarbeiro(id) {
     );
   }
 }
+
 // 10. DASHBOARD / VISÃO GERAL
 
 async function carregarDashboard() {
@@ -584,11 +613,13 @@ async function carregarDashboard() {
     return false;
   }
 
-  const hoje = obterInicioDoDia();
+  const inicioHoje = obterInicioDoDia();
 
   const fimHoje = obterFimDoDia();
 
-  if (!hoje || !fimHoje) {
+  if (!inicioHoje || !fimHoje) {
+    console.error("Não foi possível identificar o período de hoje.");
+
     return false;
   }
 
@@ -600,83 +631,96 @@ async function carregarDashboard() {
       respostaProximosAgendamentos,
       respostaClientes,
       respostaProfissionais,
+      respostaProdutos,
+      respostaPedidosPendentes,
+      respostaPedidosHoje,
     ] = await Promise.all([
+      // AGENDAMENTOS DE HOJE
+
       supabaseClient
         .from("agendamentos")
         .select(
           `
-          id,
-          cliente_id,
-          servico_id,
-          profissional_id,
-          data_hora,
-          status,
-          cliente_nome,
-          cliente_telefone,
+              id,
+              cliente_id,
+              servico_id,
+              profissional_id,
+              data_hora,
+              status,
+              arquivado,
+              cliente_nome,
+              cliente_telefone,
 
-          clientes:cliente_id (
-            id,
-            nome,
-            telefone
-          ),
+              clientes:cliente_id (
+                id,
+                nome,
+                telefone
+              ),
 
-          servicos:servico_id (
-            id,
-            nome,
-            preco
-          ),
+              servicos:servico_id (
+                id,
+                nome,
+                preco
+              ),
 
-          profissionais:profissional_id (
-            id,
-            nome
-          )
-        `,
+              profissionais:profissional_id (
+                id,
+                nome
+              )
+            `,
         )
         .eq("barbearia_id", lojaId)
-        .gte("data_hora", hoje.toISOString())
+        .gte("data_hora", inicioHoje.toISOString())
         .lte("data_hora", fimHoje.toISOString())
         .order("data_hora", {
           ascending: true,
         }),
 
+      // PRÓXIMOS AGENDAMENTOS
+
       supabaseClient
         .from("agendamentos")
         .select(
           `
-          id,
-          cliente_id,
-          servico_id,
-          profissional_id,
-          data_hora,
-          status,
-          cliente_nome,
-          cliente_telefone,
+              id,
+              cliente_id,
+              servico_id,
+              profissional_id,
+              data_hora,
+              status,
+              arquivado,
+              cliente_nome,
+              cliente_telefone,
 
-          clientes:cliente_id (
-            id,
-            nome,
-            telefone
-          ),
+              clientes:cliente_id (
+                id,
+                nome,
+                telefone
+              ),
 
-          servicos:servico_id (
-            id,
-            nome,
-            preco
-          ),
+              servicos:servico_id (
+                id,
+                nome,
+                preco
+              ),
 
-          profissionais:profissional_id (
-            id,
-            nome
-          )
-        `,
+              profissionais:profissional_id (
+                id,
+                nome
+              )
+            `,
         )
         .eq("barbearia_id", lojaId)
+        .eq("arquivado", false)
         .gte("data_hora", agora.toISOString())
         .neq("status", "cancelado")
+        .neq("status", "concluido")
         .order("data_hora", {
           ascending: true,
         })
         .limit(5),
+
+      // TOTAL DE CLIENTES
 
       supabaseClient
         .from("clientes_barbearias")
@@ -686,6 +730,8 @@ async function carregarDashboard() {
         })
         .eq("barbearia_id", lojaId),
 
+      // TOTAL DE PROFISSIONAIS
+
       supabaseClient
         .from("profissionais")
         .select("id", {
@@ -693,6 +739,48 @@ async function carregarDashboard() {
           head: true,
         })
         .eq("barbearia_id", lojaId),
+
+      // TOTAL DE PRODUTOS
+
+      supabaseClient
+        .from("produtos")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .eq("barbearia_id", lojaId),
+
+      // PEDIDOS PENDENTES
+
+      supabaseClient
+        .from("pedidos")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .eq("barbearia_id", lojaId)
+        .eq("status", "pendente")
+        .eq("arquivado", false),
+
+      // VENDAS DE PRODUTOS CONFIRMADAS HOJE
+
+      supabaseClient
+        .from("pedidos")
+        .select(
+          `
+              id,
+              quantidade,
+              preco_unitario,
+              status,
+              confirmado_at,
+              concluido_at,
+              arquivado
+            `,
+        )
+        .eq("barbearia_id", lojaId)
+        .in("status", ["confirmado", "concluido"])
+        .gte("confirmado_at", inicioHoje.toISOString())
+        .lte("confirmado_at", fimHoje.toISOString()),
     ]);
 
     if (respostaAgendamentosHoje.error) {
@@ -711,18 +799,63 @@ async function carregarDashboard() {
       throw respostaProfissionais.error;
     }
 
+    if (respostaProdutos.error) {
+      throw respostaProdutos.error;
+    }
+
+    if (respostaPedidosPendentes.error) {
+      throw respostaPedidosPendentes.error;
+    }
+
+    if (respostaPedidosHoje.error) {
+      throw respostaPedidosHoje.error;
+    }
+
     const agendamentosHoje = respostaAgendamentosHoje.data || [];
+
     const proximosAgendamentos = respostaProximosAgendamentos.data || [];
+
+    const pedidosHoje = respostaPedidosHoje.data || [];
+
     const totalClientes = respostaClientes.count || 0;
+
     const totalProfissionais = respostaProfissionais.count || 0;
 
-    const faturamentoHoje = agendamentosHoje
+    const totalProdutos = respostaProdutos.count || 0;
+
+    const totalPedidosPendentes = respostaPedidosPendentes.count || 0;
+
+    // FATURAMENTO DOS SERVIÇOS
+
+    const faturamentoServicosHoje = agendamentosHoje
       .filter((agendamento) => agendamento.status === "concluido")
       .reduce((total, agendamento) => {
-        const preco = Number(agendamento.servicos?.preco) || 0;
+        const preco = Number(agendamento.servicos?.preco);
 
-        return total + preco;
+        const precoSeguro = Number.isFinite(preco) ? preco : 0;
+
+        return total + precoSeguro;
       }, 0);
+
+    // FATURAMENTO DOS PRODUTOS
+
+    const faturamentoProdutosHoje = pedidosHoje.reduce((total, pedido) => {
+      const quantidade = Number(pedido.quantidade);
+
+      const precoUnitario = Number(pedido.preco_unitario);
+
+      const quantidadeSegura =
+        Number.isFinite(quantidade) && quantidade > 0 ? quantidade : 0;
+
+      const precoSeguro =
+        Number.isFinite(precoUnitario) && precoUnitario >= 0
+          ? precoUnitario
+          : 0;
+
+      return total + quantidadeSegura * precoSeguro;
+    }, 0);
+
+    const faturamentoHoje = faturamentoServicosHoje + faturamentoProdutosHoje;
 
     atualizarCardsDashboard({
       totalAgendamentos: agendamentosHoje.length,
@@ -731,25 +864,60 @@ async function carregarDashboard() {
 
       totalProfissionais,
 
+      totalProdutos,
+
+      totalPedidosPendentes,
+
       faturamentoHoje,
     });
 
     renderizarProximosAgendamentos(proximosAgendamentos);
 
+    console.log("BarberHub — Dashboard:", {
+      agendamentosHoje: agendamentosHoje.length,
+
+      totalClientes,
+
+      totalProfissionais,
+
+      totalProdutos,
+
+      totalPedidosPendentes,
+
+      faturamentoServicosHoje,
+
+      faturamentoProdutosHoje,
+
+      faturamentoHoje,
+
+      vendasProdutosHoje: pedidosHoje.length,
+    });
+
     return true;
   } catch (erro) {
     console.error("Erro ao carregar dashboard:", erro);
+
+    atualizarCardsDashboard({
+      totalAgendamentos: 0,
+      totalClientes: 0,
+      totalProfissionais: 0,
+      totalProdutos: 0,
+      totalPedidosPendentes: 0,
+      faturamentoHoje: 0,
+    });
 
     return false;
   }
 }
 
-// ATUALIZAR CARDS
+// 10.1 — ATUALIZAR CARDS
 
 function atualizarCardsDashboard({
   totalAgendamentos = 0,
   totalClientes = 0,
   totalProfissionais = 0,
+  totalProdutos = 0,
+  totalPedidosPendentes = 0,
   faturamentoHoje = 0,
 } = {}) {
   const elementoAgendamentos = document.getElementById(
@@ -757,7 +925,15 @@ function atualizarCardsDashboard({
   );
 
   const elementoClientes = document.getElementById("total-clientes");
+
   const elementoProfissionais = document.getElementById("total-profissionais");
+
+  const elementoProdutos = document.getElementById("total-produtos-dashboard");
+
+  const elementoPedidosPendentes = document.getElementById(
+    "total-pedidos-pendentes-dashboard",
+  );
+
   const elementoFaturamento = document.getElementById("faturamento-hoje");
 
   if (elementoAgendamentos) {
@@ -772,12 +948,20 @@ function atualizarCardsDashboard({
     elementoProfissionais.textContent = String(totalProfissionais);
   }
 
+  if (elementoProdutos) {
+    elementoProdutos.textContent = String(totalProdutos);
+  }
+
+  if (elementoPedidosPendentes) {
+    elementoPedidosPendentes.textContent = String(totalPedidosPendentes);
+  }
+
   if (elementoFaturamento) {
     elementoFaturamento.textContent = formatarMoeda(faturamentoHoje);
   }
 }
 
-// RENDERIZAR PRÓXIMOS AGENDAMENTOS
+// 10.2 — RENDERIZAR PRÓXIMOS AGENDAMENTOS
 
 function renderizarProximosAgendamentos(agendamentos) {
   const elemento = document.getElementById("lista-proximos-agendamentos");
@@ -813,10 +997,14 @@ function renderizarProximosAgendamentos(agendamentos) {
 
     const nomeCliente =
       agendamento.clientes?.nome || agendamento.cliente_nome || "Cliente";
+
     const telefoneCliente =
       agendamento.clientes?.telefone || agendamento.cliente_telefone || "";
+
     const nomeServico = agendamento.servicos?.nome || "Serviço";
+
     const nomeProfissional = agendamento.profissionais?.nome || "";
+
     const status = STATUS_LABEL[agendamento.status]
       ? agendamento.status
       : "pendente";

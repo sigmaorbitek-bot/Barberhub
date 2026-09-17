@@ -878,18 +878,78 @@ button:disabled {
 }
 
 /* ==================================================================
-   10. DASHBOARD (CARDS E SEÇÕES)
+   10. DASHBOARD (CARDS, RESUMOS E AÇÕES RÁPIDAS)
    ================================================================== */
+
+/* ------------------------------------------------------------------
+   10.1 Cabeçalho da visão geral
+   ------------------------------------------------------------------ */
+
+.dashboard-cabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+
+  margin-bottom: 28px;
+}
+
+.dashboard-cabecalho h1 {
+  margin: 6px 0 8px;
+
+  color: var(--white);
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.15;
+}
+
+.dashboard-cabecalho p {
+  max-width: 680px;
+
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.dashboard-cabecalho-acoes {
+  flex-shrink: 0;
+}
+
+.dashboard-eyebrow,
+.dashboard-secao-eyebrow {
+  display: inline-block;
+
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------
+   10.2 Grade de cards
+   ------------------------------------------------------------------ */
 
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
+
   margin-bottom: 28px;
 }
 
+.dashboard-cards--principal {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+/* ------------------------------------------------------------------
+   10.3 Card principal
+   ------------------------------------------------------------------ */
+
 .dashboard-card {
-  min-height: 140px;
+  position: relative;
+
+  min-width: 0;
+  min-height: 160px;
 
   display: flex;
   flex-direction: column;
@@ -897,44 +957,388 @@ button:disabled {
 
   padding: 20px;
 
-  background: linear-gradient(145deg, #1c1c1c, #151515);
+  overflow: hidden;
+
+  background: linear-gradient(145deg, #1c1c1c 0%, #151515 100%);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
 
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+
   transition:
+    transform var(--transition-fast),
     border-color var(--transition-fast),
-    transform var(--transition-fast);
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.dashboard-card::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 175, 55, 0.9),
+    transparent
+  );
+
+  opacity: 0;
+
+  transition: opacity var(--transition-fast);
 }
 
 .dashboard-card:hover {
   border-color: var(--border-light);
-  transform: translateY(-2px);
 }
+
+/* Cards clicáveis */
+
+.dashboard-card--clicavel {
+  cursor: pointer;
+  outline: none;
+}
+
+.dashboard-card--clicavel:hover,
+.dashboard-card--clicavel:focus-visible {
+  transform: translateY(-4px);
+
+  border-color: rgba(212, 175, 55, 0.48);
+
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card--clicavel:hover::before,
+.dashboard-card--clicavel:focus-visible::before {
+  opacity: 1;
+}
+
+/* Destaques */
+
+.dashboard-card--destaque {
+  background: linear-gradient(145deg, rgba(212, 175, 55, 0.1) 0%, #171717 72%);
+}
+
+.dashboard-card--financeiro {
+  background: linear-gradient(145deg, rgba(41, 163, 92, 0.11) 0%, #171717 72%);
+}
+
+/* ------------------------------------------------------------------
+   10.4 Topo do card
+   ------------------------------------------------------------------ */
+
+.dashboard-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 18px;
+}
+
+.dashboard-card-icone {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.045);
+
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.dashboard-card-tag {
+  max-width: 100%;
+
+  padding: 5px 9px;
+
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 999px;
+
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold);
+
+  font-size: 0.64rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dashboard-card-tag--alerta {
+  border-color: rgba(243, 203, 99, 0.22);
+
+  background: rgba(255, 193, 7, 0.1);
+  color: #f3cb63;
+}
+
+/* ------------------------------------------------------------------
+   10.5 Conteúdo do card
+   ------------------------------------------------------------------ */
+
+.dashboard-card-conteudo {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard-card-conteudo strong,
+.dashboard-card > strong {
+  color: var(--white);
+
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  font-weight: 800;
+  line-height: 1.1;
+
+  overflow-wrap: anywhere;
+}
+
+.dashboard-card-conteudo p,
+.dashboard-card > p {
+  margin: 0;
+
+  color: var(--text-primary);
+
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.dashboard-card-conteudo small {
+  margin-top: 1px;
+
+  color: var(--text-muted);
+
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+/* Compatibilidade com os cards antigos de outras abas */
 
 .dashboard-card > span {
   margin-bottom: 8px;
+
   font-size: 1.3rem;
 }
 
-.dashboard-card strong {
-  color: var(--white);
-  font-size: 1.45rem;
-  line-height: 1.2;
+.dashboard-card > p {
+  margin-top: 5px;
+
+  color: var(--text-secondary);
+  font-weight: 400;
 }
 
-.dashboard-card p {
-  margin-top: 5px;
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-}
+/* ------------------------------------------------------------------
+   10.6 Seções internas do dashboard
+   ------------------------------------------------------------------ */
 
 .dashboard-secao {
-  margin-top: 10px;
+  margin-top: 24px;
+  padding: 22px;
+
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
 }
 
-.dashboard-secao h2 {
+.dashboard-secao--principal {
+  margin-top: 30px;
+}
+
+.dashboard-secao-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-bottom: 18px;
+}
+
+.dashboard-secao-cabecalho h2 {
+  margin: 4px 0 5px;
+
+  color: var(--white);
+  font-size: 1.02rem;
+  line-height: 1.3;
+}
+
+.dashboard-secao-cabecalho p {
+  max-width: 620px;
+
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+/* Títulos antigos fora de dashboard-secao-cabecalho */
+
+.dashboard-secao > h2 {
   margin-bottom: 14px;
+
   font-size: 1rem;
+}
+
+/* ------------------------------------------------------------------
+   10.7 Ações rápidas
+   ------------------------------------------------------------------ */
+
+.dashboard-acoes-rapidas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.dashboard-acao-card {
+  width: 100%;
+  min-height: 74px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 14px;
+
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.dashboard-acao-card:hover,
+.dashboard-acao-card:focus-visible {
+  transform: translateY(-2px);
+
+  border-color: rgba(212, 175, 55, 0.42);
+
+  background: #191919;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-acao-icone {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: rgba(212, 175, 55, 0.08);
+
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.dashboard-acao-card > span:last-child {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dashboard-acao-card strong {
+  color: var(--text-primary);
+
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.dashboard-acao-card small {
+  color: var(--text-muted);
+
+  font-size: 0.69rem;
+  line-height: 1.35;
+}
+
+/* ------------------------------------------------------------------
+   10.8 Responsividade específica do dashboard
+   ------------------------------------------------------------------ */
+
+@media (max-width: 1024px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-cards--principal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-cabecalho {
+    align-items: stretch;
+    flex-direction: column;
+
+    gap: 16px;
+  }
+
+  .dashboard-cabecalho-acoes {
+    width: 100%;
+  }
+
+  .dashboard-cabecalho-acoes .btn-principal {
+    width: 100%;
+  }
+
+  .dashboard-secao {
+    padding: 18px;
+  }
+
+  .dashboard-secao-cabecalho {
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+  .dashboard-secao-cabecalho .btn-relatorio {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard-cards,
+  .dashboard-cards--principal {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card {
+    min-height: 145px;
+  }
+
+  .dashboard-acoes-rapidas {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ==================================================================

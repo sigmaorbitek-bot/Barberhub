@@ -52,16 +52,17 @@ async function carregarHorarios() {
         .from("profissionais")
         .select(
           `
-          id,
-          barbearia_id,
-          nome,
-          telefone,
-          foto_url,
-          ativo,
-          created_at
-        `,
+      id,
+      barbearia_id,
+      nome,
+      telefone,
+      foto_url,
+      ativo,
+      created_at
+    `,
         )
         .eq("barbearia_id", lojaId)
+        .eq("ativo", true)
         .order("nome", {
           ascending: true,
         }),
@@ -903,11 +904,24 @@ const listaComentariosEl = document.getElementById("lista-comentarios");
 const listaComentariosDashboardEl = document.getElementById(
   "lista-comentarios-dashboard",
 );
+const btnComentariosEl = document.getElementById("btn-comentarios");
+const btnComentariosMobileEl = document.getElementById(
+  "btn-comentarios-mobile",
+);
+const badgeComentariosEl = document.getElementById("badge-comentarios");
+const badgeComentariosMobileEl = document.getElementById(
+  "badge-comentarios-mobile",
+);
 
 // CARREGAR AVALIAÇÕES
 
 async function carregarAvaliacoes() {
   if (!lojaId) {
+    avaliacoesCache = [];
+    renderizarAvaliacoes([]);
+    renderizarComentariosDashboard([]);
+    atualizarBadgeComentarios();
+
     return false;
   }
 
@@ -916,20 +930,20 @@ async function carregarAvaliacoes() {
       .from("avaliacoes")
       .select(
         `
-          id,
-          barbearia_id,
-          cliente_id,
-          agendamento_id,
-          nota,
-          comentario,
-          created_at,
-
-          profiles:cliente_id (
             id,
-            nome,
-            telefone
-          )
-        `,
+            barbearia_id,
+            cliente_id,
+            agendamento_id,
+            nota,
+            comentario,
+            created_at,
+
+            profiles:cliente_id (
+              id,
+              nome,
+              telefone
+            )
+          `,
       )
       .eq("barbearia_id", lojaId)
       .order("created_at", {
@@ -940,18 +954,20 @@ async function carregarAvaliacoes() {
       throw error;
     }
 
-    avaliacoesCache = data || [];
+    avaliacoesCache = Array.isArray(data) ? data : [];
+
     renderizarAvaliacoes(avaliacoesCache);
     renderizarComentariosDashboard(avaliacoesCache);
+    atualizarBadgeComentarios();
 
     return true;
   } catch (erro) {
     console.error("Erro ao carregar avaliações:", erro);
 
     avaliacoesCache = [];
-
     renderizarAvaliacoes([]);
     renderizarComentariosDashboard([]);
+    atualizarBadgeComentarios();
 
     return false;
   }
@@ -961,10 +977,6 @@ async function carregarAvaliacoes() {
 
 function calcularMediaAvaliacoes(avaliacoes) {
   const lista = Array.isArray(avaliacoes) ? avaliacoes : [];
-
-  if (!lista.length) {
-    return 0;
-  }
 
   const notasValidas = lista
     .map((avaliacao) => Number(avaliacao.nota))
@@ -1016,12 +1028,21 @@ function formatarDataAvaliacao(data) {
   });
 }
 
+// OBTER NOME DO CLIENTE
+
+function obterNomeAvaliador(avaliacao) {
+  return avaliacao?.profiles?.nome?.trim() || "Cliente";
+}
+
 // ATUALIZAR RESUMO
 
 function atualizarResumoAvaliacoes() {
   const lista = Array.isArray(avaliacoesCache) ? avaliacoesCache : [];
   const media = calcularMediaAvaliacoes(lista);
-  const mediaFormatada = media.toFixed(1);
+  const mediaFormatada = media.toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
 
   if (avaliacaoMediaEl) {
     avaliacaoMediaEl.textContent = mediaFormatada;
@@ -1040,6 +1061,7 @@ function atualizarResumoAvaliacoes() {
 
 function renderizarAvaliacoes(avaliacoes) {
   const lista = Array.isArray(avaliacoes) ? avaliacoes : [];
+
   avaliacoesCache = lista;
 
   atualizarResumoAvaliacoes();
@@ -1053,9 +1075,11 @@ function renderizarAvaliacoes(avaliacoes) {
   if (!lista.length) {
     listaComentariosEl.innerHTML = `
       <div class="item-vazio">
+
         <p>
           ⭐ Ainda não existem avaliações.
         </p>
+
       </div>
     `;
 
@@ -1064,58 +1088,56 @@ function renderizarAvaliacoes(avaliacoes) {
 
   listaComentariosEl.innerHTML = lista
     .map((avaliacao) => {
-      const clienteNome = avaliacao.profiles?.nome || "Cliente";
-      const nota = Number(avaliacao.nota) || 0;
+      const notaBruta = Number(avaliacao.nota);
+      const nota = Number.isFinite(notaBruta)
+        ? Math.min(5, Math.max(1, notaBruta))
+        : 0;
       const comentario =
         avaliacao.comentario?.trim() || "Cliente não deixou comentário.";
       const dataFormatada = formatarDataAvaliacao(avaliacao.created_at);
 
       return `
+          <div
+            class="item-lista avaliacao-item"
+          >
+
             <div
-              class="item-lista avaliacao-item"
-            >
+  class="avaliacao-cabecalho"
+>
 
-              <div
-                class="avaliacao-cabecalho"
-              >
+  <div>
 
-                <div>
+    <div
+      class="avaliacao-estrelas"
+      aria-label="${escaparHtml(`${nota} de 5 estrelas`)}"
+    >
+      ${gerarEstrelas(nota)}
+    </div>
 
-                  <strong>
-                    ${escaparHtml(clienteNome)}
-                  </strong>
+  </div>
 
-                  <div
-                    class="avaliacao-estrelas"
-                    aria-label="${escaparHtml(`${nota} de 5 estrelas`)}"
-                  >
-                    ${gerarEstrelas(nota)}
-                  </div>
+  ${
+    dataFormatada
+      ? `
+        <span
+          class="avaliacao-data"
+        >
+          ${escaparHtml(dataFormatada)}
+        </span>
+      `
+      : ""
+  }
 
-                </div>
+</div>
 
-                ${
-                  dataFormatada
-                    ? `
-                      <span
-                        class="avaliacao-data"
-                      >
-                        ${escaparHtml(dataFormatada)}
-                      </span>
-                    `
-                    : ""
-                }
+<p
+  class="avaliacao-comentario"
+>
+  ${escaparHtml(comentario)}
+</p>
 
-              </div>
-
-              <p
-                class="avaliacao-comentario"
-              >
-                ${escaparHtml(comentario)}
-              </p>
-
-            </div>
-          `;
+          </div>
+        `;
     })
     .join("");
 }
@@ -1145,7 +1167,7 @@ function renderizarComentariosDashboard(avaliacoes) {
   }
 
   comentarios.forEach((avaliacao) => {
-    const clienteNome = avaliacao.profiles?.nome || "Cliente";
+    
     const comentario = avaliacao.comentario?.trim() || "";
     const nota = Number(avaliacao.nota) || 0;
     const dataFormatada = formatarDataAvaliacao(avaliacao.created_at);
@@ -1156,12 +1178,10 @@ function renderizarComentariosDashboard(avaliacoes) {
     item.innerHTML = `
         <div class="item-info">
 
-          <h3>
-            ${escaparHtml(clienteNome)}
-          </h3>
-
+        
           <div
             class="avaliacao-estrelas"
+            aria-label="${escaparHtml(`${nota} de 5 estrelas`)}"
           >
             ${gerarEstrelas(nota)}
           </div>
@@ -1187,20 +1207,12 @@ function renderizarComentariosDashboard(avaliacoes) {
   });
 }
 
-const btnComentariosEl = document.getElementById("btn-comentarios");
-
-const btnComentariosMobileEl = document.getElementById(
-  "btn-comentarios-mobile",
-);
-
-const badgeComentariosEl = document.getElementById("badge-comentarios");
-
-const badgeComentariosMobileEl = document.getElementById(
-  "badge-comentarios-mobile",
-);
+// BADGE DE COMENTÁRIOS
 
 function atualizarBadgeComentarios() {
-  const quantidade = avaliacoesCache.filter((avaliacao) =>
+  const lista = Array.isArray(avaliacoesCache) ? avaliacoesCache : [];
+
+  const quantidade = lista.filter((avaliacao) =>
     Boolean(avaliacao.comentario?.trim()),
   ).length;
 
@@ -1218,6 +1230,8 @@ function atualizarBadgeComentarios() {
     badgeComentariosMobileEl.hidden = quantidade === 0;
   }
 }
+
+// ABRIR COMENTÁRIOS
 
 function abrirComentarios() {
   mudarAba("visao-geral");

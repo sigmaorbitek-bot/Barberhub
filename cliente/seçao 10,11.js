@@ -420,120 +420,13 @@ async function cancelarAgendamento(id) {
     return false;
   }
 }
-
 // 11. NOTIFICAÇÕES
 
-// 11.1 CHAVE LOCAL DAS NOTIFICAÇÕES
-
-function obterChaveNotificacoes() {
-  if (!usuarioAtual?.id) {
-    return null;
-  }
-
-  return `barberhub_notificacoes_${usuarioAtual.id}`;
-}
-
-// 11.2 OBTER NOTIFICAÇÕES LIDAS
-
-function obterNotificacoesLidas() {
-  const chave = obterChaveNotificacoes();
-
-  if (!chave) {
-    return [];
-  }
-
-  try {
-    const dados = localStorage.getItem(chave);
-
-    if (!dados) {
-      return [];
-    }
-
-    const lista = JSON.parse(dados);
-
-    return Array.isArray(lista) ? lista : [];
-  } catch (erro) {
-    mostrarErroConsole("Erro ao carregar notificações lidas", erro);
-
-    return [];
-  }
-}
-
-// 11.3 SALVAR NOTIFICAÇÕES LIDAS
-
-function salvarNotificacoesLidas(notificacoesLidas) {
-  const chave = obterChaveNotificacoes();
-
-  if (!chave) {
-    return;
-  }
-
-  try {
-    localStorage.setItem(chave, JSON.stringify(notificacoesLidas));
-  } catch (erro) {
-    mostrarErroConsole("Erro ao salvar notificações lidas", erro);
-  }
-}
-
-// 11.4 VERIFICAR SE ESTÁ LIDA
-
-function notificacaoEstaLida(notificacaoId) {
-  if (!notificacaoId) {
-    return false;
-  }
-
-  const lidas = obterNotificacoesLidas();
-
-  return lidas.includes(notificacaoId);
-}
-
-// 11.5 MARCAR UMA COMO LIDA
-
-function marcarNotificacaoComoLida(notificacaoId) {
-  if (!notificacaoId) {
-    return;
-  }
-
-  const lidas = obterNotificacoesLidas();
-
-  if (!lidas.includes(notificacaoId)) {
-    lidas.push(notificacaoId);
-  }
-
-  salvarNotificacoesLidas(lidas);
-
-  renderizarNotificacoesCliente();
-}
-
-// 11.6 MARCAR TODAS COMO LIDAS
-
-function marcarTodasNotificacoesComoLidas() {
-  const ids = notificacoesCliente.map((notificacao) => notificacao.id);
-
-  salvarNotificacoesLidas(ids);
-
-  renderizarNotificacoesCliente();
-}
-
-// 11.7 LIMPAR NOTIFICAÇÕES ANTIGAS DO STORAGE
-
-function limparNotificacoesLidasAntigas() {
-  const idsAtuais = new Set(
-    notificacoesCliente.map((notificacao) => notificacao.id),
-  );
-
-  const lidas = obterNotificacoesLidas();
-
-  const validas = lidas.filter((id) => idsAtuais.has(id));
-
-  if (validas.length !== lidas.length) {
-    salvarNotificacoesLidas(validas);
-  }
-}
-
-// 11.8 CARREGAR NOTIFICAÇÕES
+// 11.1 CARREGAR NOTIFICAÇÕES
 
 async function carregarNotificacoesCliente() {
+  const lista = document.getElementById("lista-notificacoes-cliente");
+
   if (!usuarioAtual?.id) {
     notificacoesCliente = [];
 
@@ -542,161 +435,43 @@ async function carregarNotificacoesCliente() {
     return [];
   }
 
+  if (lista) {
+    lista.innerHTML = `
+      <div class="lista-vazia">
+        <p>
+          🔔 Carregando notificações...
+        </p>
+      </div>
+    `;
+  }
+
   try {
-    await carregarAgendamentos();
+    const { data, error } = await supabaseClient
+      .from("notificacoes")
+      .select(
+        `
+            id,
+            barbearia_id,
+            cliente_id,
+            tipo,
+            titulo,
+            mensagem,
+            referencia_id,
+            lida,
+            created_at
+          `,
+      )
+      .eq("cliente_id", usuarioAtual.id)
+      .order("created_at", {
+        ascending: false,
+      })
+      .limit(100);
 
-    const notificacoes = [];
+    if (error) {
+      throw error;
+    }
 
-    agendamentos.forEach((agendamento) => {
-      const barbearia = agendamento.barbearias;
-
-      const servico = agendamento.servicos;
-
-      const profissional = agendamento.profissionais;
-
-      const data = new Date(agendamento.data_hora);
-
-      if (Number.isNaN(data.getTime())) {
-        return;
-      }
-
-      const nomeBarbearia = barbearia?.nome || "Barbearia";
-
-      const nomeServico = servico?.nome || "Serviço";
-
-      const nomeProfissional = profissional?.nome || null;
-
-      const dataFormatada = formatarData(agendamento.data_hora);
-
-      const horaFormatada = formatarHora(agendamento.data_hora);
-
-      const detalhesBase =
-        `${nomeServico} · ` + `${dataFormatada} às ${horaFormatada}`;
-
-      if (agendamento.status === "pendente") {
-        notificacoes.push({
-          id: `agendamento-${agendamento.id}-pendente`,
-
-          tipo: "pendente",
-
-          icone: "📅",
-
-          titulo: "Agendamento realizado",
-
-          mensagem: `Seu agendamento na ${nomeBarbearia} está aguardando confirmação.`,
-
-          detalhes: detalhesBase,
-
-          timestamp: agendamento.created_at || agendamento.data_hora,
-
-          agendamentoId: agendamento.id,
-        });
-      }
-
-      if (agendamento.status === "confirmado") {
-        notificacoes.push({
-          id: `agendamento-${agendamento.id}-confirmado`,
-
-          tipo: "confirmado",
-
-          icone: "✅",
-
-          titulo: "Agendamento confirmado",
-
-          mensagem: `Seu horário na ${nomeBarbearia} foi confirmado.`,
-
-          detalhes: detalhesBase,
-
-          timestamp: agendamento.data_hora,
-
-          agendamentoId: agendamento.id,
-        });
-      }
-
-      if (agendamento.status === "cancelado") {
-        notificacoes.push({
-          id: `agendamento-${agendamento.id}-cancelado`,
-
-          tipo: "cancelado",
-
-          icone: "❌",
-
-          titulo: "Agendamento cancelado",
-
-          mensagem: `Seu agendamento na ${nomeBarbearia} foi cancelado.`,
-
-          detalhes: detalhesBase,
-
-          timestamp: agendamento.data_hora,
-
-          agendamentoId: agendamento.id,
-        });
-      }
-
-      if (agendamento.status === "concluido") {
-        notificacoes.push({
-          id: `agendamento-${agendamento.id}-concluido`,
-
-          tipo: "concluido",
-
-          icone: "🎉",
-
-          titulo: "Atendimento concluído",
-
-          mensagem: `Seu atendimento na ${nomeBarbearia} foi concluído.`,
-
-          detalhes: detalhesBase,
-
-          timestamp: agendamento.data_hora,
-
-          agendamentoId: agendamento.id,
-        });
-      }
-
-      const agora = new Date();
-
-      const ativo =
-        agendamento.status === "pendente" ||
-        agendamento.status === "confirmado";
-
-      if (data > agora && ativo) {
-        const detalhes = nomeProfissional
-          ? `${detalhesBase} · ${nomeProfissional}`
-          : detalhesBase;
-
-        notificacoes.push({
-          id: `proximo-${agendamento.id}`,
-
-          tipo: "proximo",
-
-          icone: "⏰",
-
-          titulo: "Você tem um horário marcado",
-
-          mensagem: `Seu próximo atendimento será na ${nomeBarbearia}.`,
-
-          detalhes,
-
-          timestamp: agendamento.data_hora,
-
-          agendamentoId: agendamento.id,
-        });
-      }
-    });
-
-    const mapa = new Map();
-
-    notificacoes.forEach((notificacao) => {
-      mapa.set(notificacao.id, notificacao);
-    });
-
-    notificacoesCliente = Array.from(mapa.values());
-
-    notificacoesCliente.sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
-    );
-
-    limparNotificacoesLidasAntigas();
+    notificacoesCliente = Array.isArray(data) ? data : [];
 
     renderizarNotificacoesCliente();
 
@@ -706,39 +481,213 @@ async function carregarNotificacoesCliente() {
 
     notificacoesCliente = [];
 
-    renderizarNotificacoesCliente();
+    if (lista) {
+      lista.innerHTML = `
+        <div class="lista-vazia">
+
+          <p>
+            Não foi possível carregar suas notificações.
+          </p>
+
+          <small>
+            Tente novamente em alguns instantes.
+          </small>
+
+        </div>
+      `;
+    }
 
     return [];
   }
 }
 
-// 11.9 CLASSE VISUAL
+// 11.2 CLASSE VISUAL
 
 function classeNotificacao(tipo) {
   const tipos = {
     pendente: "notificacao-pendente",
 
+    agendamento_pendente: "notificacao-pendente",
+
     confirmado: "notificacao-confirmado",
+
+    agendamento_confirmado: "notificacao-confirmado",
 
     cancelado: "notificacao-cancelado",
 
+    agendamento_cancelado: "notificacao-cancelado",
+
     concluido: "notificacao-concluido",
 
+    agendamento_concluido: "notificacao-concluido",
+
+    lembrete_agendamento: "notificacao-proximo",
+
     proximo: "notificacao-proximo",
+
+    pedido_atualizado: "notificacao-info",
+
+    pedido_confirmado: "notificacao-confirmado",
+
+    pedido_concluido: "notificacao-concluido",
+
+    pedido_cancelado: "notificacao-cancelado",
   };
 
   return tipos[tipo] || "notificacao-info";
 }
 
-// 11.10 TOTAL NÃO LIDAS
+// 11.3 ÍCONE
 
-function obterTotalNotificacoesNaoLidas() {
-  return notificacoesCliente.filter(
-    (notificacao) => !notificacaoEstaLida(notificacao.id),
-  ).length;
+function obterIconeNotificacao(tipo) {
+  const icones = {
+    pendente: "📅",
+
+    agendamento_pendente: "📅",
+
+    confirmado: "✅",
+
+    agendamento_confirmado: "✅",
+
+    cancelado: "❌",
+
+    agendamento_cancelado: "❌",
+
+    concluido: "🎉",
+
+    agendamento_concluido: "🎉",
+
+    lembrete_agendamento: "⏰",
+
+    proximo: "⏰",
+
+    pedido_atualizado: "🛍️",
+
+    pedido_confirmado: "✅",
+
+    pedido_concluido: "📦",
+
+    pedido_cancelado: "❌",
+  };
+
+  return icones[tipo] || "🔔";
 }
 
-// 11.11 RENDERIZAR NOTIFICAÇÕES
+// 11.4 TOTAL NÃO LIDAS
+
+function obterTotalNotificacoesNaoLidas() {
+  return notificacoesCliente.filter((notificacao) => notificacao.lida !== true)
+    .length;
+}
+
+// 11.5 MARCAR UMA COMO LIDA
+
+async function marcarNotificacaoComoLida(notificacaoId) {
+  if (!notificacaoId || !usuarioAtual?.id) {
+    return false;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("notificacoes")
+      .update({
+        lida: true,
+      })
+      .eq("id", notificacaoId)
+      .eq("cliente_id", usuarioAtual.id)
+      .eq("lida", false)
+      .select(
+        `
+            id,
+            lida
+          `,
+      )
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    const notificacaoLocal = notificacoesCliente.find(
+      (item) => String(item.id) === String(notificacaoId),
+    );
+
+    if (notificacaoLocal) {
+      notificacaoLocal.lida = true;
+    }
+
+    renderizarNotificacoesCliente();
+
+    return Boolean(data);
+  } catch (erro) {
+    mostrarErroConsole("Erro ao marcar notificação como lida", erro);
+
+    return false;
+  }
+}
+
+// 11.6 MARCAR TODAS COMO LIDAS
+
+async function marcarTodasNotificacoesComoLidas() {
+  if (!usuarioAtual?.id) {
+    return false;
+  }
+
+  const possuiNaoLidas = notificacoesCliente.some(
+    (notificacao) => notificacao.lida !== true,
+  );
+
+  if (!possuiNaoLidas) {
+    return true;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("notificacoes")
+      .update({
+        lida: true,
+      })
+      .eq("cliente_id", usuarioAtual.id)
+      .eq("lida", false);
+
+    if (error) {
+      throw error;
+    }
+
+    notificacoesCliente.forEach((notificacao) => {
+      notificacao.lida = true;
+    });
+
+    renderizarNotificacoesCliente();
+
+    return true;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao marcar notificações como lidas", erro);
+
+    return false;
+  }
+}
+
+// 11.7 FORMATAR DATA
+
+function formatarDataNotificacao(data) {
+  if (!data) {
+    return "";
+  }
+
+  const dataObj = new Date(data);
+
+  if (Number.isNaN(dataObj.getTime())) {
+    return "";
+  }
+
+  return dataObj.toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+// 11.8 RENDERIZAR NOTIFICAÇÕES
 
 function renderizarNotificacoesCliente() {
   const lista = document.getElementById("lista-notificacoes-cliente");
@@ -747,7 +696,9 @@ function renderizarNotificacoesCliente() {
     return;
   }
 
-  if (!notificacoesCliente.length) {
+  const dados = Array.isArray(notificacoesCliente) ? notificacoesCliente : [];
+
+  if (!dados.length) {
     lista.innerHTML = `
       <div class="lista-vazia">
 
@@ -757,7 +708,8 @@ function renderizarNotificacoesCliente() {
 
         <small>
           Quando houver novidades sobre seus
-          agendamentos, elas aparecerão aqui.
+          agendamentos ou pedidos,
+          elas aparecerão aqui.
         </small>
 
       </div>
@@ -774,6 +726,7 @@ function renderizarNotificacoesCliente() {
         <div
           class="notificacoes-acoes"
         >
+
           <button
             type="button"
             class="btn-secundario"
@@ -781,13 +734,22 @@ function renderizarNotificacoesCliente() {
           >
             ✅ Marcar todas como lidas
           </button>
+
         </div>
       `
       : "";
 
-  const itens = notificacoesCliente
+  const itens = dados
     .map((notificacao) => {
-      const lida = notificacaoEstaLida(notificacao.id);
+      const lida = notificacao.lida === true;
+
+      const titulo = notificacao.titulo || "Notificação";
+
+      const mensagem = notificacao.mensagem || "";
+
+      const data = formatarDataNotificacao(notificacao.created_at);
+
+      const icone = obterIconeNotificacao(notificacao.tipo);
 
       return `
             <article
@@ -804,7 +766,7 @@ function renderizarNotificacoesCliente() {
                 class="item-notificacao-icone"
                 aria-hidden="true"
               >
-                ${escapeHTML(notificacao.icone)}
+                ${escapeHTML(icone)}
               </div>
 
               <div
@@ -818,7 +780,7 @@ function renderizarNotificacoesCliente() {
                   <div>
 
                     <h3>
-                      ${escapeHTML(notificacao.titulo)}
+                      ${escapeHTML(titulo)}
                     </h3>
 
                     ${
@@ -835,15 +797,27 @@ function renderizarNotificacoesCliente() {
 
                   </div>
 
+                  ${
+                    data
+                      ? `
+                        <small>
+                          ${escapeHTML(data)}
+                        </small>
+                      `
+                      : ""
+                  }
+
                 </div>
 
-                <p>
-                  ${escapeHTML(notificacao.mensagem)}
-                </p>
-
-                <small>
-                  ${escapeHTML(notificacao.detalhes)}
-                </small>
+                ${
+                  mensagem
+                    ? `
+                      <p>
+                        ${escapeHTML(mensagem)}
+                      </p>
+                    `
+                    : ""
+                }
 
               </div>
 
@@ -887,12 +861,10 @@ function renderizarNotificacoesCliente() {
 
   const btnTodas = document.getElementById("btn-marcar-todas-notificacoes");
 
-  if (btnTodas) {
-    btnTodas.addEventListener("click", marcarTodasNotificacoesComoLidas);
-  }
+  btnTodas?.addEventListener("click", marcarTodasNotificacoesComoLidas);
 }
 
-// 11.12 EVENTOS DAS NOTIFICAÇÕES
+// 11.9 EVENTOS
 
 function configurarEventosNotificacoes() {
   const lista = document.getElementById("lista-notificacoes-cliente");

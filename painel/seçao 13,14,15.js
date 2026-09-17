@@ -3,13 +3,9 @@
 // 13.1 — ELEMENTOS DA INTERFACE
 
 const totalNotificacoesEl = document.getElementById("total-notificacoes");
-
 const listaNotificacoesEl = document.getElementById("lista-notificacoes");
-
 const btnNotificacoesEl = document.getElementById("btn-notificacoes");
-
 const badgeNotificacoesEl = document.getElementById("badge-notificacoes");
-
 const btnNotificacoesMobileEl = document.getElementById(
   "btn-notificacoes-mobile",
 );
@@ -19,19 +15,16 @@ const badgeNotificacoesMobileEl = document.getElementById(
 );
 
 const btnAtivarPush = document.getElementById("btn-ativar-push");
-
 const statusPushEl = document.getElementById("status-push");
 
 // 13.2 — SOM DE NOTIFICAÇÃO
 
 const somNotificacao = new Audio("../assets/notificacao.mp3");
-
 somNotificacao.volume = 0.6;
 
 // 13.3 — ESTADO DAS NOTIFICAÇÕES
 
 let notificacoesInicializadas = false;
-
 let ultimaNotificacaoConhecida = null;
 
 // 13.4 — ESTADO VISUAL DO WEB PUSH
@@ -686,6 +679,8 @@ async function carregarFinanceiro() {
   try {
     const agora = new Date();
 
+    // PERÍODO DO MÊS ATUAL
+
     const inicioMes = new Date(
       agora.getFullYear(),
       agora.getMonth(),
@@ -710,11 +705,18 @@ async function carregarFinanceiro() {
 
     const dataFinal = obterDataLocalISO(inicioProximoMes);
 
-    const [respostaGastos, respostaAgendamentos] = await Promise.all([
-      supabaseClient
-        .from("gastos")
-        .select(
-          `
+    // BUSCAR GASTOS + SERVIÇOS + PRODUTOS
+
+    const [respostaGastos, respostaAgendamentos, respostaPedidos] =
+      await Promise.all([
+        // ------------------------------------------
+        // GASTOS DO MÊS
+        // ------------------------------------------
+
+        supabaseClient
+          .from("gastos")
+          .select(
+            `
           id,
           barbearia_id,
           descricao,
@@ -724,18 +726,22 @@ async function carregarFinanceiro() {
           pagamento,
           observacao
         `,
-        )
-        .eq("barbearia_id", lojaId)
-        .gte("data_gasto", dataInicial)
-        .lt("data_gasto", dataFinal)
-        .order("data_gasto", {
-          ascending: false,
-        }),
+          )
+          .eq("barbearia_id", lojaId)
+          .gte("data_gasto", dataInicial)
+          .lt("data_gasto", dataFinal)
+          .order("data_gasto", {
+            ascending: false,
+          }),
 
-      supabaseClient
-        .from("agendamentos")
-        .select(
-          `
+        // ------------------------------------------
+        // SERVIÇOS CONCLUÍDOS NO MÊS
+        // ------------------------------------------
+
+        supabaseClient
+          .from("agendamentos")
+          .select(
+            `
           id,
           status,
           data_hora,
@@ -746,12 +752,38 @@ async function carregarFinanceiro() {
             preco
           )
         `,
-        )
-        .eq("barbearia_id", lojaId)
-        .gte("data_hora", inicioMes.toISOString())
-        .lt("data_hora", inicioProximoMes.toISOString())
-        .eq("status", "concluido"),
-    ]);
+          )
+          .eq("barbearia_id", lojaId)
+          .gte("data_hora", inicioMes.toISOString())
+          .lt("data_hora", inicioProximoMes.toISOString())
+          .eq("status", "concluido"),
+
+        // ------------------------------------------
+        // PRODUTOS CONFIRMADOS NO MÊS
+        // ------------------------------------------
+
+        // VENDAS DE PRODUTOS DO MÊS
+
+        supabaseClient
+          .from("pedidos")
+          .select(
+            `
+      id,
+      quantidade,
+      preco_unitario,
+      status,
+      confirmado_at,
+      concluido_at,
+      arquivado
+    `,
+          )
+          .eq("barbearia_id", lojaId)
+          .in("status", ["confirmado", "concluido"])
+          .gte("confirmado_at", inicioMes.toISOString())
+          .lt("confirmado_at", inicioProximoMes.toISOString()),
+      ]);
+
+    // VALIDAR ERROS
 
     if (respostaGastos.error) {
       throw respostaGastos.error;
@@ -761,21 +793,56 @@ async function carregarFinanceiro() {
       throw respostaAgendamentos.error;
     }
 
-    gastosCache = respostaGastos.data || [];
+    if (respostaPedidos.error) {
+      throw respostaPedidos.error;
+    }
 
+    // PREPARAR DADOS
+
+    gastosCache = respostaGastos.data || [];
     const agendamentosFinanceiros = respostaAgendamentos.data || [];
-    const entradas = agendamentosFinanceiros.reduce((total, agendamento) => {
-      const preco = Number(agendamento.servicos?.preco);
-      return total + (Number.isFinite(preco) ? preco : 0);
+    const pedidosFinanceiros = respostaPedidos.data || [];
+
+    // FATURAMENTO DE SERVIÇOS
+
+    const faturamentoServicos = agendamentosFinanceiros.reduce(
+      (total, agendamento) => {
+        const preco = Number(agendamento.servicos?.preco);
+        const precoSeguro = Number.isFinite(preco) ? preco : 0;
+        return total + precoSeguro;
+      },
+      0,
+    );
+
+    // FATURAMENTO DE PRODUTOS
+
+    const faturamentoProdutos = pedidosFinanceiros.reduce((total, pedido) => {
+      const quantidade = Number(pedido.quantidade);
+      const precoUnitario = Number(pedido.preco_unitario);
+      const quantidadeSegura = Number.isFinite(quantidade) ? quantidade : 0;
+      const precoSeguro = Number.isFinite(precoUnitario) ? precoUnitario : 0;
+      const totalPedido = quantidadeSegura * precoSeguro;
+      return total + totalPedido;
     }, 0);
+
+    // ENTRADAS TOTAIS
+
+    const entradas = faturamentoServicos + faturamentoProdutos;
+
+    // SAÍDAS
 
     const saidas = gastosCache.reduce((total, gasto) => {
       const valor = Number(gasto.valor);
+      const valorSeguro = Number.isFinite(valor) ? valor : 0;
 
-      return total + (Number.isFinite(valor) ? valor : 0);
+      return total + valorSeguro;
     }, 0);
 
+    // LUCRO
+
     const lucro = entradas - saidas;
+
+    // ATUALIZAR CARDS
 
     atualizarResumoFinanceiro({
       entradas,
@@ -783,9 +850,24 @@ async function carregarFinanceiro() {
       lucro,
     });
 
+    // RENDERIZAR GASTOS
+
     renderizarGastos(gastosCache);
 
     prepararFormularioGasto();
+
+    // LOG PARA TESTE
+
+    console.log("BarberHub — Financeiro:", {
+      faturamentoServicos,
+      faturamentoProdutos,
+      entradas,
+      saidas,
+      lucro,
+
+      servicosConcluidos: agendamentosFinanceiros.length,
+      vendasProdutos: pedidosFinanceiros.length,
+    });
 
     return true;
   } catch (erro) {

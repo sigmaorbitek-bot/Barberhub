@@ -278,38 +278,41 @@ async function carregarAgendamentos() {
       .from("agendamentos")
       .select(
         `
+        id,
+        barbearia_id,
+        cliente_id,
+        servico_id,
+        profissional_id,
+        data_hora,
+        status,
+        created_at,
+        arquivado,
+        arquivado_at,
+        cliente_nome,
+        cliente_telefone,
+
+        servicos (
           id,
-          barbearia_id,
-          cliente_id,
-          servico_id,
-          profissional_id,
-          data_hora,
-          status,
-          created_at,
-          cliente_nome,
-          cliente_telefone,
+          nome,
+          preco,
+          duracao
+        ),
 
-          servicos (
-            id,
-            nome,
-            preco,
-            duracao
-          ),
+        clientes (
+          id,
+          nome,
+          telefone,
+          email
+        ),
 
-          clientes (
-            id,
-            nome,
-            telefone,
-            email
-          ),
-
-          profissionais (
-            id,
-            nome
-          )
-        `,
+        profissionais (
+          id,
+          nome
+        )
+      `,
       )
       .eq("barbearia_id", lojaId)
+      .eq("arquivado", false)
       .order("data_hora", {
         ascending: true,
       });
@@ -469,30 +472,68 @@ function renderizarAgendamentos(agendamentos) {
 
         <div class="item-acoes">
 
-          <select
-            class="select-status select-status--${escaparHtml(status)}"
-            onchange="atualizarStatusAgendamento(
-              '${escaparHtml(agendamento.id)}',
-              this.value
-            )"
-          >
+  ${
+    status !== "concluido" && status !== "cancelado"
+      ? `
+        <select
+          class="select-status select-status--${escaparHtml(status)}"
+          onchange="atualizarStatusAgendamento(
+            '${escaparHtml(agendamento.id)}',
+            this.value
+          )"
+        >
 
-            ${Object.entries(STATUS_LABEL)
-              .map(
-                ([valor, rotulo]) => `
-                  <option
-                    value="${escaparHtml(valor)}"
-                    ${status === valor ? "selected" : ""}
-                  >
-                    ${escaparHtml(rotulo)}
-                  </option>
-                `,
-              )
-              .join("")}
+         ${Object.entries(STATUS_LABEL)
+           .filter(([valor]) => {
+             if (valor === status) {
+               return true;
+             }
 
-          </select>
+             const transicoes = {
+               pendente: ["confirmado", "cancelado"],
 
-        </div>
+               confirmado: ["concluido", "cancelado"],
+
+               concluido: [],
+
+               cancelado: [],
+             };
+
+             return (transicoes[status] || []).includes(valor);
+           })
+           .map(
+             ([valor, rotulo]) => `
+      <option
+        value="${escaparHtml(valor)}"
+        ${status === valor ? "selected" : ""}
+      >
+        ${escaparHtml(rotulo)}
+      </option>
+    `,
+           )
+           .join("")}
+
+        </select>
+      `
+      : `
+        <span
+          class="select-status select-status--${escaparHtml(status)}"
+        >
+          ${escaparHtml(STATUS_LABEL[status])}
+        </span>
+
+        <button
+          type="button"
+          title="Arquivar agendamento"
+          aria-label="Arquivar agendamento"
+          onclick="arquivarAgendamento('${escaparHtml(agendamento.id)}')"
+        >
+          🗄️
+        </button>
+      `
+  }
+
+</div>
       `;
 
     listaAgendamentosEl.appendChild(item);
@@ -527,6 +568,27 @@ async function atualizarStatusAgendamento(id, novoStatus) {
   }
 
   if (agendamento.status === novoStatus) {
+    return;
+  }
+
+  const transicoesPermitidas = {
+    pendente: ["confirmado", "cancelado"],
+    confirmado: ["concluido", "cancelado"],
+    concluido: [],
+    cancelado: [],
+  };
+
+  const permitidos = transicoesPermitidas[agendamento.status] || [];
+
+  if (!permitidos.includes(novoStatus)) {
+    mostrarMensagem(
+      "mensagem-agendamento-manual",
+      "Essa alteração de status não é permitida.",
+      "erro",
+    );
+
+    await carregarAgendamentos();
+
     return;
   }
 
@@ -579,6 +641,100 @@ async function atualizarStatusAgendamento(id, novoStatus) {
   }
 }
 
+// ARQUIVAR AGENDAMENTO
+
+async function arquivarAgendamento(id) {
+  if (!id || !lojaId) {
+    return;
+  }
+
+  const agendamento = agendamentosCache.find(
+    (item) => String(item.id) === String(id),
+  );
+
+  if (!agendamento) {
+    mostrarMensagem(
+      "mensagem-agendamento-manual",
+      "Agendamento não encontrado.",
+      "erro",
+    );
+
+    return;
+  }
+
+  const podeArquivar =
+    agendamento.status === "concluido" || agendamento.status === "cancelado";
+
+  if (!podeArquivar) {
+    mostrarMensagem(
+      "mensagem-agendamento-manual",
+      "Somente agendamentos concluídos ou cancelados podem ser arquivados.",
+      "erro",
+    );
+
+    return;
+  }
+
+  const confirmou = confirm(
+    "Arquivar este agendamento?\n\nEle será removido da agenda, mas continuará salvo no histórico.",
+  );
+
+  if (!confirmou) {
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("agendamentos")
+      .update({
+        arquivado: true,
+        arquivado_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("barbearia_id", lojaId)
+      .eq("arquivado", false)
+      .in("status", ["concluido", "cancelado"])
+      .select("id, status, arquivado")
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      mostrarMensagem(
+        "mensagem-agendamento-manual",
+        "Este agendamento já foi alterado ou arquivado.",
+        "erro",
+      );
+
+      await carregarAgendamentos();
+
+      return;
+    }
+
+    mostrarMensagem(
+      "mensagem-agendamento-manual",
+      "Agendamento arquivado com sucesso!",
+      "sucesso",
+    );
+
+    await carregarAgendamentos();
+
+    if (typeof carregarDashboard === "function") {
+      await carregarDashboard();
+    }
+  } catch (erro) {
+    console.error("Erro ao arquivar agendamento:", erro);
+
+    mostrarMensagem(
+      "mensagem-agendamento-manual",
+      "Não foi possível arquivar o agendamento.",
+      "erro",
+    );
+  }
+}
+
 // FILTROS DA AGENDA
 
 document.querySelectorAll(".filtro-agendamento").forEach((botao) => {
@@ -600,12 +756,19 @@ document.querySelectorAll(".filtro-agendamento").forEach((botao) => {
 // 8. CLIENTES
 
 const listaClientesEl = document.getElementById("lista-clientes");
+
 const formCliente = document.getElementById("form-cliente");
+
 const btnSalvarCliente = document.getElementById("btn-salvar-cliente");
+
 const btnCancelarCliente = document.getElementById("btn-cancelar-cliente");
+
 const campoClienteId = document.getElementById("cliente-id");
+
 const campoClienteNome = document.getElementById("cliente-nome");
+
 const campoClienteTelefone = document.getElementById("cliente-telefone");
+
 const campoClienteEmail = document.getElementById("cliente-email");
 
 // SALVAR / EDITAR CLIENTE
@@ -615,9 +778,12 @@ if (formCliente) {
     event.preventDefault();
 
     const clienteId = campoClienteId?.value?.trim() || "";
+
     const nome = campoClienteNome?.value?.trim() || "";
+
     const telefone = campoClienteTelefone?.value?.trim() || "";
-    const email = campoClienteEmail?.value?.trim() || "";
+
+    const email = campoClienteEmail?.value?.trim()?.toLowerCase() || "";
 
     if (!nome) {
       mostrarMensagem("mensagem-cliente", "Informe o nome do cliente.", "erro");
@@ -635,6 +801,14 @@ if (formCliente) {
       );
 
       campoClienteTelefone?.focus();
+
+      return;
+    }
+
+    if (email && !email.includes("@")) {
+      mostrarMensagem("mensagem-cliente", "Informe um e-mail válido.", "erro");
+
+      campoClienteEmail?.focus();
 
       return;
     }
@@ -703,8 +877,11 @@ if (formCliente) {
           "cadastrar_cliente_barbearia",
           {
             p_barbearia_id: lojaId,
+
             p_nome: nome,
+
             p_telefone: telefone,
+
             p_email: email || null,
           },
         );
@@ -725,8 +902,8 @@ if (formCliente) {
       }
 
       cancelarEdicaoCliente();
+
       await carregarClientes();
-      preencherClientesAgendamento();
 
       if (typeof carregarDashboard === "function") {
         await carregarDashboard();
@@ -734,11 +911,13 @@ if (formCliente) {
     } catch (erro) {
       console.error("Erro ao salvar cliente:", erro);
 
-      mostrarMensagem(
-        "mensagem-cliente",
-        erro?.message || "Não foi possível salvar o cliente.",
-        "erro",
-      );
+      let mensagem = "Não foi possível salvar o cliente.";
+
+      if (erro?.message?.includes("O cliente não foi criado")) {
+        mensagem = "O cliente não pôde ser criado.";
+      }
+
+      mostrarMensagem("mensagem-cliente", mensagem, "erro");
     } finally {
       if (btnSalvarCliente) {
         btnSalvarCliente.disabled = false;
@@ -758,9 +937,20 @@ async function carregarClientes() {
     clientesCache = [];
 
     renderizarClientes();
+
     preencherClientesAgendamento();
 
+    atualizarCardClientes();
+
     return false;
+  }
+
+  if (listaClientesEl) {
+    listaClientesEl.innerHTML = `
+      <p class="em-breve">
+        Carregando clientes...
+      </p>
+    `;
   }
 
   try {
@@ -768,17 +958,17 @@ async function carregarClientes() {
       .from("clientes_barbearias")
       .select(
         `
-          cliente_id,
+            cliente_id,
 
-          clientes:cliente_id (
-            id,
-            profile_id,
-            nome,
-            telefone,
-            email,
-            created_at
-          )
-        `,
+            clientes:cliente_id (
+              id,
+              profile_id,
+              nome,
+              telefone,
+              email,
+              created_at
+            )
+          `,
       )
       .eq("barbearia_id", lojaId);
 
@@ -791,14 +981,17 @@ async function carregarClientes() {
       .filter(Boolean)
       .sort((a, b) => {
         const dataA = new Date(a.created_at || 0).getTime();
+
         const dataB = new Date(b.created_at || 0).getTime();
+
         return dataB - dataA;
       });
 
     renderizarClientes();
+
     preencherClientesAgendamento();
 
-    console.log("Clientes carregados:", clientesCache);
+    atualizarCardClientes();
 
     return true;
   } catch (erro) {
@@ -807,7 +1000,11 @@ async function carregarClientes() {
     clientesCache = [];
 
     renderizarClientes();
+
     preencherClientesAgendamento();
+
+    atualizarCardClientes();
+
     mostrarMensagem(
       "mensagem-cliente",
       "Não foi possível carregar os clientes.",
@@ -827,7 +1024,9 @@ function atualizarCardClientes() {
     return;
   }
 
-  elemento.textContent = clientesCache.length;
+  const total = Array.isArray(clientesCache) ? clientesCache.length : 0;
+
+  elemento.textContent = String(total);
 }
 
 // RENDERIZAR CLIENTES
@@ -839,7 +1038,9 @@ function renderizarClientes() {
 
   listaClientesEl.innerHTML = "";
 
-  if (!clientesCache.length) {
+  const clientes = Array.isArray(clientesCache) ? clientesCache : [];
+
+  if (!clientes.length) {
     listaClientesEl.innerHTML = `
       <p class="em-breve">
         Nenhum cliente cadastrado.
@@ -849,68 +1050,80 @@ function renderizarClientes() {
     return;
   }
 
-  clientesCache.forEach((cliente) => {
+  clientes.forEach((cliente) => {
     const item = document.createElement("div");
 
     item.classList.add("item-lista");
 
-    const nome = cliente.nome || "Cliente";
-    const telefone = cliente.telefone || "Telefone não informado";
+    const nome = cliente.nome?.trim() || "Cliente";
+
+    const telefone = cliente.telefone?.trim() || "Telefone não informado";
+
+    const email = cliente.email?.trim() || "";
+
     const possuiConta = Boolean(cliente.profile_id);
 
     item.innerHTML = `
-        <div class="item-info">
+      <div class="item-info">
 
-          <h3>
-            ${escaparHtml(nome)}
-          </h3>
+        <h3>
+          ${escaparHtml(nome)}
+        </h3>
 
-          <p>
-            ${escaparHtml(telefone)}
-          </p>
+        <p>
+          ${escaparHtml(telefone)}
+        </p>
 
-          ${
-            cliente.email
-              ? `
-                <p>
-                  ${escaparHtml(cliente.email)}
-                </p>
-              `
-              : ""
-          }
+        ${
+          email
+            ? `
+              <p>
+                ${escaparHtml(email)}
+              </p>
+            `
+            : ""
+        }
 
-          ${
-            possuiConta
-              ? `
-                <p>
-                  👤 Cliente com conta
-                </p>
-              `
-              : ""
-          }
+        ${
+          possuiConta
+            ? `
+              <p>
+                👤 Cliente com conta
+              </p>
+            `
+            : `
+              <p>
+                👥 Cliente cadastrado pela barbearia
+              </p>
+            `
+        }
 
-        </div>
+      </div>
 
-        <div class="item-acoes">
+      <div class="item-acoes">
 
-          <button
-            type="button"
-            class="btn-secundario"
-            onclick="editarCliente('${escaparHtml(cliente.id)}')"
-          >
-            Editar
-          </button>
+        <button
+          type="button"
+          class="btn-secundario"
+          title="Editar cliente"
+          aria-label="Editar cliente"
+          onclick="editarCliente('${escaparHtml(cliente.id)}')"
+        >
+          Editar
+        </button>
 
-          <button
-            type="button"
-            class="btn-perigo"
-            onclick="excluirCliente('${escaparHtml(cliente.id)}')"
-          >
-            Remover
-          </button>
+        <button
+          type="button"
+          class="btn-perigo"
+          title="Remover cliente"
+          aria-label="Remover cliente"
+          onclick="excluirCliente('${escaparHtml(cliente.id)}')"
+        >
+          Remover
+        </button>
 
-        </div>
-      `;
+      </div>
+    `;
 
     listaClientesEl.appendChild(item);
   });
@@ -1002,8 +1215,10 @@ async function excluirCliente(id) {
     return;
   }
 
+  const nomeCliente = cliente.nome?.trim() || "Cliente";
+
   const confirmou = confirm(
-    `Remover "${cliente.nome || "Cliente"}" desta barbearia?\n\nO histórico de agendamentos será preservado.`,
+    `Remover "${nomeCliente}" desta barbearia?\n\nO histórico de agendamentos será preservado.`,
   );
 
   if (!confirmou) {
@@ -1026,8 +1241,6 @@ async function excluirCliente(id) {
     }
 
     await carregarClientes();
-
-    preencherClientesAgendamento();
 
     if (typeof carregarDashboard === "function") {
       await carregarDashboard();

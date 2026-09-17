@@ -1,19 +1,42 @@
 // 5. PRODUTOS E ESTOQUE
 
 const formProduto = document.getElementById("form-produto");
+
 const listaProdutosEl = document.getElementById("lista-produtos");
+
 const btnSalvarProduto = document.getElementById("btn-salvar-produto");
+
 const btnCancelarProduto = document.getElementById("btn-cancelar-produto");
+
 const inputFotoProduto = document.getElementById("produto-foto");
+
 const previewProduto = document.getElementById("preview-produto");
+
 const previewProdutoImg = document.getElementById("preview-produto-img");
+
 const campoProdutoId = document.getElementById("produto-id");
+
 const campoProdutoNome = document.getElementById("produto-nome");
+
 const campoProdutoPreco = document.getElementById("produto-preco");
+
 const campoProdutoEstoque = document.getElementById("produto-estoque");
+
 const campoProdutoFotoAtual = document.getElementById("produto-foto-atual");
 
 let previewProdutoObjectUrl = null;
+
+function atualizarResumoProdutosLocal() {
+  const elemento = document.getElementById("total-produtos-dashboard");
+
+  if (!elemento) {
+    return;
+  }
+
+  const total = Array.isArray(produtosCache) ? produtosCache.length : 0;
+
+  elemento.textContent = String(total);
+}
 
 // STORAGE
 
@@ -35,13 +58,17 @@ async function enviarArquivoStorage(arquivo, pasta) {
   }
 
   const extensaoOriginal = arquivo.name.split(".").pop()?.toLowerCase();
+
   const extensoesPermitidas = ["jpg", "jpeg", "png", "webp"];
+
   const extensao = extensoesPermitidas.includes(extensaoOriginal)
     ? extensaoOriginal
     : "jpg";
 
   const identificador = crypto.randomUUID();
+
   const nomeArquivo = `${Date.now()}-${identificador}.${extensao}`;
+
   const caminho = `${sessaoAtual.user.id}/${pasta}/${nomeArquivo}`;
 
   const { error } = await supabaseClient.storage
@@ -71,19 +98,25 @@ async function carregarProdutos() {
     return false;
   }
 
+  listaProdutosEl.innerHTML = `
+    <p class="em-breve">
+      Carregando produtos...
+    </p>
+  `;
+
   try {
     const { data, error } = await supabaseClient
       .from("produtos")
       .select(
         `
-          id,
-          barbearia_id,
-          nome,
-          preco,
-          estoque,
-          foto_url,
-          created_at
-        `,
+            id,
+            barbearia_id,
+            nome,
+            preco,
+            estoque,
+            foto_url,
+            created_at
+          `,
       )
       .eq("barbearia_id", lojaId)
       .order("created_at", {
@@ -91,24 +124,22 @@ async function carregarProdutos() {
       });
 
     if (error) {
-      console.error("Erro ao carregar produtos:", error);
-
-      listaProdutosEl.innerHTML = `
-        <p class="em-breve">
-          Não foi possível carregar os produtos.
-        </p>
-      `;
-
-      return false;
+      throw error;
     }
 
-    produtosCache = data || [];
+    produtosCache = Array.isArray(data) ? data : [];
 
     renderizarProdutos(produtosCache);
 
+    atualizarResumoProdutosLocal();
+
     return true;
   } catch (erro) {
-    console.error("Erro inesperado ao carregar produtos:", erro);
+    console.error("Erro ao carregar produtos:", erro);
+
+    produtosCache = [];
+
+    atualizarResumoProdutosLocal();
 
     listaProdutosEl.innerHTML = `
       <p class="em-breve">
@@ -129,7 +160,9 @@ function renderizarProdutos(produtos) {
 
   listaProdutosEl.innerHTML = "";
 
-  if (!Array.isArray(produtos) || !produtos.length) {
+  const lista = Array.isArray(produtos) ? produtos : [];
+
+  if (!lista.length) {
     listaProdutosEl.innerHTML = `
       <p class="em-breve">
         Nenhum produto cadastrado.
@@ -139,12 +172,24 @@ function renderizarProdutos(produtos) {
     return;
   }
 
-  produtos.forEach((produto) => {
+  lista.forEach((produto) => {
     const item = document.createElement("div");
+
     item.classList.add("item-lista");
 
-    const estoque = Number(produto.estoque) || 0;
-    const nomeProduto = produto.nome || "Produto";
+    const nomeProduto = produto.nome?.trim() || "Produto";
+
+    const preco = Number(produto.preco);
+
+    const estoque = Number.parseInt(produto.estoque, 10);
+
+    const precoSeguro = Number.isFinite(preco) ? preco : 0;
+
+    const estoqueSeguro =
+      Number.isInteger(estoque) && estoque >= 0 ? estoque : 0;
+
+    const textoEstoque =
+      estoqueSeguro === 0 ? "Sem estoque" : `Estoque: ${estoqueSeguro}`;
 
     item.innerHTML = `
       <div class="item-info item-info--com-foto">
@@ -156,12 +201,14 @@ function renderizarProdutos(produtos) {
                 src="${escaparHtml(produto.foto_url)}"
                 alt="${escaparHtml(nomeProduto)}"
                 class="produto-thumb"
+                loading="lazy"
                 onerror="this.style.display='none'"
               >
             `
             : `
               <div
                 class="produto-thumb produto-thumb--vazia"
+                aria-hidden="true"
               >
                 🛍️
               </div>
@@ -175,9 +222,9 @@ function renderizarProdutos(produtos) {
           </h3>
 
           <p>
-            ${formatarMoeda(produto.preco)}
+            ${formatarMoeda(precoSeguro)}
             ·
-            Estoque: ${estoque}
+            ${escaparHtml(textoEstoque)}
           </p>
 
         </div>
@@ -189,6 +236,7 @@ function renderizarProdutos(produtos) {
         <button
           type="button"
           title="Editar produto"
+          aria-label="Editar produto"
           onclick="editarProduto('${escaparHtml(produto.id)}')"
         >
           ✏️
@@ -197,6 +245,7 @@ function renderizarProdutos(produtos) {
         <button
           type="button"
           title="Excluir produto"
+          aria-label="Excluir produto"
           onclick="excluirProduto('${escaparHtml(produto.id)}')"
         >
           🗑️
@@ -221,6 +270,28 @@ function limparPreviewProdutoObjectUrl() {
   previewProdutoObjectUrl = null;
 }
 
+function restaurarPreviewProdutoAtual() {
+  const fotoAtual = campoProdutoFotoAtual?.value?.trim() || "";
+
+  if (fotoAtual && previewProdutoImg) {
+    previewProdutoImg.src = fotoAtual;
+
+    if (previewProduto) {
+      previewProduto.hidden = false;
+    }
+
+    return;
+  }
+
+  if (previewProdutoImg) {
+    previewProdutoImg.src = "";
+  }
+
+  if (previewProduto) {
+    previewProduto.hidden = true;
+  }
+}
+
 if (inputFotoProduto) {
   inputFotoProduto.addEventListener("change", () => {
     limparPreviewProdutoObjectUrl();
@@ -228,15 +299,7 @@ if (inputFotoProduto) {
     const arquivo = inputFotoProduto.files?.[0];
 
     if (!arquivo) {
-      if (campoProdutoFotoAtual?.value && previewProdutoImg) {
-        previewProdutoImg.src = campoProdutoFotoAtual.value;
-
-        if (previewProduto) {
-          previewProduto.hidden = false;
-        }
-      } else if (previewProduto) {
-        previewProduto.hidden = true;
-      }
+      restaurarPreviewProdutoAtual();
 
       return;
     }
@@ -252,6 +315,8 @@ if (inputFotoProduto) {
 
       inputFotoProduto.value = "";
 
+      restaurarPreviewProdutoAtual();
+
       return;
     }
 
@@ -263,6 +328,8 @@ if (inputFotoProduto) {
       );
 
       inputFotoProduto.value = "";
+
+      restaurarPreviewProdutoAtual();
 
       return;
     }
@@ -286,10 +353,15 @@ if (formProduto) {
     event.preventDefault();
 
     const id = campoProdutoId?.value?.trim() || "";
+
     const nome = campoProdutoNome?.value?.trim() || "";
+
     const preco = Number(campoProdutoPreco?.value);
+
     const estoque = Number.parseInt(campoProdutoEstoque?.value, 10);
+
     const arquivoFoto = inputFotoProduto?.files?.[0];
+
     const fotoAtual = campoProdutoFotoAtual?.value?.trim() || "";
 
     if (!lojaId) {
@@ -320,6 +392,7 @@ if (formProduto) {
 
     if (btnSalvarProduto) {
       btnSalvarProduto.disabled = true;
+
       btnSalvarProduto.textContent = "Salvando...";
     }
 
@@ -354,6 +427,7 @@ if (formProduto) {
       } else {
         const { error } = await supabaseClient.from("produtos").insert({
           barbearia_id: lojaId,
+
           ...dadosProduto,
         });
 
@@ -406,6 +480,10 @@ if (formProduto) {
 // EDITAR PRODUTO
 
 function editarProduto(id) {
+  if (!id) {
+    return;
+  }
+
   const produto = produtosCache.find((item) => String(item.id) === String(id));
 
   if (!produto) {
@@ -440,21 +518,7 @@ function editarProduto(id) {
     inputFotoProduto.value = "";
   }
 
-  if (produto.foto_url && previewProdutoImg) {
-    previewProdutoImg.src = produto.foto_url;
-
-    if (previewProduto) {
-      previewProduto.hidden = false;
-    }
-  } else {
-    if (previewProdutoImg) {
-      previewProdutoImg.src = "";
-    }
-
-    if (previewProduto) {
-      previewProduto.hidden = true;
-    }
-  }
+  restaurarPreviewProdutoAtual();
 
   if (btnSalvarProduto) {
     btnSalvarProduto.textContent = "Salvar edição";
@@ -491,12 +555,16 @@ function cancelarEdicaoProduto() {
     campoProdutoFotoAtual.value = "";
   }
 
-  if (previewProduto) {
-    previewProduto.hidden = true;
+  if (inputFotoProduto) {
+    inputFotoProduto.value = "";
   }
 
   if (previewProdutoImg) {
     previewProdutoImg.src = "";
+  }
+
+  if (previewProduto) {
+    previewProduto.hidden = true;
   }
 
   if (btnSalvarProduto) {
@@ -522,7 +590,9 @@ async function excluirProduto(id) {
   }
 
   const produto = produtosCache.find((item) => String(item.id) === String(id));
-  const nomeProduto = produto?.nome || "este produto";
+
+  const nomeProduto = produto?.nome?.trim() || "este produto";
+
   const confirmou = confirm(`Deseja realmente remover "${nomeProduto}"?`);
 
   if (!confirmou) {
@@ -537,8 +607,6 @@ async function excluirProduto(id) {
       .eq("barbearia_id", lojaId);
 
     if (error) {
-      console.error("Erro ao excluir produto:", error);
-
       if (error.code === "23503") {
         mostrarMensagem(
           "mensagem-produto",
@@ -549,13 +617,7 @@ async function excluirProduto(id) {
         return;
       }
 
-      mostrarMensagem(
-        "mensagem-produto",
-        "Não foi possível remover o produto.",
-        "erro",
-      );
-
-      return;
+      throw error;
     }
 
     if (String(campoProdutoId?.value) === String(id)) {
@@ -574,11 +636,11 @@ async function excluirProduto(id) {
       "sucesso",
     );
   } catch (erro) {
-    console.error("Erro inesperado ao excluir produto:", erro);
+    console.error("Erro ao excluir produto:", erro);
 
     mostrarMensagem(
       "mensagem-produto",
-      "Ocorreu um erro ao remover o produto.",
+      "Não foi possível remover o produto.",
       "erro",
     );
   }
@@ -590,6 +652,20 @@ const listaPedidosEl = document.getElementById("lista-pedidos");
 
 let pedidosCache = [];
 let filtroPedidosAtual = "todos";
+
+function atualizarResumoPedidosLocal() {
+  const elemento = document.getElementById("total-pedidos-pendentes-dashboard");
+
+  if (!elemento) {
+    return;
+  }
+
+  const total = pedidosCache.filter(
+    (pedido) => pedido.status === "pendente" && !pedido.arquivado,
+  ).length;
+
+  elemento.textContent = String(total);
+}
 
 // CARREGAR PEDIDOS
 
@@ -609,31 +685,37 @@ async function carregarPedidos() {
       .from("pedidos")
       .select(
         `
-          id,
-          cliente_id,
-          barbearia_id,
-          produto_id,
-          quantidade,
-          preco_unitario,
-          status,
-          created_at,
-          atualizado_at,
+    id,
+    cliente_id,
+    barbearia_id,
+    produto_id,
+    quantidade,
+    preco_unitario,
+    status,
+    origem_pedido,
+    created_at,
+    atualizado_at,
+    confirmado_at,
+    concluido_at,
+    arquivado,
+    arquivado_at,
 
-          profiles:cliente_id (
-            id,
-            nome,
-            telefone
-          ),
+    profiles:cliente_id (
+      id,
+      nome,
+      telefone
+    ),
 
-          produtos:produto_id (
-            id,
-            nome,
-            preco,
-            foto_url
-          )
-        `,
+    produtos:produto_id (
+      id,
+      nome,
+      preco,
+      foto_url
+    )
+  `,
       )
       .eq("barbearia_id", lojaId)
+      .eq("arquivado", false)
       .order("created_at", {
         ascending: false,
       });
@@ -642,15 +724,19 @@ async function carregarPedidos() {
       throw error;
     }
 
-    pedidosCache = data || [];
+    pedidosCache = Array.isArray(data) ? data : [];
 
     renderizarPedidos();
+
+    atualizarResumoPedidosLocal();
 
     return true;
   } catch (erro) {
     console.error("Erro ao carregar pedidos:", erro);
 
     pedidosCache = [];
+
+    atualizarResumoPedidosLocal();
 
     listaPedidosEl.innerHTML = `
       <p class="em-breve">
@@ -689,110 +775,167 @@ function renderizarPedidos() {
 
   pedidos.forEach((pedido) => {
     const item = document.createElement("div");
+
     item.classList.add("item-lista");
+
     const cliente = pedido.profiles;
+
     const produto = pedido.produtos;
-    const quantidade = Number(pedido.quantidade) || 0;
-    const precoUnitario = Number(pedido.preco_unitario) || 0;
+
+    const quantidadeBruta = Number(pedido.quantidade);
+
+    const precoBruto = Number(pedido.preco_unitario);
+
+    const quantidade =
+      Number.isFinite(quantidadeBruta) && quantidadeBruta > 0
+        ? quantidadeBruta
+        : 0;
+
+    const precoUnitario =
+      Number.isFinite(precoBruto) && precoBruto >= 0 ? precoBruto : 0;
+
     const total = quantidade * precoUnitario;
 
     const status = pedido.status || "pendente";
+
+    const origemPedido =
+      pedido.origem_pedido === "presencial" ? "Presencial" : "Online";
 
     const dataPedido = pedido.created_at
       ? formatarDataHora(pedido.created_at)
       : "Data não informada";
 
-    const nomeCliente = cliente?.nome || "Cliente";
-    const telefoneCliente = cliente?.telefone || "Telefone não informado";
-    const nomeProduto = produto?.nome || "Produto";
+    const nomeCliente = cliente?.nome?.trim() || "Cliente";
+
+    const telefoneCliente =
+      cliente?.telefone?.trim() || "Telefone não informado";
+
+    const nomeProduto = produto?.nome?.trim() || "Produto";
+
+    let botoes = "";
+
+    if (status === "pendente") {
+      botoes = `
+        <button
+          type="button"
+          title="Confirmar pedido"
+          aria-label="Confirmar pedido"
+          onclick="confirmarPedido('${escaparHtml(pedido.id)}')"
+        >
+          ✅
+        </button>
+
+        <button
+          type="button"
+          title="Cancelar pedido"
+          aria-label="Cancelar pedido"
+          onclick="cancelarPedido('${escaparHtml(pedido.id)}')"
+        >
+          ❌
+        </button>
+      `;
+    }
+
+    if (status === "confirmado") {
+      botoes = `
+        <button
+          type="button"
+          title="Concluir pedido"
+          aria-label="Concluir pedido"
+          onclick="concluirPedido('${escaparHtml(pedido.id)}')"
+        >
+          📦
+        </button>
+      `;
+    }
+
+    if (status === "concluido" || status === "cancelado") {
+      botoes = `
+        <button
+          type="button"
+          title="Arquivar pedido"
+          aria-label="Arquivar pedido"
+          onclick="arquivarPedido('${escaparHtml(pedido.id)}')"
+        >
+          🗄️
+        </button>
+      `;
+    }
 
     item.innerHTML = `
-      <div class="item-info item-info--com-foto">
+  <div class="item-info item-info--com-foto">
 
-        ${
-          produto?.foto_url
-            ? `
-              <img
-                src="${escaparHtml(produto.foto_url)}"
-                alt="${escaparHtml(nomeProduto)}"
-                class="produto-thumb"
-                onerror="this.style.display='none'"
-              >
-            `
-            : `
-              <div
-                class="produto-thumb produto-thumb--vazia"
-              >
-                🛍️
-              </div>
-            `
-        }
+    ${
+      produto?.foto_url
+        ? `
+          <img
+            src="${escaparHtml(produto.foto_url)}"
+            alt="${escaparHtml(nomeProduto)}"
+            class="produto-thumb"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+        `
+        : `
+          <div
+            class="produto-thumb produto-thumb--vazia"
+            aria-hidden="true"
+          >
+            🛍️
+          </div>
+        `
+    }
 
-        <div>
+    <div>
 
-          <h3>
-            ${escaparHtml(nomeProduto)}
-          </h3>
+      <h3>
+        ${escaparHtml(nomeProduto)}
+      </h3>
 
-          <p>
-            Cliente:
-            ${escaparHtml(nomeCliente)}
-          </p>
+      <p>
+        Cliente:
+        ${escaparHtml(nomeCliente)}
+      </p>
 
-          <p>
-            ${escaparHtml(telefoneCliente)}
-          </p>
+      <p>
+        ${escaparHtml(telefoneCliente)}
+      </p>
 
-          <p>
-            Quantidade:
-            ${quantidade}
-            ·
-            Total:
-            ${formatarMoeda(total)}
-          </p>
+      <p>
+        Quantidade:
+        ${quantidade}
+        ·
+        Total:
+        ${formatarMoeda(total)}
+      </p>
 
-          <p>
-            Pedido:
-            ${escaparHtml(dataPedido)}
-          </p>
+      <p>
+        Pedido:
+        ${escaparHtml(dataPedido)}
+      </p>
 
-          <p>
-            Status:
-            <strong>
-              ${escaparHtml(formatarStatusPedido(status))}
-            </strong>
-          </p>
+      <p>
+        Origem:
+        <strong>
+          ${escaparHtml(origemPedido)}
+        </strong>
+      </p>
 
-        </div>
+      <p>
+        Status:
+        <strong>
+          ${escaparHtml(formatarStatusPedido(status))}
+        </strong>
+      </p>
 
-      </div>
+    </div>
 
-      <div class="item-acoes">
+  </div>
 
-        ${
-          status === "pendente"
-            ? `
-              <button
-                type="button"
-                title="Confirmar pedido"
-                onclick="confirmarPedido('${escaparHtml(pedido.id)}')"
-              >
-                ✅
-              </button>
-
-              <button
-                type="button"
-                title="Cancelar pedido"
-                onclick="cancelarPedido('${escaparHtml(pedido.id)}')"
-              >
-                ❌
-              </button>
-            `
-            : ""
-        }
-
-      </div>
-    `;
+  <div class="item-acoes">
+    ${botoes}
+  </div>
+`;
 
     listaPedidosEl.appendChild(item);
   });
@@ -803,8 +946,11 @@ function renderizarPedidos() {
 function formatarStatusPedido(status) {
   const statusMap = {
     pendente: "Pendente",
+
     confirmado: "Confirmado",
+
     concluido: "Concluído",
+
     cancelado: "Cancelado",
   };
 
@@ -859,16 +1005,22 @@ async function confirmarPedido(id) {
   }
 
   try {
+    const agora = new Date().toISOString();
+
     const { data, error } = await supabaseClient
       .from("pedidos")
       .update({
         status: "confirmado",
-        atualizado_at: new Date().toISOString(),
+
+        confirmado_at: agora,
+
+        atualizado_at: agora,
       })
       .eq("id", id)
       .eq("barbearia_id", lojaId)
       .eq("status", "pendente")
-      .select("id, status")
+      .eq("arquivado", false)
+      .select("id, status, confirmado_at")
       .maybeSingle();
 
     if (error) {
@@ -898,12 +1050,108 @@ async function confirmarPedido(id) {
     if (typeof carregarDashboard === "function") {
       await carregarDashboard();
     }
+
+    if (typeof carregarFinanceiro === "function") {
+      await carregarFinanceiro();
+    }
   } catch (erro) {
     console.error("Erro ao confirmar pedido:", erro);
 
     mostrarMensagem(
       "mensagem-pedidos",
       "Não foi possível confirmar o pedido.",
+      "erro",
+    );
+  }
+}
+
+// CONCLUIR PEDIDO
+
+async function concluirPedido(id) {
+  if (!id || !lojaId) {
+    return;
+  }
+
+  const pedido = pedidosCache.find((item) => String(item.id) === String(id));
+
+  if (!pedido) {
+    mostrarMensagem("mensagem-pedidos", "Pedido não encontrado.", "erro");
+
+    return;
+  }
+
+  if (pedido.status !== "confirmado") {
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Somente pedidos confirmados podem ser concluídos.",
+      "erro",
+    );
+
+    return;
+  }
+
+  const confirmou = confirm("Marcar este pedido como concluído?");
+
+  if (!confirmou) {
+    return;
+  }
+
+  try {
+    const agora = new Date().toISOString();
+
+    const { data, error } = await supabaseClient
+      .from("pedidos")
+      .update({
+        status: "concluido",
+
+        concluido_at: agora,
+
+        atualizado_at: agora,
+      })
+      .eq("id", id)
+      .eq("barbearia_id", lojaId)
+      .eq("status", "confirmado")
+      .eq("arquivado", false)
+      .select("id, status")
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      mostrarMensagem(
+        "mensagem-pedidos",
+        "Este pedido já foi alterado.",
+        "erro",
+      );
+
+      await carregarPedidos();
+
+      return;
+    }
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Pedido concluído com sucesso!",
+      "sucesso",
+    );
+
+    await carregarPedidos();
+
+    if (typeof carregarDashboard === "function") {
+      await carregarDashboard();
+    }
+
+    if (typeof carregarFinanceiro === "function") {
+      await carregarFinanceiro();
+    }
+  } catch (erro) {
+    console.error("Erro ao concluir pedido:", erro);
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Não foi possível concluir o pedido.",
       "erro",
     );
   }
@@ -974,6 +1222,99 @@ async function cancelarPedido(id) {
     mostrarMensagem(
       "mensagem-pedidos",
       "Não foi possível cancelar o pedido.",
+      "erro",
+    );
+  }
+}
+
+// ARQUIVAR PEDIDO
+
+async function arquivarPedido(id) {
+  if (!id || !lojaId) {
+    return;
+  }
+
+  const pedido = pedidosCache.find((item) => String(item.id) === String(id));
+
+  if (!pedido) {
+    mostrarMensagem("mensagem-pedidos", "Pedido não encontrado.", "erro");
+
+    return;
+  }
+
+  const podeArquivar =
+    pedido.status === "concluido" || pedido.status === "cancelado";
+
+  if (!podeArquivar) {
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Somente pedidos concluídos ou cancelados podem ser arquivados.",
+      "erro",
+    );
+
+    return;
+  }
+
+  const confirmou = confirm(
+    "Arquivar este pedido?\n\nEle será removido da lista, mas continuará salvo no histórico.",
+  );
+
+  if (!confirmou) {
+    return;
+  }
+
+  try {
+    const agora = new Date().toISOString();
+
+    const { data, error } = await supabaseClient
+      .from("pedidos")
+      .update({
+        arquivado: true,
+
+        arquivado_at: agora,
+
+        atualizado_at: agora,
+      })
+      .eq("id", id)
+      .eq("barbearia_id", lojaId)
+      .eq("arquivado", false)
+      .in("status", ["concluido", "cancelado"])
+      .select("id, status, arquivado")
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      mostrarMensagem(
+        "mensagem-pedidos",
+        "Este pedido já foi alterado ou arquivado.",
+        "erro",
+      );
+
+      await carregarPedidos();
+
+      return;
+    }
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Pedido arquivado com sucesso!",
+      "sucesso",
+    );
+
+    await carregarPedidos();
+
+    if (typeof carregarDashboard === "function") {
+      await carregarDashboard();
+    }
+  } catch (erro) {
+    console.error("Erro ao arquivar pedido:", erro);
+
+    mostrarMensagem(
+      "mensagem-pedidos",
+      "Não foi possível arquivar o pedido.",
       "erro",
     );
   }

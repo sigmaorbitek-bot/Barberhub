@@ -860,13 +860,15 @@ async function carregarProfissionais(barbeariaId) {
       .from("profissionais")
       .select(
         `
-          id,
-          nome,
-          telefone,
-          foto_url
-        `,
+    id,
+    nome,
+    telefone,
+    foto_url,
+    ativo
+  `,
       )
       .eq("barbearia_id", barbeariaId)
+      .eq("ativo", true)
       .order("nome", {
         ascending: true,
       });
@@ -1504,6 +1506,7 @@ async function confirmarAgendamento() {
       profissional_id: profissionalId,
       data_hora: dataHora.toISOString(),
       status: "pendente",
+      arquivado: false,
       cliente_nome: cliente.nome || perfilAtual?.nome || "Cliente",
       cliente_telefone: cliente.telefone || perfilAtual?.telefone || null,
     };
