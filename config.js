@@ -8,3 +8,8 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("Supabase conectado!");
+
+const VAPID_PUBLIC_KEY =
+  "BCH-C2t7mdP90IqFcFU13aJby8glIEL6W_yqz2PzxOasAB_sYICxwRXTr4jqfTyuj1TaUBhDpvCzT_jzUxgD3zA";
+
+  console.log("VAPID conectado!");

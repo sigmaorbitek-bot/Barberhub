@@ -1611,33 +1611,185 @@ button:disabled {
    20. CONFIGURAÇÕES
    ================================================================== */
 
+/* --- 20.1 Cards --- */
+
 .configuracao-card {
-  padding: 24px;
+  width: 100%;
   margin-bottom: 18px;
+  padding: 24px;
 
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
-.configuracao-card h2 {
+.configuracao-card:hover {
+  border-color: var(--border-light);
+}
+
+/* --- 20.2 Títulos e descrições --- */
+
+.configuracao-card h2,
+.configuracao-card h3 {
   margin-bottom: 6px;
+  color: var(--white);
   font-size: 1rem;
+  font-weight: 700;
 }
 
 .configuracao-card > p {
   margin-bottom: 20px;
   color: var(--text-secondary);
   font-size: 0.82rem;
+  line-height: 1.6;
 }
+
+/* --- 20.3 Web Push / notificações --- */
+
+#btn-ativar-push {
+  width: auto;
+  min-width: 280px;
+  flex: none;
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+#status-push {
+  min-height: 0;
+  margin-top: 14px;
+  margin-bottom: 0;
+  padding: 10px 12px;
+
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+#status-push:empty {
+  display: none;
+}
+
+/* --- 20.4 Formulários das configurações --- */
+
+#form-configuracao-barbearia,
+#form-configuracao-usuario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#form-configuracao-barbearia .form-item-botoes,
+#form-configuracao-usuario .form-item-botoes {
+  margin-top: 6px;
+}
+
+/* --- 20.5 Botões específicos --- */
+
+#btn-alterar-senha,
+#btn-excluir-barbearia {
+  width: auto;
+  flex: none;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* --- 20.6 Área de perigo --- */
 
 .configuracao-card--perigo {
   border-color: rgba(193, 18, 31, 0.35);
-  background: rgba(193, 18, 31, 0.035);
+  background: linear-gradient(
+    135deg,
+    rgba(193, 18, 31, 0.04),
+    rgba(193, 18, 31, 0.015)
+  );
 }
 
-.configuracao-card--perigo h2 {
+.configuracao-card--perigo:hover {
+  border-color: rgba(193, 18, 31, 0.55);
+}
+
+.configuracao-card--perigo h2,
+.configuracao-card--perigo h3 {
   color: #ff5c67;
+}
+
+.configuracao-card--perigo > p {
+  color: #c8a3a6;
+}
+
+/* --- 20.7 Responsividade das configurações --- */
+
+@media (max-width: 700px) {
+  .configuracao-card {
+    padding: 18px;
+  }
+
+  #btn-ativar-push,
+  #btn-alterar-senha,
+  #btn-excluir-barbearia {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #status-push {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 450px) {
+  .configuracao-card {
+    padding: 16px;
+  }
+
+  .configuracao-card h2,
+  .configuracao-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .configuracao-card > p {
+    font-size: 0.78rem;
+  }
+
+  #status-push {
+    padding: 9px 10px;
+    font-size: 0.76rem;
+  }
+}
+
+/* ==================================================
+   WEB PUSH — ESTADO ATIVADO
+   ================================================== */
+
+#btn-ativar-push:disabled,
+#btn-ativar-push[data-ativo="true"] {
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  color: #4ade80;
+  box-shadow: none;
+}
+
+#status-push {
+  margin-top: 12px;
+}
+
+@media (max-width: 700px) {
+  .configuracao-card {
+    margin-bottom: 16px;
+  }
+
+  #btn-ativar-push {
+    min-height: 46px;
+  }
 }
 
 /* ==================================================================

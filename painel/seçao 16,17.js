@@ -1,18 +1,11 @@
-// ==================================================
 // 16. RELATÓRIOS
-// ==================================================
 
 const campoDataInicial = document.getElementById("relatorio-data-inicial");
-
 const campoDataFinal = document.getElementById("relatorio-data-final");
-
 const btnGerarRelatorio = document.getElementById("btn-gerar-relatorio");
-
 const btnEnviarWhatsapp = document.getElementById("btn-enviar-whatsapp");
 
-// ==================================================
 // 16.1 — SELEÇÃO DO TIPO DE RELATÓRIO
-// ==================================================
 
 document.querySelectorAll(".btn-relatorio[data-relatorio]").forEach((botao) => {
   botao.addEventListener("click", () => {
@@ -28,9 +21,7 @@ document.querySelectorAll(".btn-relatorio[data-relatorio]").forEach((botao) => {
   });
 });
 
-// ==================================================
 // 16.2 — DATAS PADRÃO
-// ==================================================
 
 function prepararDatasRelatorio() {
   if (!campoDataInicial || !campoDataFinal) {
@@ -52,9 +43,7 @@ function prepararDatasRelatorio() {
 
 prepararDatasRelatorio();
 
-// ==================================================
 // 16.3 — VALIDAR PERÍODO
-// ==================================================
 
 function obterPeriodoRelatorio() {
   const dataInicial = campoDataInicial?.value?.trim() || "";
@@ -97,9 +86,7 @@ function obterPeriodoRelatorio() {
   };
 }
 
-// ==================================================
 // 16.4 — BUSCAR DADOS DO RELATÓRIO
-// ==================================================
 
 async function buscarDadosRelatorio(periodo) {
   if (!lojaId) {
@@ -226,9 +213,7 @@ async function buscarDadosRelatorio(periodo) {
   };
 }
 
-// ==================================================
 // 16.5 — CALCULAR RESUMO
-// ==================================================
 
 function calcularResumoRelatorio({ agendamentos, gastos, pedidos }) {
   const concluidos = agendamentos.filter((item) => item.status === "concluido");
@@ -306,9 +291,7 @@ function calcularResumoRelatorio({ agendamentos, gastos, pedidos }) {
   };
 }
 
-// ==================================================
 // 16.6 — AGRUPAR SERVIÇOS / CLIENTES / PROFISSIONAIS
-// ==================================================
 
 function agruparRelatorio(agendamentos, tipo) {
   const mapa = new Map();
@@ -360,9 +343,7 @@ function agruparRelatorio(agendamentos, tipo) {
   return Array.from(mapa.values()).sort((a, b) => b.total - a.total);
 }
 
-// ==================================================
 // 16.7 — AGRUPAR PRODUTOS
-// ==================================================
 
 function agruparProdutosRelatorio(pedidos) {
   const mapa = new Map();
@@ -394,9 +375,7 @@ function agruparProdutosRelatorio(pedidos) {
   );
 }
 
-// ==================================================
 // 16.8 — TÍTULO DO RELATÓRIO
-// ==================================================
 
 function obterTituloRelatorio(tipo) {
   const titulos = {
@@ -418,9 +397,7 @@ function obterTituloRelatorio(tipo) {
   return titulos[tipo] || titulos.geral;
 }
 
-// ==================================================
 // 16.9 — LINHAS DOS AGENDAMENTOS
-// ==================================================
 
 function gerarLinhasAgendamentos(agendamentos) {
   if (!agendamentos.length) {
@@ -472,9 +449,7 @@ function gerarLinhasAgendamentos(agendamentos) {
     .join("");
 }
 
-// ==================================================
 // 16.10 — LINHAS DOS PRODUTOS
-// ==================================================
 
 function gerarLinhasProdutosVendidos(pedidos) {
   if (!pedidos.length) {
@@ -528,9 +503,7 @@ function gerarLinhasProdutosVendidos(pedidos) {
     .join("");
 }
 
-// ==================================================
 // 16.11 — TABELA DE PRODUTOS
-// ==================================================
 
 function gerarTabelaProdutos(pedidos) {
   return `
@@ -558,9 +531,7 @@ function gerarTabelaProdutos(pedidos) {
   `;
 }
 
-// ==================================================
 // 16.12 — CONTEÚDO ESPECÍFICO
-// ==================================================
 
 function gerarConteudoRelatorio(tipo, dados, resumo) {
   // ==========================================
@@ -1025,9 +996,7 @@ function gerarConteudoRelatorio(tipo, dados, resumo) {
   `;
 }
 
-// ==================================================
 // 16.13 — GERAR RELATÓRIO
-// ==================================================
 
 async function gerarRelatorio() {
   const periodo = obterPeriodoRelatorio();
@@ -1310,9 +1279,7 @@ if (btnGerarRelatorio) {
   btnGerarRelatorio.addEventListener("click", gerarRelatorio);
 }
 
-// ==================================================
 // 16.14 — GERAR TEXTO PARA WHATSAPP
-// ==================================================
 
 function gerarTextoRelatorioWhatsapp(tipo, dados, resumo, periodo) {
   const nomeBarbearia = lojaAtual?.nome || "BarberHub";
@@ -1453,9 +1420,7 @@ Relatório gerado pelo BarberHub.
   `.trim();
 }
 
-// ==================================================
 // 16.15 — ENVIAR PELO WHATSAPP
-// ==================================================
 
 async function enviarRelatorioWhatsapp() {
   const periodo = obterPeriodoRelatorio();
@@ -1525,17 +1490,33 @@ if (btnEnviarWhatsapp) {
   btnEnviarWhatsapp.addEventListener("click", enviarRelatorioWhatsapp);
 }
 
-// ==================================================
 // 17. INICIALIZAÇÃO DO PAINEL
-// ==================================================
 
 let painelInicializando = false;
-
 let painelInicializado = false;
 
-// ==================================================
-// 17.1 — PREPARAR INTERFACE
-// ==================================================
+// 17.1 — SERVICE WORKER / WEB PUSH
+
+async function registrarServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    console.warn("BarberHub: Service Worker não é suportado neste navegador.");
+
+    return null;
+  }
+
+  try {
+    const registro = await navigator.serviceWorker.register("../sw.js");
+    console.log("BarberHub: Service Worker registrado com sucesso.", registro);
+
+    return registro;
+  } catch (erro) {
+    console.error("BarberHub: erro ao registrar Service Worker:", erro);
+
+    return null;
+  }
+}
+
+// 17.2 — PREPARAR INTERFACE
 
 function prepararInterfaceInicial() {
   if (menuMobile) {
@@ -1551,15 +1532,11 @@ function prepararInterfaceInicial() {
   }
 
   prepararFormularioAgendamentoManual();
-
   prepararFormularioGasto();
-
   prepararDatasRelatorio();
 }
 
-// ==================================================
-// 17.2 — DADOS PRINCIPAIS
-// ==================================================
+// 17.3 — DADOS PRINCIPAIS
 
 async function carregarDadosPrincipaisPainel() {
   const resultados = await Promise.allSettled([
@@ -1578,9 +1555,7 @@ async function carregarDadosPrincipaisPainel() {
   });
 }
 
-// ==================================================
-// 17.3 — DADOS SECUNDÁRIOS
-// ==================================================
+// 17.4 — DADOS SECUNDÁRIOS
 
 async function carregarDadosSecundariosPainel() {
   const tarefas = [
@@ -1606,9 +1581,7 @@ async function carregarDadosSecundariosPainel() {
   });
 }
 
-// ==================================================
-// 17.4 — INICIAR PAINEL
-// ==================================================
+// 17.5 — INICIAR PAINEL
 
 async function iniciarPainel() {
   if (painelInicializando || painelInicializado) {
@@ -1624,11 +1597,19 @@ async function iniciarPainel() {
       return;
     }
 
+    // REGISTRAR SERVICE WORKER
+
+    await registrarServiceWorker();
+
+    // VALIDAR BARBEARIA
+
     if (!lojaId) {
       mostrarErroCarregamento("Nenhuma barbearia foi identificada.");
 
       return;
     }
+
+    // CARREGAR BARBEARIA
 
     const lojaCarregada = await carregarLoja();
 
@@ -1636,15 +1617,21 @@ async function iniciarPainel() {
       return;
     }
 
+    // PREPARAR INTERFACE
+
     prepararInterfaceInicial();
 
+    // CARREGAR DADOS PRINCIPAIS
+
     await carregarDadosPrincipaisPainel();
-
     preencherClientesAgendamento();
-
     preencherServicosAgendamento();
 
+    // CARREGAR DADOS SECUNDÁRIOS
+
     await carregarDadosSecundariosPainel();
+
+    // ABRIR VISÃO GERAL
 
     mudarAba("visao-geral");
 
@@ -1655,16 +1642,13 @@ async function iniciarPainel() {
     console.log("BarberHub: painel carregado com sucesso.");
   } catch (erro) {
     console.error("Erro inesperado ao iniciar painel:", erro);
-
     mostrarErroCarregamento("Ocorreu um erro inesperado ao carregar o painel.");
   } finally {
     painelInicializando = false;
   }
 }
 
-// ==================================================
-// 17.5 — RESPONSIVIDADE
-// ==================================================
+// 17.6 — RESPONSIVIDADE
 
 function ajustarPainelAoRedimensionar() {
   const larguraDesktop = window.matchMedia("(min-width: 769px)");
@@ -1677,12 +1661,9 @@ function ajustarPainelAoRedimensionar() {
 }
 
 window.addEventListener("resize", ajustarPainelAoRedimensionar);
-
 window.addEventListener("orientationchange", ajustarPainelAoRedimensionar);
 
-// ==================================================
-// 17.6 — ATUALIZAR NOTIFICAÇÕES AO VOLTAR
-// ==================================================
+// 17.7 — ATUALIZAR NOTIFICAÇÕES AO VOLTAR
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible" || !painelInicializado) {
@@ -1694,8 +1675,6 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// ==================================================
-// 17.7 — INICIALIZAÇÃO
-// ==================================================
+// 17.8 — INICIALIZAÇÃO
 
 iniciarPainel();

@@ -1,29 +1,324 @@
 // 13. NOTIFICAÇÕES
 
+// 13.1 — ELEMENTOS DA INTERFACE
+
 const totalNotificacoesEl = document.getElementById("total-notificacoes");
+
 const listaNotificacoesEl = document.getElementById("lista-notificacoes");
+
 const btnNotificacoesEl = document.getElementById("btn-notificacoes");
+
 const badgeNotificacoesEl = document.getElementById("badge-notificacoes");
+
 const btnNotificacoesMobileEl = document.getElementById(
   "btn-notificacoes-mobile",
 );
+
 const badgeNotificacoesMobileEl = document.getElementById(
   "badge-notificacoes-mobile",
 );
+
+const btnAtivarPush = document.getElementById("btn-ativar-push");
+
+const statusPushEl = document.getElementById("status-push");
+
+// 13.2 — SOM DE NOTIFICAÇÃO
+
 const somNotificacao = new Audio("../assets/notificacao.mp3");
+
 somNotificacao.volume = 0.6;
 
+// 13.3 — ESTADO DAS NOTIFICAÇÕES
+
 let notificacoesInicializadas = false;
+
 let ultimaNotificacaoConhecida = null;
 
-// TOCAR SOM
+// 13.4 — ESTADO VISUAL DO WEB PUSH
+
+function atualizarStatusPermissaoPush() {
+  if (!statusPushEl || !btnAtivarPush) {
+    return;
+  }
+
+  if (!("Notification" in window)) {
+    delete btnAtivarPush.dataset.ativo;
+
+    btnAtivarPush.disabled = true;
+
+    btnAtivarPush.textContent = "Notificações não suportadas";
+
+    statusPushEl.textContent = "Este navegador não suporta notificações.";
+
+    return;
+  }
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    delete btnAtivarPush.dataset.ativo;
+
+    btnAtivarPush.disabled = true;
+
+    btnAtivarPush.textContent = "Notificações não suportadas";
+
+    statusPushEl.textContent = "Este navegador não suporta Web Push.";
+
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    btnAtivarPush.dataset.ativo = "true";
+
+    btnAtivarPush.disabled = false;
+
+    btnAtivarPush.textContent = "✅ Notificações ativadas";
+
+    statusPushEl.textContent = "✅ Notificações permitidas neste dispositivo.";
+
+    return;
+  }
+
+  if (Notification.permission === "denied") {
+    delete btnAtivarPush.dataset.ativo;
+
+    btnAtivarPush.disabled = false;
+
+    btnAtivarPush.textContent = "🔒 Notificações bloqueadas";
+
+    statusPushEl.textContent =
+      "❌ As notificações estão bloqueadas no navegador.";
+
+    return;
+  }
+
+  delete btnAtivarPush.dataset.ativo;
+
+  btnAtivarPush.disabled = false;
+
+  btnAtivarPush.textContent = "🔔 Ativar notificações neste dispositivo";
+
+  statusPushEl.textContent = "As notificações ainda não foram ativadas.";
+}
+
+// 13.5 — CONVERTER CHAVE VAPID
+
+function converterBase64ParaUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
+
+// 13.6 — SALVAR PUSH SUBSCRIPTION NO SUPABASE
+
+async function salvarPushSubscription(subscription) {
+  if (!subscription) {
+    return false;
+  }
+
+  const {
+    data: { user },
+    error: erroUsuario,
+  } = await supabaseClient.auth.getUser();
+
+  if (erroUsuario) {
+    throw erroUsuario;
+  }
+
+  if (!user?.id) {
+    throw new Error("Usuário autenticado não encontrado.");
+  }
+
+  const subscriptionJson = subscription.toJSON();
+
+  const endpoint = subscription.endpoint;
+
+  const p256dh = subscriptionJson.keys?.p256dh;
+
+  const authKey = subscriptionJson.keys?.auth;
+
+  if (!endpoint || !p256dh || !authKey) {
+    throw new Error("Dados da inscrição Web Push incompletos.");
+  }
+
+  const { error } = await supabaseClient.from("push_subscriptions").upsert(
+    {
+      usuario_id: user.id,
+      endpoint,
+      p256dh,
+      auth_key: authKey,
+      user_agent: navigator.userAgent,
+      ativo: true,
+    },
+    {
+      onConflict: "endpoint",
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  console.log("BarberHub: dispositivo registrado para Web Push.");
+
+  return true;
+}
+
+// 13.7 — CRIAR / RECUPERAR PUSH SUBSCRIPTION
+
+async function criarPushSubscription() {
+  if (!("serviceWorker" in navigator)) {
+    throw new Error("Service Worker não suportado.");
+  }
+
+  if (!("PushManager" in window)) {
+    throw new Error("Push Manager não suportado.");
+  }
+
+  if (Notification.permission !== "granted") {
+    throw new Error("Permissão de notificações não concedida.");
+  }
+
+  if (typeof VAPID_PUBLIC_KEY === "undefined" || !VAPID_PUBLIC_KEY) {
+    throw new Error("VAPID_PUBLIC_KEY não foi configurada.");
+  }
+
+  const registro = await navigator.serviceWorker.ready;
+
+  let subscription = await registro.pushManager.getSubscription();
+
+  if (!subscription) {
+    subscription = await registro.pushManager.subscribe({
+      userVisibleOnly: true,
+
+      applicationServerKey: converterBase64ParaUint8Array(VAPID_PUBLIC_KEY),
+    });
+  }
+
+  await salvarPushSubscription(subscription);
+
+  return subscription;
+}
+
+// 13.8 — SOLICITAR / ATIVAR WEB PUSH
+
+async function solicitarPermissaoNotificacoes() {
+  if (!("Notification" in window)) {
+    atualizarStatusPermissaoPush();
+
+    return false;
+  }
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    atualizarStatusPermissaoPush();
+
+    return false;
+  }
+
+  if (Notification.permission === "denied") {
+    atualizarStatusPermissaoPush();
+
+    return false;
+  }
+
+  try {
+    if (btnAtivarPush) {
+      btnAtivarPush.disabled = true;
+
+      btnAtivarPush.textContent = "Ativando notificações...";
+    }
+
+    // Se ainda não pediu permissão,
+    // pede agora.
+    if (Notification.permission === "default") {
+      const permissao = await Notification.requestPermission();
+
+      if (permissao !== "granted") {
+        atualizarStatusPermissaoPush();
+
+        return false;
+      }
+    }
+
+    // Aqui já temos permissão.
+    // Agora cria a inscrição real
+    // e salva no Supabase.
+    await criarPushSubscription();
+
+    atualizarStatusPermissaoPush();
+
+    if (statusPushEl) {
+      statusPushEl.textContent =
+        "✅ Este dispositivo está registrado para receber notificações.";
+    }
+
+    return true;
+  } catch (erro) {
+    console.error("Erro ao ativar Web Push:", erro);
+
+    delete btnAtivarPush?.dataset.ativo;
+
+    if (statusPushEl) {
+      statusPushEl.textContent =
+        "⚠️ Não foi possível registrar este dispositivo para notificações.";
+    }
+
+    return false;
+  } finally {
+    if (btnAtivarPush) {
+      btnAtivarPush.disabled = false;
+    }
+  }
+}
+
+// 13.9 — VERIFICAR INSCRIÇÃO AO ABRIR O PAINEL
+
+async function verificarPushSubscriptionAtual() {
+  atualizarStatusPermissaoPush();
+
+  if (
+    !("Notification" in window) ||
+    !("serviceWorker" in navigator) ||
+    !("PushManager" in window)
+  ) {
+    return false;
+  }
+
+  if (Notification.permission !== "granted") {
+    return false;
+  }
+
+  try {
+    await criarPushSubscription();
+
+    if (statusPushEl) {
+      statusPushEl.textContent =
+        "✅ Este dispositivo está registrado para receber notificações.";
+    }
+
+    return true;
+  } catch (erro) {
+    console.error("Erro ao verificar inscrição Web Push:", erro);
+
+    if (statusPushEl) {
+      statusPushEl.textContent =
+        "⚠️ Permissão concedida, mas o dispositivo ainda não foi registrado.";
+    }
+
+    return false;
+  }
+}
+
+// 13.10 — TOCAR SOM DE NOTIFICAÇÃO
 
 function tocarSomNotificacao() {
   try {
     somNotificacao.currentTime = 0;
 
     somNotificacao.play().catch(() => {
-      // Navegadores podem bloquear áudio
+      // Alguns navegadores podem bloquear áudio
       // até existir interação do usuário.
     });
   } catch (erro) {
@@ -31,7 +326,7 @@ function tocarSomNotificacao() {
   }
 }
 
-// CARREGAR NOTIFICAÇÕES
+// 13.11 — CARREGAR NOTIFICAÇÕES
 
 async function carregarNotificacoes() {
   if (!lojaId) {
@@ -43,15 +338,15 @@ async function carregarNotificacoes() {
       .from("notificacoes")
       .select(
         `
-          id,
-          barbearia_id,
-          tipo,
-          titulo,
-          mensagem,
-          referencia_id,
-          lida,
-          created_at
-        `,
+            id,
+            barbearia_id,
+            tipo,
+            titulo,
+            mensagem,
+            referencia_id,
+            lida,
+            created_at
+          `,
       )
       .eq("barbearia_id", lojaId)
       .order("created_at", {
@@ -64,6 +359,7 @@ async function carregarNotificacoes() {
     }
 
     const novasNotificacoes = data || [];
+
     const notificacaoMaisRecente = novasNotificacoes[0] || null;
 
     if (
@@ -75,7 +371,9 @@ async function carregarNotificacoes() {
     }
 
     notificacoesCache = novasNotificacoes;
+
     ultimaNotificacaoConhecida = notificacaoMaisRecente?.id || null;
+
     notificacoesInicializadas = true;
 
     renderizarNotificacoes(notificacoesCache);
@@ -85,6 +383,7 @@ async function carregarNotificacoes() {
     console.error("Erro ao carregar notificações:", erro);
 
     notificacoesCache = [];
+
     atualizarContadorNotificacoes();
 
     if (listaNotificacoesEl) {
@@ -99,7 +398,7 @@ async function carregarNotificacoes() {
   }
 }
 
-// CONTADOR
+// 13.12 — ATUALIZAR CONTADOR
 
 function atualizarContadorNotificacoes() {
   const lista = Array.isArray(notificacoesCache) ? notificacoesCache : [];
@@ -128,7 +427,7 @@ function atualizarContadorNotificacoes() {
   }
 }
 
-// RENDERIZAR NOTIFICAÇÕES
+// 13.13 — RENDERIZAR NOTIFICAÇÕES
 
 function renderizarNotificacoes(notificacoes) {
   const lista = Array.isArray(notificacoes) ? notificacoes : [];
@@ -155,8 +454,11 @@ function renderizarNotificacoes(notificacoes) {
 
   lista.forEach((notificacao) => {
     const item = document.createElement("div");
+
     const titulo = notificacao.titulo || "Notificação";
+
     const mensagem = notificacao.mensagem || "";
+
     const dataObj = notificacao.created_at
       ? new Date(notificacao.created_at)
       : null;
@@ -170,8 +472,11 @@ function renderizarNotificacoes(notificacoes) {
         : "";
 
     const classeEstado = notificacao.lida ? "lida" : "nao-lida";
+
     item.classList.add("item-lista", "notificacao-item", classeEstado);
+
     item.dataset.notificacaoId = notificacao.id;
+
     item.innerHTML = `
         <div class="item-info">
 
@@ -229,7 +534,7 @@ function renderizarNotificacoes(notificacoes) {
   });
 }
 
-// MARCAR UMA COMO LIDA
+// 13.14 — MARCAR UMA COMO LIDA
 
 async function marcarNotificacaoComoLida(id) {
   if (!id || !lojaId) {
@@ -276,7 +581,7 @@ async function marcarNotificacaoComoLida(id) {
   }
 }
 
-// MARCAR TODAS COMO LIDAS
+// 13.15 — MARCAR TODAS COMO LIDAS
 
 async function marcarTodasNotificacoesComoLidas() {
   if (!lojaId) {
@@ -318,10 +623,11 @@ async function marcarTodasNotificacoesComoLidas() {
   }
 }
 
-// ABRIR ÁREA DE NOTIFICAÇÕES
+// 13.16 — ABRIR ÁREA DE NOTIFICAÇÕES
 
 async function abrirNotificacoes() {
   await mudarAba("visao-geral");
+
   await carregarNotificacoes();
 
   requestAnimationFrame(() => {
@@ -334,6 +640,8 @@ async function abrirNotificacoes() {
   });
 }
 
+// 13.17 — EVENTOS
+
 if (btnNotificacoesEl) {
   btnNotificacoesEl.addEventListener("click", abrirNotificacoes);
 }
@@ -341,6 +649,15 @@ if (btnNotificacoesEl) {
 if (btnNotificacoesMobileEl) {
   btnNotificacoesMobileEl.addEventListener("click", abrirNotificacoes);
 }
+
+if (btnAtivarPush) {
+  btnAtivarPush.addEventListener("click", solicitarPermissaoNotificacoes);
+}
+
+// 13.18 — INICIALIZAÇÃO DO WEB PUSH
+
+atualizarStatusPermissaoPush();
+verificarPushSubscriptionAtual();
 
 // 14. FINANCEIRO
 
