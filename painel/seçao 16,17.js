@@ -1503,7 +1503,10 @@ async function registrarServiceWorker() {
   }
 
   try {
-    const registro = await navigator.serviceWorker.register("../sw.js");
+    const registro = await navigator.serviceWorker.register("../sw.js", {
+      scope: "/",
+    });
+
     console.log("BarberHub: Service Worker registrado com sucesso.", registro);
 
     return registro;

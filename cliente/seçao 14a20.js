@@ -42,7 +42,6 @@ async function carregarFavoritos() {
       .filter(Boolean);
 
     atualizarTotalFavoritos();
-
     renderizarBarbearias(barbearias);
 
     return favoritosCliente;
@@ -50,9 +49,7 @@ async function carregarFavoritos() {
     mostrarErroConsole("Erro ao carregar favoritos", erro);
 
     favoritosCliente = [];
-
     atualizarTotalFavoritos();
-
     renderizarBarbearias(barbearias);
 
     return [];
@@ -395,9 +392,7 @@ function renderizarBarbearias(listaBarbearias) {
 
 function renderizarBarbeariasComBusca() {
   const campo = document.getElementById("busca-barbearia");
-
   const termo = campo?.value || "";
-
   const filtradas = filtrarBarbearias(barbearias, termo);
 
   renderizarBarbearias(filtradas);
@@ -428,9 +423,7 @@ async function selecionarBarbeariaParaAgendamento(barbeariaId) {
 
   await Promise.all([
     carregarServicos(barbeariaId),
-
     carregarProfissionais(barbeariaId),
-
     carregarHorariosFuncionamento(barbeariaId),
   ]);
 
@@ -521,13 +514,9 @@ async function salvarPerfil() {
   }
 
   const campoNome = document.getElementById("perfil-nome");
-
   const campoTelefone = document.getElementById("perfil-telefone");
-
   const botao = document.getElementById("btn-salvar-perfil");
-
   const nome = campoNome?.value?.trim() || "";
-
   const telefone = normalizarTelefone(campoTelefone?.value);
 
   if (!nome) {
@@ -758,7 +747,8 @@ const DADOS_ABAS = {
 
   notificacoes: {
     titulo: "Notificações",
-    descricao: "Acompanhe confirmações e atualizações dos seus agendamentos.",
+    descricao:
+      "Acompanhe confirmações e atualizações dos seus agendamentos e pedidos.",
   },
 
   produtos: {
@@ -798,7 +788,6 @@ function atualizarMenuAtivo(aba) {
     const ativo = item.dataset.aba === aba;
 
     item.classList.toggle("ativo", ativo);
-
     item.classList.toggle("mobile-bottom-item--ativo", ativo);
   });
 }
@@ -807,9 +796,7 @@ function atualizarMenuAtivo(aba) {
 
 function atualizarCabecalhoAba(aba) {
   const titulo = document.getElementById("titulo-painel");
-
   const descricao = document.getElementById("descricao-painel");
-
   const dados = DADOS_ABAS[aba];
 
   if (!dados) {
@@ -898,9 +885,7 @@ async function mudarAba(aba) {
   conteudoAtivo.classList.remove("oculto");
 
   atualizarMenuAtivo(aba);
-
   atualizarCabecalhoAba(aba);
-
   fecharMenuMobile();
 
   window.scrollTo({
@@ -1015,9 +1000,7 @@ function configurarEventosNavegacao() {
 
 function configurarEventosMenuMobile() {
   const btnMenuMobile = document.getElementById("btn-menu-mobile");
-
   const btnMenuBottom = document.getElementById("btn-menu-bottom");
-
   const btnFecharMenu = document.getElementById("btn-fechar-menu");
 
   if (btnMenuMobile && btnMenuMobile.dataset.eventoConfigurado !== "true") {
@@ -1052,9 +1035,7 @@ function configurarEventosMenuMobile() {
 
     document.addEventListener("click", (evento) => {
       const menu = document.getElementById("menu-mobile");
-
       const btnTopo = document.getElementById("btn-menu-mobile");
-
       const btnBottom = document.getElementById("btn-menu-bottom");
 
       if (!menu || !menu.classList.contains("aberto")) {
@@ -1134,9 +1115,7 @@ function configurarEventoBarbeariaAgendamento() {
     try {
       await Promise.all([
         carregarServicos(barbeariaId),
-
         carregarProfissionais(barbeariaId),
-
         carregarHorariosFuncionamento(barbeariaId),
       ]);
     } catch (erro) {
@@ -1256,7 +1235,6 @@ function configurarFiltrosAgendamentos() {
 
 function configurarEventosPerfil() {
   const formulario = document.getElementById("form-perfil");
-
   const botaoSenha = document.getElementById("btn-alterar-senha");
 
   if (formulario && formulario.dataset.eventoConfigurado !== "true") {
@@ -1293,6 +1271,241 @@ function configurarEventos() {
   configurarEventosBarbearias();
   configurarEventosPerfil();
 }
+// 18.10 WEB PUSH DO CLIENTE
+
+const btnAtivarPushCliente = document.getElementById("btn-ativar-push-cliente");
+
+const statusPushClienteEl = document.getElementById("status-push-cliente");
+
+function atualizarStatusPushCliente() {
+  if (!btnAtivarPushCliente || !statusPushClienteEl) {
+    return;
+  }
+
+  if (!("Notification" in window)) {
+    btnAtivarPushCliente.disabled = true;
+
+    btnAtivarPushCliente.textContent = "Notificações não suportadas";
+
+    statusPushClienteEl.textContent =
+      "Este navegador não suporta notificações.";
+
+    return;
+  }
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    btnAtivarPushCliente.disabled = true;
+
+    btnAtivarPushCliente.textContent = "Notificações não suportadas";
+
+    statusPushClienteEl.textContent = "Este navegador não suporta Web Push.";
+
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    btnAtivarPushCliente.disabled = false;
+
+    btnAtivarPushCliente.textContent = "✅ Notificações ativadas";
+
+    statusPushClienteEl.textContent =
+      "✅ Notificações permitidas neste dispositivo.";
+
+    return;
+  }
+
+  if (Notification.permission === "denied") {
+    btnAtivarPushCliente.disabled = false;
+
+    btnAtivarPushCliente.textContent = "🔒 Notificações bloqueadas";
+
+    statusPushClienteEl.textContent =
+      "❌ As notificações estão bloqueadas no navegador.";
+
+    return;
+  }
+
+  btnAtivarPushCliente.disabled = false;
+
+  btnAtivarPushCliente.textContent = "🔔 Ativar notificações neste dispositivo";
+
+  statusPushClienteEl.textContent = "As notificações ainda não foram ativadas.";
+}
+
+function converterVapidCliente(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
+
+async function salvarPushCliente(subscription) {
+  if (!subscription || !usuarioAtual?.id) {
+    return false;
+  }
+
+  const subscriptionJson = subscription.toJSON();
+
+  const endpoint = subscription.endpoint;
+
+  const p256dh = subscriptionJson.keys?.p256dh;
+
+  const authKey = subscriptionJson.keys?.auth;
+
+  if (!endpoint || !p256dh || !authKey) {
+    throw new Error("Dados da inscrição Web Push incompletos.");
+  }
+
+  const { error } =
+  await supabaseClient.rpc(
+    "registrar_push_subscription",
+    {
+      p_endpoint: endpoint,
+      p_p256dh: p256dh,
+      p_auth_key: authKey,
+      p_user_agent:
+        navigator.userAgent,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return true;
+}
+
+async function criarPushCliente() {
+  if (!("serviceWorker" in navigator)) {
+    throw new Error("Service Worker não suportado.");
+  }
+
+  if (!("PushManager" in window)) {
+    throw new Error("Push Manager não suportado.");
+  }
+
+  if (Notification.permission !== "granted") {
+    throw new Error("Permissão de notificações não concedida.");
+  }
+
+  if (typeof VAPID_PUBLIC_KEY === "undefined" || !VAPID_PUBLIC_KEY) {
+    throw new Error("VAPID_PUBLIC_KEY não configurada.");
+  }
+
+  const registro = await navigator.serviceWorker.ready;
+
+  let subscription = await registro.pushManager.getSubscription();
+
+  if (!subscription) {
+    subscription = await registro.pushManager.subscribe({
+      userVisibleOnly: true,
+
+      applicationServerKey: converterVapidCliente(VAPID_PUBLIC_KEY),
+    });
+  }
+
+  await salvarPushCliente(subscription);
+
+  return subscription;
+}
+
+async function ativarPushCliente() {
+  if (!("Notification" in window)) {
+    atualizarStatusPushCliente();
+
+    return false;
+  }
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    atualizarStatusPushCliente();
+
+    return false;
+  }
+
+  if (Notification.permission === "denied") {
+    atualizarStatusPushCliente();
+
+    return false;
+  }
+
+  try {
+    if (btnAtivarPushCliente) {
+      btnAtivarPushCliente.disabled = true;
+
+      btnAtivarPushCliente.textContent = "Ativando notificações...";
+    }
+
+    if (Notification.permission === "default") {
+      const permissao = await Notification.requestPermission();
+
+      if (permissao !== "granted") {
+        atualizarStatusPushCliente();
+
+        return false;
+      }
+    }
+
+    await criarPushCliente();
+
+    atualizarStatusPushCliente();
+
+    if (statusPushClienteEl) {
+      statusPushClienteEl.textContent =
+        "✅ Este dispositivo está registrado para receber notificações.";
+    }
+
+    return true;
+  } catch (erro) {
+    mostrarErroConsole("Erro ao ativar Web Push do cliente", erro);
+
+    if (statusPushClienteEl) {
+      statusPushClienteEl.textContent =
+        "⚠️ Não foi possível registrar este dispositivo para notificações.";
+    }
+
+    return false;
+  } finally {
+    if (btnAtivarPushCliente) {
+      btnAtivarPushCliente.disabled = false;
+    }
+  }
+}
+
+async function verificarPushClienteAtual() {
+  atualizarStatusPushCliente();
+
+  if (
+    !usuarioAtual?.id ||
+    !("serviceWorker" in navigator) ||
+    !("PushManager" in window) ||
+    Notification.permission !== "granted"
+  ) {
+    return;
+  }
+
+  try {
+    const registro = await navigator.serviceWorker.ready;
+
+    const subscription = await registro.pushManager.getSubscription();
+
+    if (!subscription) {
+      return;
+    }
+
+    await salvarPushCliente(subscription);
+
+    atualizarStatusPushCliente();
+  } catch (erro) {
+    mostrarErroConsole("Erro ao verificar Web Push do cliente", erro);
+  }
+}
+
+if (btnAtivarPushCliente) {
+  btnAtivarPushCliente.addEventListener("click", ativarPushCliente);
+}
 
 // 19. SAIR
 
@@ -1311,6 +1524,32 @@ async function sair() {
     mostrarErroConsole("Erro ao sair", erro);
   } finally {
     window.location.href = CONFIG.LOGIN_URL;
+  }
+}
+// 19.2 REGISTRAR SERVICE WORKER
+
+async function registrarServiceWorkerCliente() {
+  if (!("serviceWorker" in navigator)) {
+    console.warn("[BarberHub] Service Worker não suportado neste navegador.");
+
+    return null;
+  }
+
+  try {
+    const registro = await navigator.serviceWorker.register("../sw.js", {
+      scope: "/",
+    });
+
+    console.log(
+      "[BarberHub] Service Worker do cliente registrado:",
+      registro.scope,
+    );
+
+    return registro;
+  } catch (erro) {
+    console.error("[BarberHub] Erro ao registrar Service Worker:", erro);
+
+    return null;
   }
 }
 
@@ -1347,18 +1586,13 @@ async function iniciarPagina() {
     }
 
     await carregarCliente();
+    await registrarServiceWorkerCliente();
+    await verificarPushClienteAtual();
 
     prepararCampoDataAgendamento();
 
-    const [resultadoBarbearias, resultadoFavoritos] = await Promise.all([
-      carregarBarbearias(),
-
-      carregarFavoritos(),
-    ]);
-
-    void resultadoBarbearias;
-    void resultadoFavoritos;
-
+    await carregarBarbearias();
+    await carregarFavoritos();
     configurarEventos();
 
     filtroAgendamentosAtual = "proximos";

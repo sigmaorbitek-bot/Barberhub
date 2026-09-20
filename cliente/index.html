@@ -7,6 +7,18 @@
     <meta name="description" content="Painel do cliente - BarberHub" />
 
     <meta name="theme-color" content="#D4AF37" />
+    <link rel="manifest" href="../manifest.json" />
+
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="BarberHub" />
+
+    <link rel="apple-touch-icon" href="../assets/icon-180.png" />
 
     <title>Painel do Cliente | BarberHub</title>
 
@@ -414,7 +426,7 @@
                   <small> Conte sua experiência </small>
                 </button>
 
-                <button type="button" class="acao-rapida" data-aba="perfil">
+                <button type="button" class="acao-rapida" data-aba="favoritos">
                   <span class="acao-rapida-icone"> ❤️ </span>
 
                   <strong> Minhas barbearias </strong>
@@ -422,7 +434,7 @@
                   <small> Acesse seus favoritos </small>
                 </button>
 
-                <button type="button" class="acao-rapida">
+                <button type="button" class="acao-rapida" data-aba="perfil">
                   <span class="acao-rapida-icone"> 👤 </span>
 
                   <strong> Meu perfil </strong>
@@ -786,6 +798,35 @@
             </div>
 
             <p id="mensagem-perfil" class="mensagem" aria-live="polite"></p>
+
+            <div class="configuracao-card">
+              <div class="configuracao-cabecalho">
+                <div class="configuracao-icone">🔔</div>
+
+                <div>
+                  <h2>Notificações</h2>
+
+                  <p>
+                    Receba confirmações de agendamentos, lembretes e
+                    atualizações de pedidos.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn-principal"
+                id="btn-ativar-push-cliente"
+              >
+                🔔 Ativar notificações neste dispositivo
+              </button>
+
+              <p
+                id="status-push-cliente"
+                class="mensagem"
+                aria-live="polite"
+              ></p>
+            </div>
           </section>
         </div>
       </section>

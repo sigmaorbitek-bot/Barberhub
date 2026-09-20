@@ -209,14 +209,16 @@ Pedido iniciado pelo BarberHub.`;
       "sucesso",
     );
 
-    const abriu = abrirWhatsApp(barbearia.telefone, mensagem);
+    if (barbearia.telefone) {
+      const abriu = abrirWhatsApp(barbearia.telefone, mensagem);
 
-    if (!abriu) {
-      mostrarMensagem(
-        "mensagem-produto",
-        "Pedido criado, mas não foi possível abrir o WhatsApp.",
-        "info",
-      );
+      if (!abriu) {
+        mostrarMensagem(
+          "mensagem-produto",
+          "Pedido criado, mas não foi possível abrir o WhatsApp.",
+          "info",
+        );
+      }
     }
 
     await carregarProdutosCliente();

@@ -1,21 +1,18 @@
-// ==================================================
 // BARBERHUB — PÁGINA INICIAL
-// ==================================================
 
 const ROTAS_INICIAIS = {
   barbearia: "./login/index.html",
   cliente: "./login/cliente.html",
 };
 
-// ==================================================
-// ENTRAR
-// ==================================================
-
 function entrar(tipo) {
   const destino = ROTAS_INICIAIS[tipo];
 
   if (!destino) {
-    console.error("[BarberHub] Tipo de acesso inválido:", tipo);
+    console.error(
+      "[BarberHub] Tipo de acesso inválido:",
+      tipo,
+    );
 
     return;
   }
@@ -23,24 +20,65 @@ function entrar(tipo) {
   window.location.href = destino;
 }
 
-// ==================================================
-// INICIALIZAÇÃO
-// ==================================================
+async function registrarServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    console.warn(
+      "[BarberHub] Service Worker não suportado neste navegador.",
+    );
 
-function iniciarPaginaInicial() {
-  const botoes = document.querySelectorAll("[data-destino]");
+    return;
+  }
 
-  botoes.forEach((botao) => {
-    botao.addEventListener("click", () => {
-      const tipo = botao.dataset.destino;
+  try {
+    const registro =
+      await navigator.serviceWorker.register(
+        "/sw.js",
+        {
+          scope: "/",
+        },
+      );
 
-      entrar(tipo);
-    });
-  });
+    console.log(
+      "[BarberHub] Service Worker registrado:",
+      registro.scope,
+    );
+  } catch (erro) {
+    console.error(
+      "[BarberHub] Erro ao registrar Service Worker:",
+      erro,
+    );
+  }
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", iniciarPaginaInicial);
+function iniciarPaginaInicial() {
+  const botoes =
+    document.querySelectorAll(
+      "[data-destino]",
+    );
+
+  botoes.forEach((botao) => {
+    botao.addEventListener(
+      "click",
+      () => {
+        const tipo =
+          botao.dataset.destino;
+
+        entrar(tipo);
+      },
+    );
+  });
+
+  registrarServiceWorker();
+}
+
+if (
+  document.readyState ===
+  "loading"
+) {
+  document.addEventListener(
+    "DOMContentLoaded",
+    iniciarPaginaInicial,
+  );
 } else {
   iniciarPaginaInicial();
 }

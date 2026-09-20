@@ -136,19 +136,12 @@ async function salvarPushSubscription(subscription) {
     throw new Error("Dados da inscrição Web Push incompletos.");
   }
 
-  const { error } = await supabaseClient.from("push_subscriptions").upsert(
-    {
-      usuario_id: user.id,
-      endpoint,
-      p256dh,
-      auth_key: authKey,
-      user_agent: navigator.userAgent,
-      ativo: true,
-    },
-    {
-      onConflict: "endpoint",
-    },
-  );
+  const { error } = await supabaseClient.rpc("registrar_push_subscription", {
+    p_endpoint: endpoint,
+    p_p256dh: p256dh,
+    p_auth_key: authKey,
+    p_user_agent: navigator.userAgent,
+  });
 
   if (error) {
     throw error;
