@@ -3091,3 +3091,339 @@ button:disabled {
     gap: 8px;
   }
 }
+
+/* =========================================================
+   38. PAINEL EXTRA DO CLIENTE
+   ========================================================= */
+
+/* Cards do início que funcionam como atalhos */
+
+.card-dashboard[data-aba] {
+  cursor: pointer;
+}
+
+.card-dashboard[data-aba]:active {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   38.1 PEDIDOS DO CLIENTE
+   ========================================================= */
+
+#conteudo-pedidos .item-agendamento {
+  overflow: hidden;
+}
+
+#conteudo-pedidos .item-agendamento-topo h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#conteudo-pedidos .item-agendamento-detalhes strong {
+  color: var(--white);
+}
+
+/* =========================================================
+   38.2 MEUS GASTOS
+   ========================================================= */
+
+#conteudo-financeiro .cards-dashboard {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#conteudo-financeiro .item-agendamento-topo > strong {
+  color: var(--gold);
+  font-size: 1rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+#lista-gastos-cliente {
+  margin-top: 5px;
+}
+
+/* =========================================================
+   38.3 PEDIDO DO INÍCIO
+   ========================================================= */
+
+#card-pedido-ativo .item-agendamento {
+  border-left: 3px solid var(--gold);
+}
+
+#card-pedido-ativo .lista-vazia {
+  min-height: 120px;
+}
+
+/* =========================================================
+   38.4 NOTIFICAÇÕES RECENTES DO INÍCIO
+   ========================================================= */
+
+#notificacoes-recentes-inicio {
+  gap: 10px;
+}
+
+#notificacoes-recentes-inicio .item-notificacao {
+  padding: 15px;
+}
+
+#notificacoes-recentes-inicio .item-notificacao-icone {
+  width: 40px;
+  height: 40px;
+}
+
+#notificacoes-recentes-inicio .item-notificacao h3 {
+  font-size: 0.84rem;
+}
+
+#notificacoes-recentes-inicio .item-notificacao p {
+  font-size: 0.73rem;
+}
+
+/* =========================================================
+   38.5 HEADER MOBILE — AÇÕES
+   ========================================================= */
+
+.mobile-header-acoes {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-header-acao {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: var(--bg-card);
+
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+
+  color: var(--white);
+
+  font-size: 1.1rem;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.mobile-header-acao:hover {
+  background: var(--bg-card-hover);
+
+  border-color: rgba(212, 175, 55, 0.35);
+
+  transform: translateY(-1px);
+}
+
+.mobile-header-acao:active {
+  transform: scale(0.96);
+}
+
+/* =========================================================
+   38.6 BADGE DO SININHO
+   ========================================================= */
+
+.mobile-header-badge {
+  position: absolute;
+
+  top: -5px;
+  right: -5px;
+
+  min-width: 19px;
+  height: 19px;
+
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--red);
+
+  border: 2px solid var(--bg-dark);
+  border-radius: 999px;
+
+  color: var(--white);
+
+  font-size: 0.58rem;
+  font-weight: 800;
+
+  line-height: 1;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+
+  pointer-events: none;
+}
+
+.mobile-header-badge[hidden] {
+  display: none !important;
+}
+
+/* =========================================================
+   38.7 ESTADO VAZIO EXTRA
+   ========================================================= */
+
+.item-vazio {
+  width: 100%;
+
+  padding: 30px 20px;
+
+  background: var(--bg-card);
+
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius-lg);
+
+  color: var(--text-secondary);
+
+  text-align: center;
+}
+
+.item-vazio p {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   38.8 BOTÕES "VER TODOS / VER AGENDA"
+   ========================================================= */
+
+.secao-titulo .btn-secundario {
+  flex-shrink: 0;
+
+  min-height: 38px;
+
+  padding: 8px 14px;
+
+  font-size: 0.72rem;
+}
+
+/* =========================================================
+   38.9 MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .mobile-header-acoes {
+    display: flex;
+  }
+
+  .mobile-header-acao {
+    display: flex;
+  }
+
+  .mobile-header {
+    gap: 10px;
+  }
+
+  .mobile-header-brand {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mobile-brand-text {
+    min-width: 0;
+  }
+
+  .mobile-brand-text strong,
+  .mobile-brand-text span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #conteudo-financeiro .cards-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .secao-titulo {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .secao-titulo .btn-secundario {
+    min-height: 36px;
+    padding: 7px 11px;
+    font-size: 0.68rem;
+  }
+
+  #notificacoes-recentes-inicio .item-notificacao {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  #notificacoes-recentes-inicio .item-notificacao-acoes {
+    grid-column: 1 / -1;
+  }
+
+  #conteudo-pedidos .item-agendamento-topo,
+  #conteudo-financeiro .item-agendamento-topo {
+    gap: 10px;
+  }
+
+  #conteudo-financeiro .item-agendamento-topo > strong {
+    font-size: 0.9rem;
+  }
+}
+
+/* =========================================================
+   38.10 CELULAR PEQUENO
+   ========================================================= */
+
+@media (max-width: 430px) {
+  .mobile-header {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .mobile-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mobile-header-acoes {
+    gap: 6px;
+  }
+
+  .mobile-header-acao,
+  .mobile-menu-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .mobile-header-badge {
+    top: -4px;
+    right: -4px;
+
+    min-width: 18px;
+    height: 18px;
+
+    font-size: 0.55rem;
+  }
+
+  .secao-titulo {
+    flex-direction: column;
+  }
+
+  .secao-titulo .btn-secundario {
+    width: 100%;
+  }
+
+  #conteudo-pedidos .item-agendamento-topo,
+  #conteudo-financeiro .item-agendamento-topo {
+    flex-direction: column;
+  }
+
+  #conteudo-financeiro .item-agendamento-topo > strong {
+    color: var(--gold-light);
+  }
+}
